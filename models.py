@@ -1,6 +1,6 @@
 # models.py
 
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from datetime import datetime
@@ -15,6 +15,7 @@ class User(Base):
     surname = Column(String(100))
     email = Column(String(100), unique=True)
     joined = Column(DateTime)
+    is_admin = Column(Boolean, default=False)
 
     login = relationship("Login", back_populates='user')
 
