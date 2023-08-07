@@ -395,7 +395,9 @@
                         <thead>
                           <tr>
                             <th>Name</th>
+                            <th>Surname</th>
                             <th>Email</th>
+                            <th>Joined</th>
                             <th>Is Admin</th>
                             <th>Action</th> 
                         </thead>
@@ -403,7 +405,9 @@
                             {% for user in users %}
                             <tr>
                               <td>{{ user.name }}</td>
+                              <td>{{ user.surname }}</td>
                               <td>{{ user.email }}</td>
+                              <td>{{ user.joined }}</td>
                               <td>{{ 'Yes' if user.is_admin else 'No' }}</td>
                               <td>
                                 <a class="btn btn-primary" href="{{ url_for('admin_edit_user', user_id=user.id) }}">Edit</a>
