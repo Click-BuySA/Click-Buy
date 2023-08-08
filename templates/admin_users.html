@@ -373,7 +373,7 @@
         </nav>
         <!-- partial -->
 
-        <!-- Start of Property Filters -->
+        <!-- Start of Users table -->
         <div class="main-panel" >
           {% with messages = get_flashed_messages() %}
             {% if messages %}
@@ -398,6 +398,7 @@
                             <th>Surname</th>
                             <th>Email</th>
                             <th>Joined</th>
+                            <th>Has Access</th>
                             <th>Is Admin</th>
                             <th>Action</th> 
                         </thead>
@@ -408,6 +409,7 @@
                               <td>{{ user.surname }}</td>
                               <td>{{ user.email }}</td>
                               <td>{{ user.joined }}</td>
+                              <td>{{ 'Yes' if user.has_access else 'No' }}</td>
                               <td>{{ 'Yes' if user.is_admin else 'No' }}</td>
                               <td>
                                 <a class="btn btn-primary" href="{{ url_for('admin_edit_user', user_id=user.id) }}">Edit</a>

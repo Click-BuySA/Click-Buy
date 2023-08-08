@@ -75,6 +75,8 @@ def index():
     return render_template('index.html')
 
 # @app.route('/dashboard.html')
+
+
 @app.route('/dashboard')
 @require_login()
 def dashboard():
@@ -87,14 +89,14 @@ def dashboard():
         return redirect(url_for('login_page'))
 
 
-
 @app.route('/login', methods=['GET', 'POST'])
 # @app.route('/login.html', methods=['GET', 'POST'])
 def login_page():
     # Check if the user is already logged in
     if 'user_id' in session:
-        return redirect(url_for('dashboard'))  # Redirect to dashboard if logged in
-    
+        # Redirect to dashboard if logged in
+        return redirect(url_for('dashboard'))
+
     if request.method == 'POST':
         email = request.form.get('username')
         password = request.form.get('password')
@@ -105,7 +107,7 @@ def login_page():
                 email=email).options(joinedload(User.login)).first()
 
             # Verify if the user exists and if the password (hash) is correct
-            if user and check_password_hash(user.login[0].hash, password):
+            if user and check_password_hash(user.login[0].hash, password) and user.has_access:
                 # User is authenticated, store user info in Flask's session
                 session['user_id'] = user.id
                 session['is_admin'] = user.is_admin
@@ -114,7 +116,8 @@ def login_page():
                 return redirect(url_for('index'))
             else:
                 # Invalid credentials, show an error message or redirect to the login page
-                flash('Invalid email or password.', 'error')
+                flash(
+                    'Login failed. Please check your credentials or contact an administrator.', 'error')
                 return redirect(url_for('login_page'))
 
     # For GET requests, render the login page
@@ -174,6 +177,7 @@ def register_user():
 
     return jsonify({'error': 'Invalid request method'}), 400
 
+
 @app.route('/logout')
 # @app.route('/logout.html')
 def logout():
@@ -185,10 +189,10 @@ def logout():
     response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
     response.headers['Pragma'] = 'no-cache'
     response.headers['Expires'] = '0'
-    
+
     # You can also show a logout success message if you want
     flash('You have been logged out.', 'info')
-    
+
     # Return the response with cache control headers
     return response
 
@@ -208,9 +212,6 @@ def admin_users():
         return redirect(url_for('login_page'))
 
 
-
-
-
 @app.route('/admin/users/<int:user_id>/delete', methods=['GET', 'POST'])
 def admin_delete_user(user_id):
     # Check if the user is logged in and is an admin
@@ -221,13 +222,14 @@ def admin_delete_user(user_id):
     # Get the user from the database
     with Session() as db_session:
         user = db_session.query(User).get(user_id)
-        
+
         # Check if the user exists
         if not user:
             flash('User not found.', 'error')
             return redirect(url_for('admin_users'))
         if user:
-            login = db_session.query(Login).filter_by(user_email=user.email).first()
+            login = db_session.query(Login).filter_by(
+                user_email=user.email).first()
             if login:
                 db_session.delete(user)
                 db_session.delete(login)
@@ -236,7 +238,6 @@ def admin_delete_user(user_id):
 
     flash('User deleted successfully.', 'success')
     return redirect(url_for('admin_users'))
-
 
 
 @app.route('/admin/users/<int:user_id>/edit', methods=['GET', 'POST'])
@@ -249,6 +250,7 @@ def admin_edit_user(user_id):
     if request.method == 'POST':
         # Get the new admin status from the form
         is_admin_new = request.form.get('is_admin')
+        has_access = request.form.get('has_access')
 
         # Load the user from the database
         with Session() as db_session:
@@ -267,6 +269,7 @@ def admin_edit_user(user_id):
             user.email = new_email
             user.surname = new_surname
             user.is_admin = bool(is_admin_new)
+            user.has_access = bool(has_access)
             db_session.commit()
 
             # Print the user's details for debugging purposes

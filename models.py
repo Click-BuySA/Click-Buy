@@ -15,6 +15,7 @@ class User(Base):
     surname = Column(String(100))
     email = Column(String(100), unique=True)
     joined = Column(DateTime)
+    has_access = Column(Boolean, default=False)
     is_admin = Column(Boolean, default=False)
 
     login = relationship("Login", back_populates='user')
