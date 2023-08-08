@@ -20,7 +20,7 @@ Session = sessionmaker(bind=engine)
 # Function to check if the user is authenticated before each request
 def require_login():
     # Add routes that do not require authentication to the following list
-    allowed_routes = ['login', 'register', 'index']
+    allowed_routes = ['login', 'register', 'index', 'navbar']
 
     def decorator(f):
         @wraps(f)
@@ -63,6 +63,7 @@ def is_admin(user_id):
 
 
 @app.route('/')
+@app.route('/index')
 def index():
     # Check if the user is authenticated
     if 'user_id' in session:
@@ -252,6 +253,9 @@ def admin_edit_user(user_id):
         # Load the user from the database
         with Session() as db_session:
             user = db_session.query(User).get(user_id)
+            new_name = request.form.get('name')
+            new_email = request.form.get('email')
+            new_surname = request.form.get('surname')
 
             # Check if the user exists
             if not user:
@@ -259,6 +263,9 @@ def admin_edit_user(user_id):
                 return redirect(url_for('admin_users'))
 
             # Update the user's admin status
+            user.name = new_name
+            user.email = new_email
+            user.surname = new_surname
             user.is_admin = bool(is_admin_new)
             db_session.commit()
 
@@ -288,14 +295,17 @@ def admin_edit_user(user_id):
 def thank_you():
     return render_template('thank_you.html')
 
+
 @app.route('/<string:page_name>')
 def html_page(page_name):
-    return render_template(page_name + '.html')
+    user = get_current_user_info()
+    return render_template(page_name + '.html', user=user)
 
 
 @app.route('/pages/<path:page_name>')
 def load_html_page(page_name):
-    return render_template('pages/' + page_name + '.html')
+    user = get_current_user_info()
+    return render_template('pages/' + page_name + '.html', user=user)
 
 
 if __name__ == '__main__':

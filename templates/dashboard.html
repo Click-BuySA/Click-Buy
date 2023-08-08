@@ -43,7 +43,7 @@
                 </div>
                 <div class="profile-name">
                   {% if user %}
-                    <h5 class="mb-0 font-weight-normal">{{ user.name }}</h5>
+                    <h5 class="mb-0 font-weight-normal">{{ user.name }} {{ user.surname }}</h5>
                     {% if user.is_admin %}
                       <span>Administrator</span>
                     {% else %}
