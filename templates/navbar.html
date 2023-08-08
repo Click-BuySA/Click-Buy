@@ -22,6 +22,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/style1.css') }}">
     <!-- End layout styles -->
     <link rel="shortcut icon" href="{{ url_for('static', filename='assets/images/favicon.ico') }}">
+    {% block headers %}{% endblock %}
   </head>
   <body>
     
@@ -196,6 +197,7 @@
 
             <ul class="navbar-nav w-100">
             </ul>
+            {% block navbar_content %}{% endblock %}
             <ul class="navbar-nav navbar-nav-right">              
               <li class="nav-item nav-settings d-none d-lg-block">
                 <a class="nav-link" href="#">
@@ -251,16 +253,18 @@
                 <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list" aria-labelledby="notificationDropdown">
                   <h6 class="p-3 mb-0">Notifications</h6>
                   <div class="dropdown-divider"></div>
-                  <a class="dropdown-item preview-item">
+                  <a class="dropdown-item preview-item" id="newUsersBadgeContainer" href="{{ url_for('admin_users') }}">
+                    {% if user and user.is_admin and pending_users > 0 %}
                     <div class="preview-thumbnail">
                       <div class="preview-icon bg-dark rounded-circle">
-                        <i class="mdi mdi-calendar text-success"></i>
+                        <i class="mdi mdi-account-key text-danger"></i>
+                        <span class="badge badge-danger badge-counter">{{ pending_users }}</span>
                       </div>
                     </div>
                     <div class="preview-item-content">
-                      <p class="preview-subject mb-1">Event today</p>
-                      <p class="text-muted ellipsis mb-0"> Just a reminder that you have an event today </p>
+                      <p>New users need approval</p>
                     </div>
+                    {% endif %}
                   </a>
                   <div class="dropdown-divider"></div>
                   <a class="dropdown-item preview-item">
@@ -399,9 +403,26 @@
     </div>
     <!-- container-scroller -->
     <!-- plugins:js -->
+    <script>
+      function updatePendingUsersBadge() {
+          $.get('/get_pending_users_count', function(data) {
+              if (data.pending_users > 0) {
+                  $('#newUsersBadgeContainer').find('.badge').text(data.pending_users).show();
+              } else {
+                  $('#newUsersBadgeContainer').find('.badge').hide();
+              }
+          });
+      }
+
+      $(document).ready(function() {
+        updatePendingUsersBadge();
+      });
+      </script>
+
     <!-- endinject -->
     <!-- Plugin js for this page -->
     <script src="{{ url_for('static', filename='assets/vendors/js/vendor.bundle.base.js') }}"></script>
+    {% block additional_scripts %}{% endblock %}
     <!-- End plugin js for this page -->
     <!-- inject:js -->
     <script src="{{ url_for('static', filename='assets/js/off-canvas.js') }}"></script>
@@ -416,4 +437,3 @@
     <!-- End custom js for this page -->
   </body>
 </html>
-

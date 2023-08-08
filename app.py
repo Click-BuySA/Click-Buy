@@ -74,7 +74,6 @@ def index():
     # return redirect(url_for('login_page'))
     return render_template('index.html')
 
-# @app.route('/dashboard.html')
 
 
 @app.route('/dashboard')
@@ -90,7 +89,6 @@ def dashboard():
 
 
 @app.route('/login', methods=['GET', 'POST'])
-# @app.route('/login.html', methods=['GET', 'POST'])
 def login_page():
     # Check if the user is already logged in
     if 'user_id' in session:
@@ -136,7 +134,6 @@ def get_users():
 
 
 @app.route('/register', methods=['GET', 'POST'])
-# @app.route('/register.html', methods=['GET', 'POST'])
 def register_user():
     print("Received POST request to /register")
     if request.method == 'POST':
@@ -179,7 +176,6 @@ def register_user():
 
 
 @app.route('/logout')
-# @app.route('/logout.html')
 def logout():
     # Clear the user's session data to log them out
     session.clear()
@@ -197,6 +193,20 @@ def logout():
     return response
 
 
+@app.context_processor
+def pending_approval():
+    with Session() as db_session:
+        pending_users = db_session.query(User).filter_by(has_access=False).count()
+        return dict(pending_users=pending_users)
+
+
+@app.route('/get_pending_users_count')
+def get_pending_users_count():
+    with Session() as db_session:
+        pending_users = db_session.query(User).filter_by(has_access=False).count()
+        return jsonify(pending_users=pending_users)
+
+
 @app.route('/admin_users')
 def admin_users():
     # Check if the user is an admin
@@ -205,8 +215,11 @@ def admin_users():
         with Session() as db_session:
             users = db_session.query(User).all()
 
+        # Retrieve the current user's information
+        current_user = get_current_user_info()
+
         # Render the admin_users template and pass the list of users
-        return render_template('admin_users.html', users=users)
+        return render_template('admin_users.html', users=users, user=current_user)
     else:
         flash('You need to be logged in as an admin to access this page.', 'error')
         return redirect(url_for('login_page'))
