@@ -42,6 +42,16 @@ def require_login():
     return decorator
 
 
+# Get user information to display in page.
+def get_current_user_info():
+    user_id = session.get('user_id')
+    if user_id:
+        with Session() as db_session:
+            user = db_session.query(User).get(user_id)
+            if user:
+                return user
+    return None
+
 
 # Function to check if the logged-in user is an admin
 def is_admin(user_id):
@@ -68,7 +78,12 @@ def index():
 @require_login()
 def dashboard():
     # Render the dashboard template
-    return render_template('dashboard.html')
+    user = get_current_user_info()
+    if user:
+        return render_template('dashboard.html', user=user)
+    else:
+        flash('You need to login first.', 'error')
+        return redirect(url_for('login_page'))
 
 
 
@@ -205,15 +220,18 @@ def admin_delete_user(user_id):
     # Get the user from the database
     with Session() as db_session:
         user = db_session.query(User).get(user_id)
-
+        
         # Check if the user exists
         if not user:
             flash('User not found.', 'error')
             return redirect(url_for('admin_users'))
-
+        if user:
+            login = db_session.query(Login).filter_by(user_email=user.email).first()
+            if login:
+                db_session.delete(user)
+                db_session.delete(login)
+                db_session.commit()
         # Delete the user
-        db_session.delete(user)
-        db_session.commit()
 
     flash('User deleted successfully.', 'success')
     return redirect(url_for('admin_users'))

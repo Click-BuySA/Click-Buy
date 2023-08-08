@@ -42,8 +42,17 @@
                   <span class="count bg-success"></span>
                 </div>
                 <div class="profile-name">
-                  <h5 class="mb-0 font-weight-normal">Johandré de Beer</h5>
-                  <span>Administrator</span>
+                  {% if user %}
+                    <h5 class="mb-0 font-weight-normal">{{ user.name }}</h5>
+                    {% if user.is_admin %}
+                      <span>Administrator</span>
+                    {% else %}
+                      <span>User</span>
+                    {% endif %}
+                  {% else %}
+                    <h5 class="mb-0 font-weight-normal">Guest</h5>
+                    <span>Visitor</span>
+                  {% endif%}
                 </div>
               </div>
               <a href="#" id="profile-dropdown" data-toggle="dropdown"><i class="mdi mdi-dots-vertical"></i></a>
@@ -363,8 +372,10 @@
                 <a class="nav-link" id="profileDropdown" href="#" data-toggle="dropdown">
                   <div class="navbar-profile">
                     <img class="img-xs rounded-circle" src="./static/assets/images/faces/face15.jpg" alt="">
-                    <p class="mb-0 d-none d-sm-block navbar-profile-name">Johandré de Beer</p>
+                    {% if user %}
+                    <p class="mb-0 d-none d-sm-block navbar-profile-name">{{ user.name }} {{ user.surname }}</p>
                     <i class="mdi mdi-menu-down d-none d-sm-block"></i>
+                    {% endif %}
                   </div>
                 </a>
                 <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list" aria-labelledby="profileDropdown">
