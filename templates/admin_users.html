@@ -8,26 +8,26 @@
       <div class="card-body">
         <h4 class="card-title">Click & Buy Users</h4>
         <div class="table-responsive-sm .table-responsive-md table-responsive-lg table-responsive-xl">
-          <table class="table table">
+          <table class="table table" id="users-table">
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Surname</th>
-                <th>Email</th>
-                <th>Joined</th>
-                <th>Has Access</th>
-                <th>Is Admin</th>
+                <th><a href="#" class="sort-header" data-column="name">Name <span class="sort-icon"></span></a></th>
+                <th><a href="#" class="sort-header" data-column="surname">Surname <span class="sort-icon"></span></a></th>
+                <th><a href="#" class="sort-header" data-column="email">Email <span class="sort-icon"></span></a></th>
+                <th><a href="#" class="sort-header" data-column="joined">Joined <span class="sort-icon"></span></a></th>
+                <th><a href="#" class="sort-header" data-column="access">Has Access <span class="sort-icon"></span></a></th>
+                <th><a href="#" class="sort-header" data-column="admin">Is Admin <span class="sort-icon"></span></a></th>
                 <th>Action</th> 
             </thead>
             <tbody>
                 {% for user in users %}
                 <tr>
-                  <td>{{ user.name }}</td>
-                  <td>{{ user.surname }}</td>
-                  <td>{{ user.email }}</td>
-                  <td>{{ user.joined }}</td>
-                  <td>{{ 'Yes' if user.has_access else 'No' }}</td>
-                  <td>{{ 'Yes' if user.is_admin else 'No' }}</td>
+                  <td data-column="name">{{ user.name }}</td>
+                  <td data-column="surname">{{ user.surname }}</td>
+                  <td data-column="email">{{ user.email }}</td>
+                  <td data-column="joined">{{ user.joined.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                  <td data-column="access">{{ 'Yes' if user.has_access else 'No' }}</td>
+                  <td data-column="admin">{{ 'Yes' if user.is_admin else 'No' }}</td>
                   <td>
                     <a class="btn btn-primary" href="{{ url_for('admin_edit_user', user_id=user.id) }}">Edit</a>
                     <a href="{{ url_for('admin_delete_user', user_id=user.id) }}"
@@ -44,8 +44,53 @@
     </div>
 </div>
 {% endblock %}
-<!-- content-wrapper ends -->
-<!-- partial:partials/_footer -->          
-</footer>
-<!-- partial -->
-</div>
+
+{% block additional_scripts %}
+<script>
+  $(document).ready(function() {
+    var sortIcons = {
+      'asc': '<i class="mdi mdi-sort-ascending"></i>',
+      'desc': '<i class="mdi mdi-sort-descending"></i>'
+    };
+      const sortDirection = {};
+
+      $('.sort-header').on('click', function() {
+          var column = $(this).data('column');
+          var currentOrder = $(this).data('order') || 'asc'; 
+
+          //toggle sorting direction
+          var newOrder = currentOrder === 'asc' ? 'desc' : 'asc';
+
+          //remove icons from other headers
+          $('.sort-header').not(this).data('order', null).find('.sort-icon').html('');
+
+          //set icon for cliced header
+          $(this).data('order', newOrder).find('.sort-icon').html(sortIcons[newOrder]);
+          sortTable(column);
+      });
+
+      function sortTable(column) {
+          const table = $('#users-table');
+          const rows = table.find('tbody tr').toArray();
+
+          if (!sortDirection[column] || sortDirection[column] === 'desc') {
+              rows.sort((a, b) => compareRows(a, b, column));
+              sortDirection[column] = 'asc';
+          } else {
+              rows.sort((a, b) => compareRows(b, a, column));
+              sortDirection[column] = 'desc';
+          }
+
+          table.find('tbody').empty().append(rows);
+      }
+
+      function compareRows(a, b, column) {
+          const valA = $(a).find(`td[data-column="${column}"]`).text().toUpperCase();
+          const valB = $(b).find(`td[data-column="${column}"]`).text().toUpperCase();
+
+          return valA.localeCompare(valB);
+      }
+  });
+</script>
+
+{% endblock %}
