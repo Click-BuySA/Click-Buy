@@ -3,18 +3,21 @@ from sqlalchemy import create_engine, Column, String, Integer, Text
 from sqlalchemy.orm import sessionmaker, joinedload
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
-from models import Base, User, Login
+from models import User, Login, Property, Base, db
 from functools import wraps
+
 
 app = Flask(__name__)
 
-app.secret_key = 'your_secret_key_here'
+app.config['SECRET_KEY'] = 'your_secret_key_here'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:SQLPassX&7@localhost/click_and_buy'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Replace 'your_database_name' with your actual database name
-DATABASE_URI = 'postgresql://postgres:SQLPassX&7@localhost/click_and_buy'
-engine = create_engine(DATABASE_URI)
+engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
 Base.metadata.create_all(engine)
 Session = sessionmaker(bind=engine)
+
+db.init_app(app)
 
 
 # Function to check if the user is authenticated before each request
@@ -79,10 +82,13 @@ def index():
 @app.route('/dashboard')
 @require_login()
 def dashboard():
-    # Render the dashboard template
     user = get_current_user_info()
+    page = request.args.get('page', 1, type=int)
+    per_page = 20  # Number of properties per page
+    properties = Property.query.paginate(page=page, per_page=per_page)
+    
     if user:
-        return render_template('dashboard.html', user=user)
+        return render_template('dashboard.html', user=user, properties=properties)
     else:
         flash('You need to login first.', 'error')
         return redirect(url_for('login_page'))

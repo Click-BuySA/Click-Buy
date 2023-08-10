@@ -11611,9 +11611,9 @@ input[type="button"].btn-block {
   padding: 0.5rem 0.75rem;
   margin-left: -1px;
   line-height: 1.25;
-  color: #007bff;
-  background-color: #000000;
-  border: 1px solid #dee2e6; }
+  color: #fff;
+  background-color: #0090e7;
+  border: 1px solid #0090e7; }
   .page-link:hover, .jsgrid .jsgrid-pager .jsgrid-pager-nav-button a:hover,
   .jsgrid .jsgrid-pager .jsgrid-pager-page a:hover {
     z-index: 2;
@@ -19582,7 +19582,7 @@ body.avgrund-active {
 .select2-container--default .select2-dropdown,
 .select2-container--default .select2-selection--multiple {
   border-color: #2c2e33;
-  background: #000000; }
+  background: #2A3038; }
   .select2-container--default .select2-selection--single .select2-search__field,
   .select2-container--default .select2-dropdown .select2-search__field,
   .select2-container--default .select2-selection--multiple .select2-search__field {
@@ -19591,8 +19591,8 @@ body.avgrund-active {
 .select2-container--default .select2-selection--single {
   height: auto; }
   .select2-container--default .select2-selection--single .select2-selection__rendered {
-    color: #ffffff;
-    line-height: 14px; }
+    color: #2A3038;
+    line-height: 20px; }
 
 .select2-container--default .select2-dropdown {
   font-size: .8125rem; }
@@ -19600,26 +19600,38 @@ body.avgrund-active {
 .select2-container--default.select2-container--focus .select2-selection--multiple {
   border-color: #2c2e33; }
 
+
+  /* This is the actual select 2 css I am working on. this affects the rendered items */
 .select2-container--default .select2-selection--multiple .select2-selection__choice {
   color: #ffffff;
   border: 0;
   border-radius: 3px;
   padding: 6px;
-  font-size: .625rem;
+  font-size: 0.625rem;
   font-family: inherit;
   line-height: 1; }
   .select2-container--default .select2-selection--multiple .select2-selection__choice .select2-selection__choice__remove {
     color: #ffffff; }
   .select2-container--default .select2-selection--multiple .select2-selection__choice:nth-child(5n+1) {
-    background: #0090e7; }
+    background: #0090e7;
+    padding: 3px;
+  }
   .select2-container--default .select2-selection--multiple .select2-selection__choice:nth-child(5n+2) {
-    background: #00d25b; }
+    background: #00d25b;
+    padding: 3px;
+   }
   .select2-container--default .select2-selection--multiple .select2-selection__choice:nth-child(5n+3) {
-    background: #8f5fe8; }
+    background: #8f5fe8;
+    padding: 3px;
+   }
   .select2-container--default .select2-selection--multiple .select2-selection__choice:nth-child(5n+4) {
-    background: #fc424a; }
+    background: #fc424a;
+    padding: 3px;
+   }
   .select2-container--default .select2-selection--multiple .select2-selection__choice:nth-child(5n+5) {
-    background: #ffab00; }
+    background: #ffab00;
+    padding: 3px;
+   }
 
 /* Summernote Editor */
 .note-editor.note-frame {

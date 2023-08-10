@@ -4,6 +4,7 @@
 
 {% block headers %}
 <style> #filter-form {display: none;}</style>
+<link rel="stylesheet" href="./static/assets/vendors/select2/select2.min.css">
 {% endblock %}
 
 
@@ -101,7 +102,7 @@
                 </div>
               </div>                                      
               <form class="form-sample"  id="filter-form">
-                <p class="card-description"> Adress/Location Filters </p>
+                <h4 class="card-description"> Adress/Location Filters </h4>
                 <div class="row">
                   <div class="col-md-6">
                     <div class="form-group row">
@@ -120,9 +121,9 @@
                     </div>
                   </div>
                 </div>
+
+
                 <div class="row">
-
-
                   <div class="col-md-6">
                     <div class="form-group row">
                       <label class="col-sm-3 col-form-label">Property Type</label>
@@ -132,6 +133,7 @@
                           <option>Full Title</option>
                           <option>Sectonal Scheme</option>
                           <option>Farms</option>
+                          <option>Stands</option>
                         </select>
                       </div>
                     </div>
@@ -168,20 +170,33 @@
                   
                   <div class="col-md-6">
                     <div class="form-group row">
-                      <label class="col-sm-3 col-form-label"> </label>
-                      <div class="col-sm-4">
-                        <div class="form-check">
-                          <label class="form-check-label">
-                            <input type="radio" class="form-check-input" name="membershipRadios"
-                            id="membershipRadios1" value="" checked> For Sale </label>
-                        </div>
-                      </div>
-                      <div class="col-sm-5">
-                        <div class="form-check">
-                          <label class="form-check-label">
-                            <input type="radio" class="form-check-input" name="membershipRadios" 
-                            id="membershipRadios2" value="option2"> To Let </label>
-                        </div>
+                      <label class="col-sm-3 col-form-label">Area</label>
+                      <div class="col-sm-9">
+                        <select class="js-example-basic-multiple" multiple="multiple" style="width:100%">
+                          <option>Any</option>
+                          <option>Baillie Park</option>
+                          <option>Bult</option>
+                          <option>Central</option>
+                          <option>Dam</option>
+                          <option>Dassierand</option>
+                          <option>Grimbeek Park</option>
+                          <option>Heilige Akker</option>
+                          <option>de Land</option>
+                          <option>Industrial</option>
+                          <option>Kannonierspark</option>
+                          <option>Lekwena</option>
+                          <option>Lifestyle</option>
+                          <option>Miederpark</option>
+                          <option>Mohadin</option>
+                          <option>Mooivallei Park</option>
+                          <option>Oewersig</option>
+                          <option>Promosa</option>
+                          <option>Rural</option>
+                          <option>Tuscany Ridge</option>
+                          <option>Van der Hoff Park</option>
+                          <option>Wilgeboom</option>
+                          <!-- <option></option> -->
+                        </select>
                       </div>
                     </div>
                   </div>
@@ -190,7 +205,7 @@
                 <br>
 
                 <!-- Whole new section -->
-                <p class="card-description"> Attribute Filters </p>
+                <h4 class="card-description"> Attribute Filters </h4>
                 <div class="row">
                   <div class="col-md-6">
                     <div class="form-group row">
@@ -340,10 +355,11 @@
                     <th> Bedrooms </th>
                     <th> Bathrooms </th>
                     <th> Garages </th>
-                    <th> Listing Status </th>
+                    <th> P-24 Link </th>
                   </tr>
                 </thead>
                 <tbody>
+                  {% for property in properties %}
                   <tr>
                     <td>
                       <div class="form-check form-check-muted m-0">
@@ -352,64 +368,41 @@
                         </label>
                       </div>
                     </td>
-                    <td scope="col" class="sticky-column">
-                      <img src="./static/assets/images/faces/face1.jpg" alt="image" />
-                      <span class="pl-2">11 Ditedu</span>
-                    </td>
-                    <td > Baillie Park </td>
-                    <td> R1,400,000 </td>
-                    <td> 2 </td>
-                    <td> 2 </td>
-                    <td> 2 </td>
+                    <td>{{ property.street_number }} {{ property.street_name }}, {{ property.complex_number }} {{ property.complex_name }}</td>
+                    <td>{{ property.area }}</td>
+                    <td>{{ property.price }}</td>
+                    <td>{{ property.bedrooms }}</td>
+                    <td>{{ property.bathrooms }}</td>
+                    <td>{{ property.garages }}</td>
                     <td>
-                      <div class="badge badge-outline-success">Listed</div>
+                      <a class="btn btn-primary" href="{{ property.link }}">{{ property.link_display }}</a>
                     </td>
                   </tr>
-                  <tr>
-                    <td>
-                      <div class="form-check form-check-muted m-0">
-                        <label class="form-check-label">
-                          <input type="checkbox" class="form-check-input">
-                        </label>
-                      </div>
-                    </td>
-                    <td scope="col" class="sticky-column">
-                      <img src="./static/assets/images/faces/face2.jpg" alt="image" />
-                      <span class="pl-2">B2 Casa park</span>
-                    </td>
-                    <td> Central </td>
-                    <td> R980,000 </td>
-                    <td> 3 </td>
-                    <td> 2 </td>
-                    <td> 1 </td>
-                    <td>
-                      <div class="badge badge-outline-warning">Not-Listed</div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <div class="form-check form-check-muted m-0">
-                        <label class="form-check-label">
-                          <input type="checkbox" class="form-check-input">
-                        </label>
-                      </div>
-                    </td>
-                    <td scope="col" class="sticky-column">
-                      <img src="./static/assets/images/faces/face3.jpg" alt="image" />
-                      <span class="pl-2">15 Mozart</span>
-                    </td>
-                    <td> Van der Hoff Park</td>
-                    <td> R1,560,000 </td>
-                    <td> 4 </td>
-                    <td> 5 </td>
-                    <td> 4 </td>
-                    <td>
-                      <div class="badge badge-outline-danger">Withdrawn</div>
-                    </td>
-                  </tr>
+                  {% endfor %}
                 </tbody>
               </table>
-              
+              <br>
+              <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    {% if properties.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('dashboard', page=properties.prev_num) }}">Previous</a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for num in properties.iter_pages() %}
+                    <li class="page-item {% if properties.page == num %}active{% endif %}">
+                        <a class="page-link" href="{{ url_for('dashboard', page=num) }}">{{ num }}</a>
+                    </li>
+                    {% endfor %}
+                    
+                    {% if properties.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('dashboard', page=properties.next_num) }}">Next</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
               <!-- table ends here -->
             </div>
           </div>
@@ -424,7 +417,8 @@
 {% endblock %}
 
 {% block additional_scripts %}
-
+<script src="./static/assets/vendors/select2/select2.min.js"></script>
+<script src="./static/assets/js/select2.js"></script>
 <script>
     $(document).ready(function() {
       $("#toggleFilters, #toggleFilters1").click(function() {
@@ -440,4 +434,5 @@
     <!-- endinject -->
   <!-- Custom js for this page -->
   <script src="./static/assets/js/dashboard.js"></script>
+  
 {% endblock %}
