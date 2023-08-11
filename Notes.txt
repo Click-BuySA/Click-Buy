@@ -1,0 +1,58 @@
+Thank you for sharing the HTML code for the filter section. To implement the filter functionality in your Flask app, you'll need to make a few changes to your existing code.
+
+1. **Add Form Handling in the Route:**
+
+First, you need to modify your `dashboard` route in the `app.py` file to handle the form submission and apply the filters. You can access the filter values from the `request.form` dictionary. Here's how you can do it:
+
+```python
+@app.route('/dashboard', methods=['GET', 'POST'])
+@require_login()
+def dashboard():
+    user = get_current_user_info()
+    
+    # ... existing code ...
+    
+    if request.method == 'POST':
+        # Get filter values from form
+        filter_area = request.form.get('area_filter')
+        filter_price = request.form.get('price_filter')
+        # ... other filter values ...
+        
+        # Apply filters
+        filtered_properties = properties.filter_by_area_price(filter_area, filter_price)
+        # ... apply other filters ...
+        
+        return render_template('dashboard.html', user=user, properties=filtered_properties)
+    
+    return render_template('dashboard.html', user=user, properties=properties)
+```
+
+2. **Modify `Property` Class:**
+
+In your `models.py`, you can add a method to the `Property` class that filters properties based on the provided filters. For example:
+
+```python
+class Property(Base):
+    # ... other attributes ...
+
+    @classmethod
+    def filter_by_area_price(cls, area_filter, price_filter):
+        query = cls.query
+        if area_filter:
+            query = query.filter(cls.area == area_filter)
+        if price_filter:
+            query = query.filter(cls.price == price_filter)
+        return query.all()  # Or paginate if needed
+```
+
+3. **Update HTML Form:**
+
+You've already provided the HTML form. Just ensure that the `action` attribute of the form points to the `/dashboard` route and the `method` attribute is set to `"POST"`.
+
+4. **Render Filtered Properties in the Template:**
+
+Modify your template `dashboard.html` to display the filtered properties. You might want to use a loop to iterate through the filtered properties and display them in the table.
+
+Please note that the above steps are a general guideline. Depending on your actual filter options and your specific implementation, you might need to adjust the code accordingly. Additionally, if you have multiple filters, you'll need to handle each filter's value in the route and build the filter query accordingly.
+
+Remember to sanitize and validate the filter inputs to ensure security and correct functionality.

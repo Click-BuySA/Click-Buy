@@ -20,6 +20,11 @@ Session = sessionmaker(bind=engine)
 db.init_app(app)
 
 
+@app.template_filter('format_currency')
+def format_currency(value):
+    return f'R {value:,.2f}'
+
+
 # Function to check if the user is authenticated before each request
 def require_login():
     # Add routes that do not require authentication to the following list
