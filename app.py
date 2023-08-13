@@ -83,17 +83,110 @@ def index():
     return render_template('index.html')
 
 
+# ... (other filters and imports) ...
 
-@app.route('/dashboard')
+@app.route('/dashboard', methods=['GET', 'POST'])
 @require_login()
 def dashboard():
     user = get_current_user_info()
     page = request.args.get('page', 1, type=int)
     per_page = 20  # Number of properties per page
     properties = Property.query.paginate(page=page, per_page=per_page)
-    
+
     if user:
-        return render_template('dashboard.html', user=user, properties=properties)
+        if request.method == 'POST':
+            # Get filter values from form
+            filter_area = request.form.get('area_filter')
+            min_price = request.form.get('min_price_filter')
+            max_price = request.form.get('max_price_filter')
+            street_name = request.form.get('street_name_filter')
+            complex_name = request.form.get('complex_name_filter')
+            number_filter = request.form.get('number_filter')
+            bedroom_filter = request.form.get('bedroom_filter')
+            bathroom_filter = request.form.get('bathroom_filter')
+            garages_filter = request.form.get('garages_filter')
+            # ... other filter values ...
+
+            # Check if min_price is greater than max_price
+            if min_price and max_price and int(min_price) > int(max_price):
+                flash('Minimum price cannot be greater than maximum price.', 'error')
+                return redirect(request.url)
+
+            # Build a list of filter conditions
+            filters = []
+            # Price and Area Filter
+            if filter_area:
+                filters.append(Property.area == filter_area)
+            if min_price:
+                filters.append(Property.price >= min_price)
+            if max_price:
+                filters.append(Property.price <= max_price)
+            # Handle street and complex name filtering
+            if street_name:
+                filters.append(Property.street_name == street_name)
+            if complex_name:
+                filters.append(Property.complex_name == complex_name)
+            # Handle street and complex number filtering if or and statements.
+            if number_filter:
+                if street_name and complex_name:
+                    filters.append((Property.street_number == number_filter) | (
+                        Property.complex_number == number_filter))
+                elif street_name:
+                    filters.append(Property.street_number == number_filter)
+                elif complex_name:
+                    filters.append(Property.complex_number == number_filter)
+
+            # Handle bedroom filter options
+            if bedroom_filter == '1':
+                filters.append(Property.bedrooms == 1)
+            elif bedroom_filter == '2':
+                filters.append((Property.bedrooms == 2) & (Property.bedrooms.isnot(None)))
+            elif bedroom_filter == '2+':
+                filters.append((Property.bedrooms >= 2) & (Property.bedrooms.isnot(None)))
+            elif bedroom_filter == '3':
+                filters.append((Property.bedrooms == 3) & (Property.bedrooms.isnot(None)))
+            elif bedroom_filter == '3+':
+                filters.append((Property.bedrooms >= 3) & (Property.bedrooms.isnot(None)))
+
+            # Handle bathroom filter options
+            if bathroom_filter == '1':
+                filters.append(Property.bathrooms == 1)
+            elif bathroom_filter == '2':
+                filters.append((Property.bathrooms == 2) & (Property.bathrooms.isnot(None)))
+            elif bathroom_filter == '2+':
+                filters.append((Property.bathrooms >= 2) & (Property.bathrooms.isnot(None)))
+            elif bathroom_filter == '3':
+                filters.append((Property.bathrooms == 3) & (Property.bathrooms.isnot(None)))
+            elif bathroom_filter == '3+':
+                filters.append((Property.bathrooms >= 3) & (Property.bathrooms.isnot(None)))
+
+            # Handle bathroom filter options
+            if garages_filter == '1':
+                filters.append(Property.garages == 1)
+            elif garages_filter == '2':
+                filters.append((Property.garages == 2) & (Property.garages.isnot(None)))
+            elif garages_filter == '2+':
+                filters.append((Property.garages >= 2) & (Property.garages.isnot(None)))
+            elif garages_filter == '3':
+                filters.append((Property.garages == 3) & (Property.garages.isnot(None)))
+            elif garages_filter == '3+':
+                filters.append((Property.garages >= 3) & (Property.garages.isnot(None)))
+
+            # ... other filters ...
+
+            # Print selected filter values for debugging
+            print("Selected filters:")
+            for f in filters:
+                print(f)
+
+            filtered_properties = properties
+            if filters:
+                filtered_properties = Property.query.filter(*filters).paginate(page=page, per_page=per_page)
+
+            return render_template('dashboard.html', user=user, properties=filtered_properties)
+        else:
+            return render_template('dashboard.html', user=user, properties=properties)
+
     else:
         flash('You need to login first.', 'error')
         return redirect(url_for('login_page'))
@@ -207,14 +300,16 @@ def logout():
 @app.context_processor
 def pending_approval():
     with Session() as db_session:
-        pending_users = db_session.query(User).filter_by(has_access=False).count()
+        pending_users = db_session.query(
+            User).filter_by(has_access=False).count()
         return dict(pending_users=pending_users)
 
 
 @app.route('/get_pending_users_count')
 def get_pending_users_count():
     with Session() as db_session:
-        pending_users = db_session.query(User).filter_by(has_access=False).count()
+        pending_users = db_session.query(
+            User).filter_by(has_access=False).count()
         return jsonify(pending_users=pending_users)
 
 
