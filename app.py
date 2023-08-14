@@ -119,6 +119,11 @@ def dashboard():
             bedroom_filter = request.form.get('bedroom_filter')
             bathroom_filter = request.form.get('bathroom_filter')
             garages_filter = request.form.get('garages_filter')
+            swimming_pool_filter = request.form.get('swimming_pool_filter')
+            garden_flat_filter = request.form.get('garden_flat_filter')
+            study_filter = request.form.get('study_filter')
+            ground_floor_filter = request.form.get('ground_floor_filter')
+            pet_friendly_filter = request.form.get('pet_friendly_filter')
             # ... other filter values ...
 
             # Check if min_price is greater than max_price
@@ -163,6 +168,21 @@ def dashboard():
                 filters.append(apply_numeric_filter(
                     Property.garages, garages_filter))
 
+            if pet_friendly_filter:
+                filters.append(Property.pet_friendly == pet_friendly_filter)
+
+            if ground_floor_filter:
+                filters.append(Property.ground_floor == ground_floor_filter)
+
+            if study_filter:
+                filters.append(Property.study == study_filter)    
+
+            if garden_flat_filter:
+                filters.append(Property.garden_flat == garden_flat_filter) 
+
+            if swimming_pool_filter:
+                filters.append(Property.swimming_pool == swimming_pool_filter) 
+
             # Print selected filter values for debugging
             print("Selected filters:")
             for f in filters:
@@ -179,7 +199,9 @@ def dashboard():
                                    max_price_filter=max_price, street_name_filter=street_name,
                                    complex_name_filter=complex_name, number_filter=number_filter,
                                    bathroom_filter=bathroom_filter, bedroom_filter=bedroom_filter,
-                                   garages_filter=garages_filter)
+                                   garages_filter=garages_filter, swimming_pool_filter=swimming_pool_filter,
+                                   garden_flat_filter=garden_flat_filter, study_filter=study_filter,
+                                   ground_floor_filter=ground_floor_filter, pet_friendly_filter=pet_friendly_filter)
         else:
             return render_template('dashboard.html', user=user, properties=properties, selected_areas=selected_areas)
 

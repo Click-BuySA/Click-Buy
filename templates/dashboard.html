@@ -299,14 +299,14 @@
                         <div class="col-sm-6">
                           <div class="form-check d-flex justify-content-start">
                             <label class="form-check-label">
-                              <input type="checkbox" class="form-check-input" name="swimming_pool_filter" value='true' > Swimming Pool
+                              <input type="checkbox" class="form-check-input" name="swimming_pool_filter" id="swimming_pool_filter" {% if swimming_pool_filter %}checked{% endif %}>Swimming Pool
                             </label>
                           </div>
                         </div>
                         <div class="col-sm-6">
                           <div class="form-check d-flex justify-content-start">
                             <label class="form-check-label">
-                              <input type="checkbox" class="form-check-input" name="garden_flat_filter" value="true"> Garden Flat
+                              <input type="checkbox" class="form-check-input" name="garden_flat_filter" id="garden_flat_filter" {% if garden_flat_filter %}checked{% endif %}>Garden Flat
                             </label>
                           </div>
                         </div>
@@ -315,21 +315,21 @@
                         <div class="col-sm-6">
                           <div class="form-check d-flex justify-content-start">
                             <label class="form-check-label">
-                              <input type="checkbox" class="form-check-input" name="study_filter" value="true"> Study
+                              <input type="checkbox" class="form-check-input" name="study_filter" id="study_filter" {% if study_filter %}checked{% endif %} >Study
                             </label>
                           </div>
                         </div>
                         <div class="col-sm-6">
                           <div class="form-check d-flex justify-content-start">
                             <label class="form-check-label">
-                              <input type="checkbox" class="form-check-input" name="ground_floor_filter" value="true"> Ground Floor
+                              <input type="checkbox" class="form-check-input" name="ground_floor_filter" id="ground_floor_filter" {% if ground_floor_filter %}checked{% endif %}>Ground Floor
                             </label>
                           </div>
                         </div>
                         <div class="col-sm-6">
                           <div class="form-check d-flex justify-content-start">
                             <label class="form-check-label">
-                              <input type="checkbox" class="form-check-input" name="pets_allowed_filter" value="true"> Pet-Friendly
+                              <input type="checkbox" class="form-check-input" name="pet_friendly_filter" id="pet_friendly_filter" {% if pet_friendly_filter %}checked{% endif %}>Pet-Friendly
                             </label>
                           </div>
                         </div>
@@ -486,8 +486,11 @@
     document.querySelector("[name='min_price_filter']").value = "";
     document.querySelector("[name='bathroom_filter']").value = "";
     document.querySelector("[name='garages_filter']").value = "";
-    document.querySelector("[name='swimming_pool_filter']").value = "";
-    document.querySelector("[name='garden_flat_filter']").value = "";
+    document.getElementById('study_filter').checked = false;
+    document.getElementById('swimming_pool_filter').checked = false;
+    document.getElementById('ground_floor_filter').checked = false;
+    document.getElementById('garden_flat_filter').checked = false;
+    document.getElementById('pet_friendly_filter').checked = false
       // Submit the form to clear the filters
     document.getElementById("filter-form").submit();
   }
