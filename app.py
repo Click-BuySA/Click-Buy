@@ -92,11 +92,25 @@ def dashboard():
     page = request.args.get('page', 1, type=int)
     per_page = 20  # Number of properties per page
     properties = Property.query.paginate(page=page, per_page=per_page)
+    selected_areas = []
+    def apply_numeric_filter(property_attr, filter_value):
+        if filter_value == '1':
+            return Property.bathrooms == 1
+        elif filter_value == '2':
+            return (property_attr == 2) & (property_attr.isnot(None))
+        elif filter_value == '2+':
+            return (property_attr >= 2) & (property_attr.isnot(None))
+        elif filter_value == '3':
+            return (property_attr == 3) & (property_attr.isnot(None))
+        elif filter_value == '3+':
+            return (property_attr >= 3) & (property_attr.isnot(None))
+        return None
 
     if user:
         if request.method == 'POST':
             # Get filter values from form
             filter_area = request.form.get('area_filter')
+            selected_areas = request.form.getlist('area_filter')
             min_price = request.form.get('min_price_filter')
             max_price = request.form.get('max_price_filter')
             street_name = request.form.get('street_name_filter')
@@ -126,7 +140,7 @@ def dashboard():
                 filters.append(Property.street_name == street_name)
             if complex_name:
                 filters.append(Property.complex_name == complex_name)
-            # Handle street and complex number filtering if or and statements.
+            # Handle street and complex number filtering if/or/and statements.
             if number_filter:
                 if street_name and complex_name:
                     filters.append((Property.street_number == number_filter) | (
@@ -136,56 +150,38 @@ def dashboard():
                 elif complex_name:
                     filters.append(Property.complex_number == number_filter)
 
-            # Handle bedroom filter options
-            if bedroom_filter == '1':
-                filters.append(Property.bedrooms == 1)
-            elif bedroom_filter == '2':
-                filters.append((Property.bedrooms == 2) & (Property.bedrooms.isnot(None)))
-            elif bedroom_filter == '2+':
-                filters.append((Property.bedrooms >= 2) & (Property.bedrooms.isnot(None)))
-            elif bedroom_filter == '3':
-                filters.append((Property.bedrooms == 3) & (Property.bedrooms.isnot(None)))
-            elif bedroom_filter == '3+':
-                filters.append((Property.bedrooms >= 3) & (Property.bedrooms.isnot(None)))
+            # Handle logic for bedroom, bathroom and garage filters, uses apply_numeric_filter function above.
+            if bedroom_filter:
+                filters.append(apply_numeric_filter(
+                    Property.bedrooms, bedroom_filter))
 
-            # Handle bathroom filter options
-            if bathroom_filter == '1':
-                filters.append(Property.bathrooms == 1)
-            elif bathroom_filter == '2':
-                filters.append((Property.bathrooms == 2) & (Property.bathrooms.isnot(None)))
-            elif bathroom_filter == '2+':
-                filters.append((Property.bathrooms >= 2) & (Property.bathrooms.isnot(None)))
-            elif bathroom_filter == '3':
-                filters.append((Property.bathrooms == 3) & (Property.bathrooms.isnot(None)))
-            elif bathroom_filter == '3+':
-                filters.append((Property.bathrooms >= 3) & (Property.bathrooms.isnot(None)))
+            if bathroom_filter:
+                filters.append(apply_numeric_filter(
+                    Property.bathrooms, bathroom_filter))
 
-            # Handle bathroom filter options
-            if garages_filter == '1':
-                filters.append(Property.garages == 1)
-            elif garages_filter == '2':
-                filters.append((Property.garages == 2) & (Property.garages.isnot(None)))
-            elif garages_filter == '2+':
-                filters.append((Property.garages >= 2) & (Property.garages.isnot(None)))
-            elif garages_filter == '3':
-                filters.append((Property.garages == 3) & (Property.garages.isnot(None)))
-            elif garages_filter == '3+':
-                filters.append((Property.garages >= 3) & (Property.garages.isnot(None)))
-
-            # ... other filters ...
+            if garages_filter:
+                filters.append(apply_numeric_filter(
+                    Property.garages, garages_filter))
 
             # Print selected filter values for debugging
             print("Selected filters:")
             for f in filters:
                 print(f)
 
+            print(f"Selected areas: {selected_areas}")
             filtered_properties = properties
             if filters:
-                filtered_properties = Property.query.filter(*filters).paginate(page=page, per_page=per_page)
+                filtered_properties = Property.query.filter(
+                    *filters).paginate(page=page, per_page=per_page)
 
-            return render_template('dashboard.html', user=user, properties=filtered_properties)
+            return render_template('dashboard.html', user=user, properties=filtered_properties,
+                                   selected_areas=selected_areas, min_price_filter=min_price,
+                                   max_price_filter=max_price, street_name_filter=street_name,
+                                   complex_name_filter=complex_name, number_filter=number_filter,
+                                   bathroom_filter=bathroom_filter, bedroom_filter=bedroom_filter,
+                                   garages_filter=garages_filter)
         else:
-            return render_template('dashboard.html', user=user, properties=properties)
+            return render_template('dashboard.html', user=user, properties=properties, selected_areas=selected_areas)
 
     else:
         flash('You need to login first.', 'error')

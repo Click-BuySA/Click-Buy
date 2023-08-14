@@ -109,17 +109,17 @@
                 <div class="text-right col-md-6 col-sl-3">
                   <button type="button" class="btn btn-success align-self-center" id="toggleFilters" >Show Filters</button>
                   <input type="submit" class="btn btn-primary align-self-center" value="Filter" form="filter-form">
-                  <input type="reset" class="btn btn-danger align-self-center" value="Clear Filters" form="filter-form">
+                  <button class="btn btn-danger" onclick="resetFilters()">Reset Filters</button>
                 </div>
               </div>                                      
-              <form class="form-sample"  id="filter-form" method="post">
+              <form class="form-sample" id="filter-form" method="post" onsubmit="console.log">
                 <h4 class="card-description"> Adress/Location Filters </h4>
                 <div class="row">
                   <div class="col-md-6">
                     <div class="form-group row">
                       <label class="col-sm-3 col-form-label">Street Name</label>
                       <div class="col-sm-9">
-                        <input type="text" class="form-control" name="street_name_filter" />
+                        <input type="text" class="form-control" name="street_name_filter" value="{{ street_name_filter }}" />
                       </div>
                     </div>
                   </div>
@@ -127,7 +127,7 @@
                     <div class="form-group row">
                       <label class="col-sm-3 col-form-label">Complex Name</label>
                       <div class="col-sm-9">
-                        <input type="text" class="form-control" name="complex_name_filter" />
+                        <input type="text" class="form-control" name="complex_name_filter" value="{{ complex_name_filter }}" />
                       </div>
                     </div>
                   </div>
@@ -155,7 +155,7 @@
                     <div class="form-group row">
                       <label class="col-sm-3 col-form-label">Unit / Street Number</label>
                       <div class="col-sm-9">
-                        <input class="form-control" name="number_filter"/>
+                        <input class="form-control" name="number_filter" value="{{ number_filter }}"/>
                       </div>
                     </div>
                   </div>                          
@@ -206,7 +206,6 @@
                           <option>Tuscany Ridge</option>
                           <option>Van der Hoff Park</option>
                           <option>Wilgeboom</option>
-                          <!-- <option></option> -->
                         </select>
                       </div>
                     </div>
@@ -222,7 +221,7 @@
                     <div class="form-group row">
                       <label class="col-sm-3 col-form-label">Price Maximum</label>
                       <div class="col-sm-9">
-                        <input type="number" class="form-control" placeholder="" name="max_price_filter">
+                        <input type="number" class="form-control" placeholder="" name="max_price_filter" value="{{ max_price_filter }}">
                       </div>
                     </div>
                   </div>
@@ -231,12 +230,12 @@
                       <label class="col-sm-3 col-form-label">Bedrooms</label>
                       <div class="col-sm-9">
                         <select class="form-control" name="bedroom_filter">
-                          <option></option>
-                          <option>1</option>
-                          <option>2</option>
-                          <option>2+</option>
-                          <option>3</option>
-                          <option>3+</option>
+                          <option value="">Any</option>
+                          <option value="1" {% if bedroom_filter == '1' %}selected{% endif %}>1</option>
+                          <option value="2" {% if bedroom_filter == '2' %}selected{% endif %}>2</option>
+                          <option value="2+" {% if bedroom_filter == '2+' %}selected{% endif %}>2+</option>
+                          <option value="3" {% if bedroom_filter == '3' %}selected{% endif %}>3</option>
+                          <option value="3+" {% if bedroom_filter == '3+' %}selected{% endif %}>3+</option>
                         </select>
                       </div>
                     </div>
@@ -247,7 +246,7 @@
                     <div class="form-group row">
                       <label class="col-sm-3 col-form-label">Price Minimum</label>
                       <div class="col-sm-9">
-                        <input type="number" class="form-control" placeholder="" name="min_price_filter">
+                        <input type="number" class="form-control" placeholder="" name="min_price_filter" value="{{ min_price_filter }}">
                       </div>
                     </div>
                   </div>
@@ -256,12 +255,12 @@
                       <label class="col-sm-3 col-form-label">Bathrooms</label>
                       <div class="col-sm-9">
                         <select class="form-control" name="bathroom_filter">
-                          <option></option>
-                          <option>1</option>
-                          <option>2</option>
-                          <option>2+</option>
-                          <option>3</option>
-                          <option>3+</option>
+                          <option value="">Any</option>
+                          <option value="1" {% if bathroom_filter == '1' %}selected{% endif %}>1</option>
+                          <option value="2" {% if bathroom_filter == '2' %}selected{% endif %}>2</option>
+                          <option value="2+" {% if bathroom_filter == '2+' %}selected{% endif %}>2+</option>
+                          <option value="3" {% if bathroom_filter == '3' %}selected{% endif %}>3</option>
+                          <option value="3+" {% if bathroom_filter == '3+' %}selected{% endif %}>3+</option>
                         </select>
                       </div>
                     </div>
@@ -281,12 +280,12 @@
                       <label class="col-sm-3 col-form-label">Garages</label>
                       <div class="col-sm-9">
                         <select class="form-control" name="garages_filter">
-                          <option></option>
-                          <option>1</option>
-                          <option>2</option>
-                          <option>2+</option>
-                          <option>3</option>
-                          <option>3+</option>
+                          <option value="">Any</option>
+                          <option value="1" {% if garages_filter == '1' %}selected{% endif %}>1</option>
+                          <option value="2" {% if garages_filter == '2' %}selected{% endif %}>2</option>
+                          <option value="2+" {% if garages_filter == '2+' %}selected{% endif %}>2+</option>
+                          <option value="3" {% if garages_filter == '3' %}selected{% endif %}>3</option>
+                          <option value="3+" {% if garages_filter == '3+' %}selected{% endif %}>3+</option>
                         </select>
                       </div>
                     </div>
@@ -300,7 +299,7 @@
                         <div class="col-sm-6">
                           <div class="form-check d-flex justify-content-start">
                             <label class="form-check-label">
-                              <input type="checkbox" class="form-check-input" name="swimming_pool_filter" value=1 > Swimming Pool
+                              <input type="checkbox" class="form-check-input" name="swimming_pool_filter" value='true' > Swimming Pool
                             </label>
                           </div>
                         </div>
@@ -340,9 +339,9 @@
                 </div>
                 
                 <div class="text-center">
-                  <button type="button" class="btn btn-success" id="toggleFilters1" >Hide Filters</button>
+                  <button type="button" class="btn btn-success" id="toggleFilters1">Hide Filters</button>
                   <input type="submit" class="btn btn-primary" value="Filter" form="filter-form">
-                  <input type="reset" class="btn btn-danger" value="Clear Filters" form="filter-form">
+                  <button class="btn btn-danger" onclick="resetFilters()">Reset Filters</button>
                 </div>                    
               </form>
             </div>
@@ -451,6 +450,19 @@
 <script src="./static/assets/vendors/select2/select2.min.js"></script>
 <script src="./static/assets/js/select2.js"></script>
 <script>
+  $(document).ready(function() {
+    // Initialize the Select2 dropdown
+    $('.js-example-basic-multiple').select2();
+    
+    // Get the selected areas from the Flask variable
+    var selectedAreas = {{ selected_areas | tojson }};
+    
+    // Set the selected areas in the dropdown
+    $('.js-example-basic-multiple').val(selectedAreas);
+    $('.js-example-basic-multiple').trigger('change'); // Refresh the dropdown to display selected values
+  });
+  </script> 
+<script>
     $(document).ready(function() {
       $("#toggleFilters, #toggleFilters1").click(function() {
         $("#filter-form").toggle(); // Toggle the visibility of the filters section
@@ -462,7 +474,24 @@
       });
     });
   </script>
-  
+<Script>
+  function resetFilters() {
+    console.log("Reset button clicked");
+    document.querySelector("[name='street_name_filter']").value = "";
+    document.querySelector("[name='complex_name_filter']").value = "";
+    document.querySelector("[name='number_filter']").value = "";
+    document.querySelector("[name='area_filter']").value = "";
+    document.querySelector("[name='max_price_filter']").value = "";
+    document.querySelector("[name='bedroom_filter']").value = "";
+    document.querySelector("[name='min_price_filter']").value = "";
+    document.querySelector("[name='bathroom_filter']").value = "";
+    document.querySelector("[name='garages_filter']").value = "";
+    document.querySelector("[name='swimming_pool_filter']").value = "";
+    document.querySelector("[name='garden_flat_filter']").value = "";
+      // Submit the form to clear the filters
+    document.getElementById("filter-form").submit();
+  }
+</Script>
     <!-- endinject -->
   <!-- Custom js for this page -->
   <script src="./static/assets/js/dashboard.js"></script>
