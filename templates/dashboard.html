@@ -16,6 +16,8 @@
     }
 
 </style>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- static\assets\vendors\autoNumeric-4.9.0\autoNumeric-4.9.0\src\AutoNumeric.js -->
 {% endblock %}
 
 
@@ -109,7 +111,7 @@
                 <div class="text-right col-md-6 col-sl-3">
                   <button type="button" class="btn btn-success align-self-center" id="toggleFilters" >Show Filters</button>
                   <input type="submit" class="btn btn-primary align-self-center" value="Filter" form="filter-form">
-                  <button class="btn btn-danger" onclick="resetFilters()">Reset Filters</button>
+                  <button class="btn btn-danger" id="reset-filters" onclick="resetFilters()">Reset Filters</button>
                 </div>
               </div>                                      
               <form class="form-sample" id="filter-form" method="post" onsubmit="console.log">
@@ -221,7 +223,7 @@
                     <div class="form-group row">
                       <label class="col-sm-3 col-form-label">Price Maximum</label>
                       <div class="col-sm-9">
-                        <input type="number" class="form-control" placeholder="" name="max_price_filter" value="{{ max_price_filter }}">
+                        <input type="text" class="form-control" placeholder="" id="max_price_filter" name="max_price_filter" value="{{ max_price_filter }}">
                       </div>
                     </div>
                   </div>
@@ -246,7 +248,7 @@
                     <div class="form-group row">
                       <label class="col-sm-3 col-form-label">Price Minimum</label>
                       <div class="col-sm-9">
-                        <input type="number" class="form-control" placeholder="" name="min_price_filter" value="{{ min_price_filter }}">
+                        <input type="text" class="form-control" placeholder="" id="min_price_filter" name="min_price_filter" value="{{ min_price_filter }}">
                       </div>
                     </div>
                   </div>
@@ -341,7 +343,7 @@
                 <div class="text-center">
                   <button type="button" class="btn btn-success" id="toggleFilters1">Hide Filters</button>
                   <input type="submit" class="btn btn-primary" value="Filter" form="filter-form">
-                  <button class="btn btn-danger" onclick="resetFilters()">Reset Filters</button>
+                  <button class="btn btn-danger" id="reset-filters" onclick="resetFilters()">Reset Filters</button>
                 </div>                    
               </form>
             </div>
@@ -449,6 +451,7 @@
 {% block additional_scripts %}
 <script src="./static/assets/vendors/select2/select2.min.js"></script>
 <script src="./static/assets/js/select2.js"></script>
+<script src="./static/assets/js/AutoNumeric.min.js"></script>
 <script>
   $(document).ready(function() {
     // Initialize the Select2 dropdown
@@ -495,6 +498,45 @@
     document.getElementById("filter-form").submit();
   }
 </Script>
+<!-- Script for handling AutoNumeric and form submission -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      // Initialize AutoNumeric with custom options
+      new AutoNumeric('#min_price_filter', {
+          currencySymbol: 'R ',
+          currencySymbolPlacement: AutoNumeric.options.currencySymbolPlacement.prefix,
+          decimalPlaces: 0,
+          unformatOnSubmit: true // Convert formatted value back to raw numeric value before submission
+      });
+
+      new AutoNumeric('#max_price_filter', {
+          currencySymbol: 'R ',
+          currencySymbolPlacement: AutoNumeric.options.currencySymbolPlacement.prefix,
+          decimalPlaces: 0,
+          unformatOnSubmit: true // Convert formatted value back to raw numeric value before submission
+      });
+
+      // Add event listener for form submission
+      document.getElementById('filter-form').addEventListener('submit', function(event) {
+          const minPriceInput = document.getElementById('min_price_filter');
+          const maxPriceInput = document.getElementById('max_price_filter');
+
+          // If min price is greater than max price, prevent form submission
+          if (minPriceInput.value !== '' && maxPriceInput.value !== '' && Number(minPriceInput.value) > Number(maxPriceInput.value)) {
+              event.preventDefault();
+              alert('Min price cannot be greater than max price.');
+          }
+      });
+      
+      // Add event listener for reset button
+      document.getElementById('reset-filters').addEventListener('click', function() {
+          minPriceInput.remove(); // Remove AutoNumeric formatting from min price input
+          maxPriceInput.remove(); // Remove AutoNumeric formatting from max price input
+          minPriceInput.value = ''; // Clear min price input
+          maxPriceInput.value = ''; // Clear max price input
+      });      
+  });
+</script>
     <!-- endinject -->
   <!-- Custom js for this page -->
   <script src="./static/assets/js/dashboard.js"></script>

@@ -93,6 +93,7 @@ def dashboard():
     per_page = 20  # Number of properties per page
     properties = Property.query.paginate(page=page, per_page=per_page)
     selected_areas = []
+
     def apply_numeric_filter(property_attr, filter_value):
         if filter_value == '1':
             return Property.bathrooms == 1
@@ -175,13 +176,13 @@ def dashboard():
                 filters.append(Property.ground_floor == ground_floor_filter)
 
             if study_filter:
-                filters.append(Property.study == study_filter)    
+                filters.append(Property.study == study_filter)
 
             if garden_flat_filter:
-                filters.append(Property.garden_flat == garden_flat_filter) 
+                filters.append(Property.garden_flat == garden_flat_filter)
 
             if swimming_pool_filter:
-                filters.append(Property.swimming_pool == swimming_pool_filter) 
+                filters.append(Property.swimming_pool == swimming_pool_filter)
 
             # Print selected filter values for debugging
             print("Selected filters:")
