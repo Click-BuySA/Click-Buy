@@ -352,11 +352,13 @@
         <!-- Result Table -->          
         <div class="card table-container">
           <div class="card-body">
-            <h4 class="card-title">Properties For Sale</h4>
-            <button id="expand-toggle-btn" class="btn btn-primary">Expand/Collapse</button>
-
+            <div class="row justify-content-between">
+              <h4 class="card-title">Properties For Sale</h4>
+              <button id="expand-toggle-btn" class="btn btn-primary">Expand/Collapse</button>
+            </div>
+            <br>
             <div class="table-responsive table-responsive-sm .table-responsive-md table-responsive-lg table-responsive-xl">
-              <table class="table">
+              <table class="table table-hover" id="properties_table">
                 <thead>
                   <tr>
                     <th>
@@ -367,20 +369,20 @@
                       </div>
                     </th>
                     <!-- Collapsed Headers -->
-                    <th> Property Description </th>
-                    <th> Area </th>
-                    <th> Price </th>
-                    <th> Bedrooms </th>
-                    <th> Bathrooms </th>
-                    <th> Garages </th>
-                    <th> P-24 Link </th>
+                    <th><a href="#" class="sort-header" data-column="prop_desc">Property Description<span class="sort-icon"></span></a></th>
+                    <th><a href="#" class="sort-header" data-column="area">Area<span class="sort-icon"></span></a></th>
+                    <th><a href="#" class="sort-header" data-column="price">Price<span class="sort-icon"></span></a></th>
+                    <th><a href="#" class="sort-header" data-column="bedrooms">Bedrooms<span class="sort-icon"></span></a></th>
+                    <th><a href="#" class="sort-header" data-column="bathrooms">Bathrooms<span class="sort-icon"></span></a></th>
+                    <th><a href="#" class="sort-header" data-column="garages">Garages<span class="sort-icon"></span></a></th>
+                    <th><a href="#" class="sort-header" data-column="link">P-24 Link<span class="sort-icon"></span></a></th>
 
                     <!-- Expanded Headers -->
-                    <th class="expandable-column"> Swimming Pool </th>
-                    <th class="expandable-column"> Garden Flat </th>
-                    <th class="expandable-column"> Study </th>
-                    <th class="expandable-column"> Ground Floor </th>
-                    <th class="expandable-column"> Pet Friendly </th>
+                    <th class="expandable-column"><a href="#" class="sort-header" data-column="swimming_pool">Swimming Pool<span class="sort-icon"></span></a></th>
+                    <th class="expandable-column"><a href="#" class="sort-header" data-column="garden_flat">Garden Flat<span class="sort-icon"></span></a></th>
+                    <th class="expandable-column"><a href="#" class="sort-header" data-column="study">Study<span class="sort-icon"></span></a></th>
+                    <th class="expandable-column"><a href="#" class="sort-header" data-column="ground_floor">Ground Floor<span class="sort-icon"></span></a></th>
+                    <th class="expandable-column"><a href="#" class="sort-header" data-column="pet_friendly">Pet Friendly<span class="sort-icon"></span></a></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -393,21 +395,21 @@
                         </label>
                       </div>
                     </td>
-                    <td>{{ property.street_number or '' }} {{ property.street_name or ''}} {{ property.complex_number or '' }} {{ property.complex_name or '' }}</td>
-                    <td>{{ property.area or '' }}</td>
-                    <td>{{ property.price | format_currency or '-' }}</td>
-                    <td>{{ property.bedrooms or '-' }}</td>
-                    <td>{{ property.bathrooms or '-' }}</td>
-                    <td>{{ property.garages or '-' }}</td>
+                    <td data-column="prop_desc">{{ property.street_number or '' }} {{ property.street_name or ''}} {{ property.complex_number or '' }} {{ property.complex_name or '' }}</td>
+                    <td data-column="area">{{ property.area or '' }}</td>
+                    <td data-column="price">{{ property.price | format_currency or '-' }}</td>
+                    <td data-column="bedrooms">{{ property.bedrooms or '-' }}</td>
+                    <td data-column="bathrooms">{{ property.bathrooms or '-' }}</td>
+                    <td data-column="garages">{{ property.garages or '-' }}</td>
                     <td>
-                      <a class="btn btn-primary" href="{{ property.link }}" target="_blank">{{ property.link_display }}</a>
+                      <a class="btn btn-primary" href="{{ property.link }}" target="_blank" data-column="link">{{ property.link_display }}</a>
                     </td>
                     <!-- Expanded columns -->
-                  <td class="expandable-column">{{ property.swimming_pool }}</td>
-                  <td class="expandable-column">{{ property.garden_flat }}</td>
-                  <td class="expandable-column">{{ property.study }}</td>
-                  <td class="expandable-column">{{ property.ground_floor }}</td>
-                  <td class="expandable-column">{{ property.pet_friendly }}</td>
+                  <td class="expandable-column" data-column="swimming_pool">{{ property.swimming_pool }}</td>
+                  <td class="expandable-column" data-column="garden_flat">{{ property.garden_flat }}</td>
+                  <td class="expandable-column" data-column="study">{{ property.study }}</td>
+                  <td class="expandable-column" data-column="ground_floor">{{ property.ground_floor }}</td>
+                  <td class="expandable-column" data-column="pet_friendly">{{ property.pet_friendly }}</td>
                   </tr>
                   {% endfor %}
                 </tbody>
@@ -452,6 +454,7 @@
 <script src="./static/assets/vendors/select2/select2.min.js"></script>
 <script src="./static/assets/js/select2.js"></script>
 <script src="./static/assets/js/AutoNumeric.min.js"></script>
+<script src="./static/assets/js/sort_table.js"></script>
 <script>
   $(document).ready(function() {
     // Initialize the Select2 dropdown
@@ -544,7 +547,9 @@
     $(document).ready(function () {
         $("#expand-toggle-btn").click(function () {
             $(".expandable-column").toggle();
+            $('#properties-table').sort_table();
         });
+
     });
 </script>
   
