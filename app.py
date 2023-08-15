@@ -5,7 +5,10 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 from models import User, Login, Property, Base, db
 from functools import wraps
-
+import smtplib
+from email.message import EmailMessage
+from string import Template
+from pathlib import Path
 
 app = Flask(__name__)
 
@@ -70,6 +73,27 @@ def is_admin(user_id):
         return False
 
 
+# Function that sends an email whenever a new user is registered.
+def send_notification_email(new_user_info):
+    html = Template(Path('mail.html').read_text())
+    with Session() as db_session:
+        admin_emails = [user.email for user in db_session.query(User).filter_by(is_admin=True).all()]
+
+    for admin_email in admin_emails:
+        message = EmailMessage()
+        message['from'] = 'Click & Buy - Mailer'
+        message['to'] = admin_email
+        message['subject'] = 'New User Registration Notification'
+        message.set_content(html.substitute(name=new_user_info['name'], email=new_user_info['email']),'html')
+
+        with smtplib.SMTP(host='smtp.gmail.com', port=587) as smtp:
+            smtp.ehlo()
+            smtp.starttls()
+            smtp.login('johandrehdb@gmail.com', 'afjtruqujroeylvx')
+            smtp.send_message(message)
+
+
+
 @app.route('/')
 @app.route('/index')
 def index():
@@ -81,6 +105,8 @@ def index():
     # User is not authenticated, you can redirect to the login page or a more generic home page
     # return redirect(url_for('login_page'))
     return render_template('index.html')
+
+
 
 
 # ... (other filters and imports) ...
@@ -286,6 +312,13 @@ def register_user():
         session.add(new_user)
         session.commit()
         session.close()
+
+        # Generate new user info and runs the mailer to inform admins that a new user is registered.
+        new_user_info = {
+        'name': first_name,
+        'email': email,
+        }
+        send_notification_email(new_user_info)
 
         # Return a success response
         return redirect(url_for('thank_you'))
