@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, render_template, request, redirect, url_for, session, flash, make_response
-from sqlalchemy import create_engine, Column, String, Integer, Text
+from sqlalchemy import create_engine, or_, and_, func
 from sqlalchemy.orm import sessionmaker, joinedload
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
@@ -77,21 +77,22 @@ def is_admin(user_id):
 def send_notification_email(new_user_info):
     html = Template(Path('mail.html').read_text())
     with Session() as db_session:
-        admin_emails = [user.email for user in db_session.query(User).filter_by(is_admin=True).all()]
+        admin_emails = [user.email for user in db_session.query(
+            User).filter_by(is_admin=True).all()]
 
     for admin_email in admin_emails:
         message = EmailMessage()
         message['from'] = 'Click & Buy - Mailer'
         message['to'] = admin_email
         message['subject'] = 'New User Registration Notification'
-        message.set_content(html.substitute(name=new_user_info['name'], email=new_user_info['email']),'html')
+        message.set_content(html.substitute(
+            name=new_user_info['name'], email=new_user_info['email']), 'html')
 
         with smtplib.SMTP(host='smtp.gmail.com', port=587) as smtp:
             smtp.ehlo()
             smtp.starttls()
             smtp.login('johandrehdb@gmail.com', 'afjtruqujroeylvx')
             smtp.send_message(message)
-
 
 
 @app.route('/')
@@ -107,24 +108,11 @@ def index():
     return render_template('index.html')
 
 
-
 # ... (other filters and imports) ...
 
 @app.route('/dashboard', methods=['GET', 'POST'])
 @require_login()
 def dashboard():
-
-    print("Request Method:", request.method)
-
-    def get_filtered_params(args):
-        return {k: v for k, v in args.items() if k != 'page'}
-
-    user = get_current_user_info()
-    page = request.args.get('page', 1, type=int)
-    per_page = 20  # Number of properties per page
-    properties = Property.query.paginate(page=page, per_page=per_page)
-    selected_areas = []
-
     def apply_numeric_filter(property_attr, filter_value):
         if filter_value == '1':
             return Property.bathrooms == 1
@@ -138,164 +126,170 @@ def dashboard():
             return (property_attr >= 3) & (property_attr.isnot(None))
         return None
 
+    def build_filters_from_form(form_data):
+        filters = {
+            'area_filter': form_data.get('area_filter'),
+            'min_price_filter': form_data.get('min_price_filter'),
+            'max_price_filter': form_data.get('max_price_filter'),
+            'street_name_filter': form_data.get('street_name_filter'),
+            'complex_name_filter': form_data.get('complex_name_filter'),
+            'number_filter': form_data.get('number_filter'),
+            'bedroom_filter': form_data.get('bedroom_filter'),
+            'bathroom_filter': form_data.get('bathroom_filter'),
+            'garages_filter': form_data.get('garages_filter'),
+            'swimming_pool_filter': form_data.get('swimming_pool_filter'),
+            'garden_flat_filter': form_data.get('garden_flat_filter'),
+            'study_filter': form_data.get('study_filter'),
+            'ground_floor_filter': form_data.get('ground_floor_filter'),
+            'pet_friendly_filter': form_data.get('pet_friendly_filter'),
+            # Add other filters here...
+        }
+        return filters
+
+    def build_filters_from_request_args(args):
+        filters = {
+            'area_filter': args.get('area_filter'),
+            'min_price_filter': args.get('min_price_filter'),
+            'max_price_filter': args.get('max_price_filter'),
+            'street_name_filter': args.get('street_name_filter'),
+            'complex_name_filter': args.get('complex_name_filter'),
+            'number_filter': args.get('number_filter'),
+            'bedroom_filter': args.get('bedroom_filter'),
+            'bathroom_filter': args.get('bathroom_filter'),
+            'garages_filter': args.get('garages_filter'),
+            'swimming_pool_filter': args.get('swimming_pool_filter'),
+            'garden_flat_filter': args.get('garden_flat_filter'),
+            'study_filter': args.get('study_filter'),
+            'ground_floor_filter': args.get('ground_floor_filter'),
+            'pet_friendly_filter': args.get('pet_friendly_filter'),
+            # Add other filters here...
+        }
+        return filters
+
+    def apply_filters(query, filters):
+        filter_clauses = []
+
+        if filters['area_filter']:
+            filter_clauses.append(Property.area == filters['area_filter'])
+        if filters['min_price_filter']:
+            filter_clauses.append(
+                Property.price >= filters['min_price_filter'])
+        if filters['max_price_filter']:
+            filter_clauses.append(
+                Property.price <= filters['max_price_filter'])
+        if filters['street_name_filter']:
+            filter_clauses.append(Property.street_name ==
+                                  filters['street_name_filter'])
+        if filters['complex_name_filter']:
+            filter_clauses.append(Property.complex_name ==
+                                  filters['complex_name_filter'])
+        if filters['number_filter']:
+            number_clause = or_(
+                Property.street_number == filters['number_filter'],
+                Property.complex_number == filters['number_filter']
+            )
+            filter_clauses.append(number_clause)
+        if filters['bedroom_filter']:
+            bedroom_clause = apply_numeric_filter(
+                Property.bedrooms, filters['bedroom_filter'])
+            filter_clauses.append(bedroom_clause)
+        if filters['bathroom_filter']:
+            bathroom_clause = apply_numeric_filter(
+                Property.bathrooms, filters['bathroom_filter'])
+            filter_clauses.append(bathroom_clause)
+        if filters['garages_filter']:
+            garages_clause = apply_numeric_filter(
+                Property.garages, filters['garages_filter'])
+            filter_clauses.append(garages_clause)
+        if filters['swimming_pool_filter']:
+            filter_clauses.append(Property.swimming_pool == True)
+        if filters['garden_flat_filter']:
+            filter_clauses.append(Property.garden_flat == True)
+
+
+        if filters['study_filter']:
+            filter_clauses.append(Property.study == filters['study_filter'])
+        if filters['ground_floor_filter']:
+            filter_clauses.append(Property.ground_floor ==
+                                  filters['ground_floor_filter'])
+        if filters['pet_friendly_filter']:
+            filter_clauses.append(Property.pet_friendly ==
+                                  filters['pet_friendly_filter'])
+
+        # Combine all filter clauses using AND
+        if filter_clauses:
+            query = query.filter(and_(*filter_clauses))
+
+        return query
+
+    def get_filtered_params(args):
+        return {k: v for k, v in args.items() if k != 'page'}
+
+    user = get_current_user_info()
+    page = request.args.get('page', 1, type=int)
+    per_page = 20  # Number of properties per page
+
     if user:
-        # Extract filter values from the request
-        filter_area = request.args.get('area_filter')
-        selected_areas = request.args.getlist('area_filter')
-        min_price = request.args.get('min_price_filter')
-        max_price = request.args.get('max_price_filter')
-        street_name = request.args.get('street_name_filter')
-        complex_name = request.args.get('complex_name_filter')
-        number_filter = request.args.get('number_filter')
-        bedroom_filter = request.args.get('bedroom_filter')
-        bathroom_filter = request.args.get('bathroom_filter')
-        garages_filter = request.args.get('garages_filter')
-        swimming_pool_filter = request.args.get('swimming_pool_filter')
-        garden_flat_filter = request.args.get('garden_flat_filter')
-        study_filter = request.args.get('study_filter')
-        ground_floor_filter = request.args.get('ground_floor_filter')
-        pet_friendly_filter = request.args.get('pet_friendly_filter')
-        # ... other filter values ...
+        properties_query = Property.query
 
-        # Build a list of filter conditions
-        filters = []
-        # Price and Area Filter
-        if filter_area:
-            filters.append(Property.area == filter_area)
-        if min_price:
-            filters.append(Property.price >= min_price)
-        if max_price:
-            filters.append(Property.price <= max_price)
-        # Handle street and complex name filtering
-        if street_name:
-            filters.append(Property.street_name == street_name)
-        if complex_name:
-            filters.append(Property.complex_name == complex_name)
-        # Handle street and complex number filtering if/or/and statements.
-        if number_filter:
-            if street_name and complex_name:
-                filters.append((Property.street_number == number_filter) | (
-                    Property.complex_number == number_filter))
-            elif street_name:
-                filters.append(Property.street_number == number_filter)
-            elif complex_name:
-                filters.append(Property.complex_number == number_filter)
-        # ... other filter conditions ...
+        # Handle filtering
+        if request.method == 'POST':
+            print("Form Data:", request.form)
+            filters = build_filters_from_form(request.form)
+            properties_query = apply_filters(properties_query, filters)
+            print("Filters:", filters)
+        else:
+            filters = build_filters_from_request_args(request.args)
+            properties_query = apply_filters(properties_query, filters)
 
-        if request.method == 'GET':
-            print("GET Request: Filtered Params:", get_filtered_params(request.args))
-
-            # If filters are applied, get selected areas from the query
-            selected_areas = []
-            properties_query = Property.query
-            if filters:
-                selected_areas = [area for area in properties_query.with_entities(Property.area).distinct()]
-                properties_query = properties_query.filter(*filters)
-            properties = properties_query.paginate(page=page, per_page=per_page)
-
-            return render_template('dashboard.html', user=user, properties=properties, selected_areas=selected_areas, 
-                                min_price_filter=min_price, max_price_filter=max_price, street_name_filter=street_name,
-                                complex_name_filter=complex_name, number_filter=number_filter, bathroom_filter=bathroom_filter,
-                                bedroom_filter=bedroom_filter, garages_filter=garages_filter, swimming_pool_filter=swimming_pool_filter,
-                                garden_flat_filter=garden_flat_filter, study_filter=study_filter, ground_floor_filter=ground_floor_filter,
-                                pet_friendly_filter=pet_friendly_filter, get_filtered_params=get_filtered_params)
+        filtered_properties = properties_query.paginate(
+            page=page, per_page=per_page)
+        selected_areas = [area for area in properties_query.with_entities(
+            Property.area).distinct()]
 
         if request.method == 'POST':
-            # Get filter values from form
-            filter_area = request.form.get('area_filter')
-            selected_areas = request.form.getlist('area_filter')
-            min_price = request.form.get('min_price_filter')
-            max_price = request.form.get('max_price_filter')
-            street_name = request.form.get('street_name_filter')
-            complex_name = request.form.get('complex_name_filter')
-            number_filter = request.form.get('number_filter')
-            bedroom_filter = request.form.get('bedroom_filter')
-            bathroom_filter = request.form.get('bathroom_filter')
-            garages_filter = request.form.get('garages_filter')
-            swimming_pool_filter = request.form.get('swimming_pool_filter')
-            garden_flat_filter = request.form.get('garden_flat_filter')
-            study_filter = request.form.get('study_filter')
-            ground_floor_filter = request.form.get('ground_floor_filter')
-            pet_friendly_filter = request.form.get('pet_friendly_filter')
-            # ... other filter values ...
-
-            # Check if min_price is greater than max_price
-            if min_price and max_price and int(min_price) > int(max_price):
-                flash('Minimum price cannot be greater than maximum price.', 'error')
-                return redirect(request.url)
-
-            # Build a list of filter conditions
-            filters = []
-            # Price and Area Filter
-            if filter_area:
-                filters.append(Property.area == filter_area)
-            if min_price:
-                filters.append(Property.price >= min_price)
-            if max_price:
-                filters.append(Property.price <= max_price)
-            # Handle street and complex name filtering
-            if street_name:
-                filters.append(Property.street_name == street_name)
-            if complex_name:
-                filters.append(Property.complex_name == complex_name)
-            # Handle street and complex number filtering if/or/and statements.
-            if number_filter:
-                if street_name and complex_name:
-                    filters.append((Property.street_number == number_filter) | (
-                        Property.complex_number == number_filter))
-                elif street_name:
-                    filters.append(Property.street_number == number_filter)
-                elif complex_name:
-                    filters.append(Property.complex_number == number_filter)
-
-            # Handle logic for bedroom, bathroom and garage filters, uses apply_numeric_filter function above.
-            if bedroom_filter:
-                filters.append(apply_numeric_filter(
-                    Property.bedrooms, bedroom_filter))
-
-            if bathroom_filter:
-                filters.append(apply_numeric_filter(
-                    Property.bathrooms, bathroom_filter))
-
-            if garages_filter:
-                filters.append(apply_numeric_filter(
-                    Property.garages, garages_filter))
-
-            if pet_friendly_filter:
-                filters.append(Property.pet_friendly == pet_friendly_filter)
-
-            if ground_floor_filter:
-                filters.append(Property.ground_floor == ground_floor_filter)
-
-            if study_filter:
-                filters.append(Property.study == study_filter)
-
-            if garden_flat_filter:
-                filters.append(Property.garden_flat == garden_flat_filter)
-
-            if swimming_pool_filter:
-                filters.append(Property.swimming_pool == swimming_pool_filter)
-
-            # Print selected filter values for debugging
-            print("Selected filters:")
-            for f in filters:
-                print(f)
-
-            print(f"Selected areas: {selected_areas}")
-            filtered_properties = properties
-            if filters:
-                filtered_properties = Property.query.filter(*filters).paginate(page=page, per_page=per_page)
-
-            return render_template('dashboard.html', user=user, properties=filtered_properties,
-                                   selected_areas=selected_areas, min_price_filter=min_price,
-                                   max_price_filter=max_price, street_name_filter=street_name,
-                                   complex_name_filter=complex_name, number_filter=number_filter,
-                                   bathroom_filter=bathroom_filter, bedroom_filter=bedroom_filter,
-                                   garages_filter=garages_filter, swimming_pool_filter=swimming_pool_filter,
-                                   garden_flat_filter=garden_flat_filter, study_filter=study_filter,
-                                   ground_floor_filter=ground_floor_filter, pet_friendly_filter=pet_friendly_filter, get_filtered_params=get_filtered_params)
+            
+            # Rest of your POST request logic...
+            return render_template('dashboard.html',
+                                user=user,
+                                properties=filtered_properties,
+                                selected_areas=[],
+                                filters=filters,
+                                min_price_filter=filters.get('min_price_filter'),
+                                max_price_filter=filters.get('max_price_filter'),
+                                street_name_filter=filters.get('street_name_filter'),
+                                complex_name_filter=filters.get('complex_name_filter'),
+                                number_filter=filters.get('number_filter'),
+                                bathroom_filter=filters.get('bathroom_filter'),
+                                bedroom_filter=filters.get('bedroom_filter'),
+                                garages_filter=filters.get('garages_filter'),
+                                swimming_pool_filter=filters.get('swimming_pool_filter'),
+                                garden_flat_filter=filters.get('garden_flat_filter'),
+                                study_filter=filters.get('study_filter'),
+                                ground_floor_filter=filters.get('ground_floor_filter'),
+                                pet_friendly_filter=filters.get('pet_friendly_filter'),
+                                get_filtered_params=get_filtered_params)
         else:
-            return render_template('dashboard.html', user=user, properties=properties, selected_areas=selected_areas, get_filtered_params=get_filtered_params)
+            # Rest of your GET request logic...
+            return render_template('dashboard.html',
+                                user=user,
+                                properties=filtered_properties,
+                                selected_areas=[],
+                                filters = filters,
+                                min_price_filter=filters.get('min_price_filter'),
+                                max_price_filter=filters.get('max_price_filter'),
+                                street_name_filter=filters.get('street_name_filter'),
+                                complex_name_filter=filters.get('complex_name_filter'),
+                                number_filter=filters.get('number_filter'),
+                                bathroom_filter=filters.get('bathroom_filter'),
+                                bedroom_filter=filters.get('bedroom_filter'),
+                                garages_filter=filters.get('garages_filter'),
+                                swimming_pool_filter=filters.get('swimming_pool_filter'),
+                                garden_flat_filter=filters.get('garden_flat_filter'),
+                                study_filter=filters.get('study_filter'),
+                                ground_floor_filter=filters.get('ground_floor_filter'),
+                                pet_friendly_filter=filters.get('pet_friendly_filter'),
+                                get_filtered_params=get_filtered_params)
 
     else:
         flash('You need to login first.', 'error')
@@ -380,8 +374,8 @@ def register_user():
 
         # Generate new user info and runs the mailer to inform admins that a new user is registered.
         new_user_info = {
-        'name': first_name,
-        'email': email,
+            'name': first_name,
+            'email': email,
         }
         send_notification_email(new_user_info)
 

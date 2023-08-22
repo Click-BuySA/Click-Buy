@@ -114,7 +114,7 @@
                   <button class="btn btn-danger" id="reset-filters" onclick="resetFilters()">Reset Filters</button>
                 </div>
               </div>                                      
-              <form class="form-sample" id="filter-form" method="post" onsubmit="console.log">
+              <form class="form-sample" id="filter-form" method="post" action="{{ request.path }}" onsubmit="console.log" >
                 <h4 class="card-description"> Adress/Location Filters </h4>
                 <div class="row">
                   <div class="col-md-6">
@@ -301,14 +301,14 @@
                         <div class="col-sm-6">
                           <div class="form-check d-flex justify-content-start">
                             <label class="form-check-label">
-                              <input type="checkbox" class="form-check-input" name="swimming_pool_filter" id="swimming_pool_filter" {% if swimming_pool_filter %}checked{% endif %}>Swimming Pool
+                              <input type="checkbox" class="form-check-input" name="swimming_pool_filter" id="swimming_pool_filter" {% if filters['swimming_pool_filter'] == 'on' %}checked{% endif %}>Swimming Pool
                             </label>
                           </div>
                         </div>
                         <div class="col-sm-6">
                           <div class="form-check d-flex justify-content-start">
                             <label class="form-check-label">
-                              <input type="checkbox" class="form-check-input" name="garden_flat_filter" id="garden_flat_filter" {% if garden_flat_filter %}checked{% endif %}>Garden Flat
+                              <input type="checkbox" class="form-check-input" name="garden_flat_filter" id="garden_flat_filter" value="true" {% if garden_flat_filter %}checked{% endif %}>Garden Flat
                             </label>
                           </div>
                         </div>
@@ -417,7 +417,7 @@
               <br>
               <!-- Page Navigation -->
               <nav aria-label="Page navigation">
-                <ul class="pagination justify-content-center">
+                <ul class="pagination pagination-links justify-content-center">
                     {% if properties.has_prev %}
                     <li class="page-item">
                         <a class="page-link" href="{{ url_for('dashboard', page=properties.prev_num, **get_filtered_params(request.form)) }}">Previous</a>
@@ -457,15 +457,18 @@
 <script src="./static/assets/js/sort_table.js"></script>
 <script>
   $(document).ready(function() {
-    // Initialize the Select2 dropdown
-    $('.js-example-basic-multiple').select2();
-    
-    // Get the selected areas from the Flask variable
-    var selectedAreas = {{ selected_areas | tojson }};
-    
+    {% if request.method == 'POST' %}
+    // Only populate the dropdown with selected areas when filters are applied
+    var selectedAreas = [
+      {% for area in selected_areas %}
+        "{{ area }}"{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ];
+
     // Set the selected areas in the dropdown
     $('.js-example-basic-multiple').val(selectedAreas);
     $('.js-example-basic-multiple').trigger('change'); // Refresh the dropdown to display selected values
+    {% endif %}
   });
 </script>
 <script>
@@ -481,25 +484,27 @@
     });
 </script>
 <Script>
-  function resetFilters() {
+function resetFilters() {
     console.log("Reset button clicked");
-    document.querySelector("[name='street_name_filter']").value = "";
-    document.querySelector("[name='complex_name_filter']").value = "";
-    document.querySelector("[name='number_filter']").value = "";
-    document.querySelector("[name='area_filter']").value = "";
-    document.querySelector("[name='max_price_filter']").value = "";
-    document.querySelector("[name='bedroom_filter']").value = "";
-    document.querySelector("[name='min_price_filter']").value = "";
-    document.querySelector("[name='bathroom_filter']").value = "";
-    document.querySelector("[name='garages_filter']").value = "";
-    document.getElementById('study_filter').checked = false;
-    document.getElementById('swimming_pool_filter').checked = false;
-    document.getElementById('ground_floor_filter').checked = false;
-    document.getElementById('garden_flat_filter').checked = false;
-    document.getElementById('pet_friendly_filter').checked = false
-      // Submit the form to clear the filters
-    document.getElementById("filter-form").submit();
-  }
+    $('[name="street_name_filter"]').val("");
+    $('[name="complex_name_filter"]').val("");
+    $('[name="number_filter"]').val("");
+    $('[name="area_filter"]').val("");
+    $('[name="max_price_filter"]').val("");
+    $('[name="bedroom_filter"]').val("");
+    $('[name="min_price_filter"]').val("");
+    $('[name="bathroom_filter"]').val("");
+    $('[name="garages_filter"]').val("");
+    $('#study_filter').prop('checked', false);
+    $('#swimming_pool_filter').prop('checked', false);
+    $('#ground_floor_filter').prop('checked', false);
+    $('#garden_flat_filter').prop('checked', false);
+    $('#pet_friendly_filter').prop('checked', false);
+
+    // Submit the form to clear the filters
+    $('#filter-form').submit();
+}
+
 </Script>
 <!-- Script for handling AutoNumeric and form submission -->
 <script>
@@ -538,6 +543,23 @@
           minPriceInput.value = ''; // Clear min price input
           maxPriceInput.value = ''; // Clear max price input
       });      
+  });
+</script>
+<script>
+  $(document).ready(function() {
+    // Attach event listener to form fields
+    $('.filter-form input, .filter-form select').on('change', function() {
+      updatePaginationLinks();
+    });
+
+    // Function to update pagination links with form data
+    function updatePaginationLinks() {
+      var formData = $('.filter-form').serialize();
+      $('.pagination-links a').each(function() {
+        var href = $(this).attr('href').split('?')[0]; // Remove existing query string
+        $(this).attr('href', href + '?' + formData); // Append form data as query string
+      });
+    }
   });
 </script>
     <!-- endinject -->
