@@ -420,19 +420,19 @@
                 <ul class="pagination justify-content-center">
                     {% if properties.has_prev %}
                     <li class="page-item">
-                        <a class="page-link" href="{{ url_for('dashboard', page=properties.prev_num) }}">Previous</a>
+                        <a class="page-link" href="{{ url_for('dashboard', page=properties.prev_num, **get_filtered_params(request.form)) }}">Previous</a>
                     </li>
                     {% endif %}
                     
                     {% for num in properties.iter_pages() %}
                     <li class="page-item {% if properties.page == num %}active{% endif %}">
-                        <a class="page-link" href="{{ url_for('dashboard', page=num) }}">{{ num }}</a>
+                        <a class="page-link" href="{{ url_for('dashboard', page=num, **get_filtered_params(request.form)) }}">{{ num }}</a>
                     </li>
                     {% endfor %}
                     
                     {% if properties.has_next %}
                     <li class="page-item">
-                        <a class="page-link" href="{{ url_for('dashboard', page=properties.next_num) }}">Next</a>
+                        <a class="page-link" href="{{ url_for('dashboard', page=properties.next_num, **get_filtered_params(request.form)) }}">Next</a>
                     </li>
                     {% endif %}
                 </ul>
@@ -467,7 +467,7 @@
     $('.js-example-basic-multiple').val(selectedAreas);
     $('.js-example-basic-multiple').trigger('change'); // Refresh the dropdown to display selected values
   });
-  </script> 
+</script>
 <script>
     $(document).ready(function() {
       $("#toggleFilters, #toggleFilters1").click(function() {
@@ -479,7 +479,7 @@
         $("#toggleFilters, #toggleFilters1").text(buttonText); // Update the button text for both buttons
       });
     });
-  </script>
+</script>
 <Script>
   function resetFilters() {
     console.log("Reset button clicked");

@@ -108,12 +108,17 @@ def index():
 
 
 
-
 # ... (other filters and imports) ...
 
 @app.route('/dashboard', methods=['GET', 'POST'])
 @require_login()
 def dashboard():
+
+    print("Request Method:", request.method)
+
+    def get_filtered_params(args):
+        return {k: v for k, v in args.items() if k != 'page'}
+
     user = get_current_user_info()
     page = request.args.get('page', 1, type=int)
     per_page = 20  # Number of properties per page
@@ -134,6 +139,67 @@ def dashboard():
         return None
 
     if user:
+        # Extract filter values from the request
+        filter_area = request.args.get('area_filter')
+        selected_areas = request.args.getlist('area_filter')
+        min_price = request.args.get('min_price_filter')
+        max_price = request.args.get('max_price_filter')
+        street_name = request.args.get('street_name_filter')
+        complex_name = request.args.get('complex_name_filter')
+        number_filter = request.args.get('number_filter')
+        bedroom_filter = request.args.get('bedroom_filter')
+        bathroom_filter = request.args.get('bathroom_filter')
+        garages_filter = request.args.get('garages_filter')
+        swimming_pool_filter = request.args.get('swimming_pool_filter')
+        garden_flat_filter = request.args.get('garden_flat_filter')
+        study_filter = request.args.get('study_filter')
+        ground_floor_filter = request.args.get('ground_floor_filter')
+        pet_friendly_filter = request.args.get('pet_friendly_filter')
+        # ... other filter values ...
+
+        # Build a list of filter conditions
+        filters = []
+        # Price and Area Filter
+        if filter_area:
+            filters.append(Property.area == filter_area)
+        if min_price:
+            filters.append(Property.price >= min_price)
+        if max_price:
+            filters.append(Property.price <= max_price)
+        # Handle street and complex name filtering
+        if street_name:
+            filters.append(Property.street_name == street_name)
+        if complex_name:
+            filters.append(Property.complex_name == complex_name)
+        # Handle street and complex number filtering if/or/and statements.
+        if number_filter:
+            if street_name and complex_name:
+                filters.append((Property.street_number == number_filter) | (
+                    Property.complex_number == number_filter))
+            elif street_name:
+                filters.append(Property.street_number == number_filter)
+            elif complex_name:
+                filters.append(Property.complex_number == number_filter)
+        # ... other filter conditions ...
+
+        if request.method == 'GET':
+            print("GET Request: Filtered Params:", get_filtered_params(request.args))
+
+            # If filters are applied, get selected areas from the query
+            selected_areas = []
+            properties_query = Property.query
+            if filters:
+                selected_areas = [area for area in properties_query.with_entities(Property.area).distinct()]
+                properties_query = properties_query.filter(*filters)
+            properties = properties_query.paginate(page=page, per_page=per_page)
+
+            return render_template('dashboard.html', user=user, properties=properties, selected_areas=selected_areas, 
+                                min_price_filter=min_price, max_price_filter=max_price, street_name_filter=street_name,
+                                complex_name_filter=complex_name, number_filter=number_filter, bathroom_filter=bathroom_filter,
+                                bedroom_filter=bedroom_filter, garages_filter=garages_filter, swimming_pool_filter=swimming_pool_filter,
+                                garden_flat_filter=garden_flat_filter, study_filter=study_filter, ground_floor_filter=ground_floor_filter,
+                                pet_friendly_filter=pet_friendly_filter, get_filtered_params=get_filtered_params)
+
         if request.method == 'POST':
             # Get filter values from form
             filter_area = request.form.get('area_filter')
@@ -218,8 +284,7 @@ def dashboard():
             print(f"Selected areas: {selected_areas}")
             filtered_properties = properties
             if filters:
-                filtered_properties = Property.query.filter(
-                    *filters).paginate(page=page, per_page=per_page)
+                filtered_properties = Property.query.filter(*filters).paginate(page=page, per_page=per_page)
 
             return render_template('dashboard.html', user=user, properties=filtered_properties,
                                    selected_areas=selected_areas, min_price_filter=min_price,
@@ -228,9 +293,9 @@ def dashboard():
                                    bathroom_filter=bathroom_filter, bedroom_filter=bedroom_filter,
                                    garages_filter=garages_filter, swimming_pool_filter=swimming_pool_filter,
                                    garden_flat_filter=garden_flat_filter, study_filter=study_filter,
-                                   ground_floor_filter=ground_floor_filter, pet_friendly_filter=pet_friendly_filter)
+                                   ground_floor_filter=ground_floor_filter, pet_friendly_filter=pet_friendly_filter, get_filtered_params=get_filtered_params)
         else:
-            return render_template('dashboard.html', user=user, properties=properties, selected_areas=selected_areas)
+            return render_template('dashboard.html', user=user, properties=properties, selected_areas=selected_areas, get_filtered_params=get_filtered_params)
 
     else:
         flash('You need to login first.', 'error')
