@@ -110,18 +110,18 @@
                 </div>
                 <div class="text-right col-md-6 col-sl-3">
                   <button type="button" class="btn btn-success align-self-center" id="toggleFilters" >Show Filters</button>
-                  <input type="submit" class="btn btn-primary align-self-center" value="Filter" form="filter-form" id="filter-button">
+                  <input type="submit" class="btn btn-primary align-self-center" value="Filter" form="filter-form">
                   <button class="btn btn-danger" id="reset-filters" onclick="resetFilters()">Reset Filters</button>
                 </div>
               </div>                                      
-              <form class="form-sample" id="filter-form" name="filter-form" method="post" action="{{ request.path }}" onsubmit="console.log" >
+              <form class="form-sample" id="filter-form" method="post" action="{{ request.path }}" onsubmit="console.log" >
                 <h4 class="card-description"> Adress/Location Filters </h4>
                 <div class="row">
                   <div class="col-md-6">
                     <div class="form-group row">
                       <label class="col-sm-3 col-form-label">Street Name</label>
                       <div class="col-sm-9">
-                        <input type="text" class="form-control" id="street_name_filter" name="street_name_filter" value="{{ street_name_filter or ''}}" />
+                        <input type="text" class="form-control" name="street_name_filter" value="{{ street_name_filter or ''}}" />
                       </div>
                     </div>
                   </div>
@@ -129,7 +129,7 @@
                     <div class="form-group row">
                       <label class="col-sm-3 col-form-label">Complex Name</label>
                       <div class="col-sm-9">
-                        <input type="text" class="form-control" id="complex_name_filter" name="complex_name_filter" value="{{ complex_name_filter or ''}}" />
+                        <input type="text" class="form-control" name="complex_name_filter" value="{{ complex_name_filter or ''}}" />
                       </div>
                     </div>
                   </div>
@@ -141,7 +141,7 @@
                     <div class="form-group row">
                       <label class="col-sm-3 col-form-label">Property Type</label>
                       <div class="col-sm-9">
-                        <select class="form-control" id="prop_type_filter" name="prop_type_filter">
+                        <select class="form-control" name="prop_type_filter">
                           <option>Any</option>
                           <option>Full Title</option>
                           <option>Sectonal Scheme</option>
@@ -157,7 +157,7 @@
                     <div class="form-group row">
                       <label class="col-sm-3 col-form-label">Unit / Street Number</label>
                       <div class="col-sm-9">
-                        <input class="form-control" id="number_filter" name="number_filter" value="{{ number_filter or ''}}"/>
+                        <input class="form-control" name="number_filter" value="{{ number_filter or ''}}"/>
                       </div>
                     </div>
                   </div>                          
@@ -342,7 +342,7 @@
                 
                 <div class="text-center">
                   <button type="button" class="btn btn-success" id="toggleFilters1">Hide Filters</button>
-                  <input type="submit" class="btn btn-primary" value="Filter" form="filter-form" id="filter-button">
+                  <input type="submit" class="btn btn-primary" value="Filter" form="filter-form">
                   <button class="btn btn-danger" id="reset-filters" onclick="resetFilters()">Reset Filters</button>
                 </div>                    
               </form>
@@ -357,7 +357,7 @@
               <button id="expand-toggle-btn" class="btn btn-primary">Expand/Collapse</button>
             </div>
             <br>
-            <div class="table-responsive table-responsive-sm .table-responsive-md table-responsive-lg table-responsive-xl">
+            <div id="properties-container" class="table-responsive table-responsive-sm .table-responsive-md table-responsive-lg table-responsive-xl">
               <table class="table table-hover" id="properties_table">
                 <thead>
                   <tr>
@@ -421,22 +421,22 @@
                   <ul class="pagination pagination-links justify-content-center">
                     {% if properties.has_prev %}
                     <li class="page-item">
-                      <a class="page-link pagination-link" href="#" data-page="{{ properties.prev_num }}">Previous</a>
+                        <a class="page-link" href="{{ url_for('dashboard', page=properties.prev_num, **get_filtered_params(request.form)) }}">Previous</a>
                     </li>
                     {% endif %}
-                
+                    
                     {% for num in properties.iter_pages() %}
                     <li class="page-item {% if properties.page == num %}active{% endif %}">
-                      <a class="page-link pagination-link" href="#" data-page="{{ num }}">{{ num }}</a>
+                        <a class="page-link" href="{{ url_for('dashboard', page=num, **get_filtered_params(request.form)) }}">{{ num }}</a>
                     </li>
                     {% endfor %}
-                
+                    
                     {% if properties.has_next %}
                     <li class="page-item">
-                      <a class="page-link pagination-link" href="#" data-page="{{ properties.next_num }}">Next</a>
+                        <a class="page-link" href="{{ url_for('dashboard', page=properties.next_num, **get_filtered_params(request.form)) }}">Next</a>
                     </li>
                     {% endif %}
-                  </ul>
+                </ul>
                 </div>
             </nav>
               <!-- table ends here -->
@@ -457,7 +457,6 @@
 <script src="./static/assets/js/select2.js"></script>
 <script src="./static/assets/js/AutoNumeric.min.js"></script>
 <script src="./static/assets/js/sort_table.js"></script>
-
 <script>
   $(document).ready(function() {
     {% if request.method == 'POST' %}
@@ -472,8 +471,96 @@
     $('.js-example-basic-multiple').val(selectedAreas);
     $('.js-example-basic-multiple').trigger('change'); // Refresh the dropdown to display selected values
     {% endif %}
+  });
+</script>
+<script>
+  <!-- Inside the <script> tag in your template -->
+$(document).ready(function () {
+  loadProperties(1); // Load initial page on page load
 
-new AutoNumeric('#min_price_filter', {
+  function loadProperties(page) {
+    $.ajax({
+      url: '/dashboard?page=' + page,
+      method: 'GET',
+      dataType: 'json',
+      success: function (data) {
+        updateProperties(data.properties);
+        updatePagination(data.page, data.pages);
+      },
+      error: function () {
+        console.log('Error loading properties.');
+      }
+    });
+  }
+
+  function updateProperties(properties) {
+    var propertiesContainer = $('#properties-container');
+    propertiesContainer.empty();
+
+    for (var i = 0; i < properties.length; i++) {
+      // Create HTML content for each property and append to propertiesContainer
+    }
+  }
+
+  function updatePagination(currentPage, totalPages) {
+    var paginationControls = $('#pagination-controls');
+    paginationControls.empty();
+
+    for (var i = 1; i <= totalPages; i++) {
+      var pageLink = $('<a>', {
+        href: 'javascript:void(0);',
+        text: i,
+        class: i === currentPage ? 'active' : '',
+        click: function () {
+          loadProperties(i);
+        }
+      });
+      paginationControls.append(pageLink);
+    }
+  }
+});
+
+</script>
+<script>
+    $(document).ready(function() {
+      $("#toggleFilters, #toggleFilters1").click(function() {
+        $("#filter-form").toggle(); // Toggle the visibility of the filters section
+  
+        var isVisible = $("#filter-form").is(":visible"); // Check if the form is visible
+        var buttonText = isVisible ? "Hide Filters" : "Show Filters"; // Set the button text based on visibility
+  
+        $("#toggleFilters, #toggleFilters1").text(buttonText); // Update the button text for both buttons
+      });
+    });
+</script>
+<Script>
+function resetFilters() {
+    console.log("Reset button clicked");
+    $('[name="street_name_filter"]').val("");
+    $('[name="complex_name_filter"]').val("");
+    $('[name="number_filter"]').val("");
+    $('[name="area_filter"]').val("");
+    $('[name="max_price_filter"]').val("");
+    $('[name="bedroom_filter"]').val("");
+    $('[name="min_price_filter"]').val("");
+    $('[name="bathroom_filter"]').val("");
+    $('[name="garages_filter"]').val("");
+    $('#study_filter').prop('checked', false);
+    $('#swimming_pool_filter').prop('checked', false);
+    $('#ground_floor_filter').prop('checked', false);
+    $('#garden_flat_filter').prop('checked', false);
+    $('#pet_friendly_filter').prop('checked', false);
+
+    // Submit the form to clear the filters
+    $('#filter-form').submit();
+}
+
+</Script>
+<!-- Script for handling AutoNumeric and form submission -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      // Initialize AutoNumeric with custom options
+      new AutoNumeric('#min_price_filter', {
           currencySymbol: 'R ',
           currencySymbolPlacement: AutoNumeric.options.currencySymbolPlacement.prefix,
           decimalPlaces: 0,
@@ -507,204 +594,35 @@ new AutoNumeric('#min_price_filter', {
           maxPriceInput.value = ''; // Clear max price input
       });      
   });
-
-  $(document).ready(function () {
-    $("#expand-toggle-btn").click(function () {
-        $(".expandable-column").toggle();
-        $('#properties-table').sort_table();
+</script>
+<script>
+  $(document).ready(function() {
+    // Attach event listener to form fields
+    $('.filter-form input, .filter-form select').on('change', function() {
+      updatePaginationLinks();
     });
 
-});
-
-// Helper function to add commas to numbers
-function numberWithCommas(x) {
-    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-}
-</script>
-
-<script>
-function handlePaginationClick(page, formData) {
-  console.log("handlePaginationClick called"); // Debug log
-  console.log("Page:", page);
-  for (var pair of formData.entries()) {
-    console.log(pair[0] + ': ' + pair[1]); // Debug log each form field
-  }
-
-  $.ajax({
-    type: 'POST',
-    url: '/dashboard',
-    data: formData, // Send the form data as is
-    processData: false,
-    contentType: false, // Set contentType to false for FormData
-    success: function (data) {
-      updateProperties(data); // Update the properties table with received data
-    },
-    error: function (error) {
-      console.error('Error fetching properties:', error);
-    }
-  });
-}
-
-
-  // Function to update properties and pagination
-  function updateProperties(data) {
- // Update properties in #properties_table tbody
-    var propertiesBody = $('#properties_table tbody');
-    propertiesBody.empty();
-
-    for (var i = 0; i < data.properties.length; i++) {
-      var property = data.properties[i];
-      console.log("Processing property:", property); // Debug log
-      var row = $('<tr>');
-
-      row.append($('<td>').html(
-        '<div class="form-check form-check-muted m-0">' +
-        '<label class="form-check-label">' +
-        '<input type="checkbox" class="form-check-input">' +
-        '</label>' +
-        '</div>'
-      ));
-    
-      // Property Description
-      var propertyDesc = '';
-      if (property.street_number) {
-          propertyDesc += property.street_number + ' ';
-      }
-      if (property.street_name) {
-          propertyDesc += property.street_name + ' ';
-      }
-      if (property.complex_number) {
-          propertyDesc += property.complex_number + ' ';
-      }
-      if (property.complex_name) {
-          propertyDesc += property.complex_name;
-      }
-      row.append($('<td>').text(propertyDesc));
-      
-      // Other columns
-      row.append($('<td>').text(property.area));
-      // Price column without decimals
-      var priceFormatted = 'R ' + numberWithCommas(Math.floor(property.price));
-      var priceCell = $('<td>').text(priceFormatted);
-      row.append(priceCell);
-
-      propertiesBody.append(row);
-      row.append($('<td>').text(property.bedrooms));
-      row.append($('<td>').text(property.bathrooms));
-      row.append($('<td>').text(property.garages));
-      
-      // P-24 Link
-      var p24Link = $('<a>', {
-        class: 'btn btn-primary',
-        href: property.link,
-        target: '_blank',
-        text: property.link_display
+    // Function to update pagination links with form data
+    function updatePaginationLinks() {
+      var formData = $('.filter-form').serialize();
+      $('.pagination-links a').each(function() {
+        var href = $(this).attr('href').split('?')[0]; // Remove existing query string
+        $(this).attr('href', href + '?' + formData); // Append form data as query string
       });
-      row.append($('<td>').append(p24Link));
-
-      // Expandable columns
-      row.append($('<td>').text(property.swimming_pool).addClass('expandable-column'));
-      row.append($('<td>').text(property.garden_flat).addClass('expandable-column'));
-      row.append($('<td>').text(property.study).addClass('expandable-column'));
-      row.append($('<td>').text(property.ground_floor).addClass('expandable-column'));
-      row.append($('<td>').text(property.pet_friendly).addClass('expandable-column'));
-
-      propertiesBody.append(row);
     }
-
-    // Update pagination controls in #pagination-container
-    var paginationControls = $('#pagination-container');
-    paginationControls.html(data.paginationHTML);
-  }
-
-
-  // Initial page load
-  $(document).ready(function () {
-    var formData = new FormData(document.getElementById('filter-form'));
-    handlePaginationClick(1, formData);
-  });
-
-  // Attach event listener to form fields
-  $('.filter-form input, .filter-form select').on('change', function () {
-    updatePaginationLinks();
-  });
-
-  $('#filter-button').on('click', function (e) {
-    e.preventDefault();
-    console.log('Filter button clicked'); // Debugging line
-    handleFormSubmit();
-  });
-  function handleFormSubmit() {
-    console.log("handleFormSubmit called"); // Debug log
-    var formData = new FormData(); // Create a new FormData object
-    formData.append('street_name_filter', $('[name="street_name_filter"]').val());
-    formData.append('complex_name_filter', $('[name="complex_name_filter"]').val());
-    formData.append('max_price_filter', $('[name="max_price_filter"]').val());
-    formData.append('number_filter', $('[name="number_filter"]').val());
-    formData.append('area_filter', $('[name="area_filter"]').val());
-    handlePaginationClick(1, formData); // Send the form data along with page number
-  }
-  
-  // Function to update pagination links with form data
-  function updatePaginationLinks() {
-    var formData = $('.filter-form').serialize();
-    $('.pagination-links a').each(function () {
-      var href = $(this).attr('href').split('?')[0]; // Remove existing query string
-      $(this).attr('href', href + '?' + formData); // Append form data as query string
-    });
-  }
-
-  
-
-  $(document).on('click', '.pagination-link', function (e) {
-    e.preventDefault();
-    var page = $(this).data('page');
-    var formData = new FormData(document.getElementById('filter-form'));
-    handlePaginationClick(page, formData);
-  });
-
-  $(document).ready(function () {
-    $("#toggleFilters, #toggleFilters1").click(function () {
-      $("#filter-form").toggle(); // Toggle the visibility of the filters section
-
-      var isVisible = $("#filter-form").is(":visible"); // Check if the form is visible
-      var buttonText = isVisible ? "Hide Filters" : "Show Filters"; // Set the button text based on visibility
-
-      $("#toggleFilters, #toggleFilters1").text(buttonText); // Update the button text for both buttons
-    });
-  });
-
-  function resetFilters() {
-    console.log("Reset button clicked");
-    $('[name="street_name_filter"]').val("");
-    $('[name="complex_name_filter"]').val("");
-    $('[name="number_filter"]').val("");
-    $('[name="area_filter"]').val("");
-    $('[name="max_price_filter"]').val("");
-    $('[name="bedroom_filter"]').val("");
-    $('[name="min_price_filter"]').val("");
-    $('[name="bathroom_filter"]').val("");
-    $('[name="garages_filter"]').val("");
-    $('#study_filter').prop('checked', false);
-    $('#swimming_pool_filter').prop('checked', false);
-    $('#ground_floor_filter').prop('checked', false);
-    $('#garden_flat_filter').prop('checked', false);
-    $('#pet_friendly_filter').prop('checked', false);
-
-    // Submit the form to clear the filters
-    $('#filter-form').submit();
-  }
-</script>
-<!-- Custom js for this page -->
-<script src="./static/assets/js/dashboard.js"></script>
-<script>
-  $(document).ready(function () {
-    $("#expand-toggle-btn").click(function () {
-      $(".expandable-column").toggle();
-      $('#properties-table').sort_table();
-    });
   });
 </script>
+    <!-- endinject -->
+  <!-- Custom js for this page -->
+  <script src="./static/assets/js/dashboard.js"></script>
+  <script>
+    $(document).ready(function () {
+        $("#expand-toggle-btn").click(function () {
+            $(".expandable-column").toggle();
+            $('#properties-table').sort_table();
+        });
 
+    });
+</script>
   
 {% endblock %}
