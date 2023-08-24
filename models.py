@@ -71,6 +71,8 @@ class Property(db.Model):
             'study': self.study,
             'ground_floor': self.ground_floor,
             'pet_friendly': self.pet_friendly,
+            'link': self.link,
+            'link_display': self.link_display
             # ... Add other attributes here ...
         }
 
