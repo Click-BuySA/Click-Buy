@@ -132,6 +132,14 @@ def index():
 @app.route('/dashboard', methods=['GET', 'POST'])
 @require_login()
 def dashboard():
+    min_price = request.form.get('min_price_filter')
+    max_price = request.form.get('max_price_filter')
+
+    if min_price and max_price and float(min_price) > float(max_price):
+        flash("Minimum price cannot be higher than maximum price", "warning")
+
+
+
     def apply_numeric_filter(property_attr, filter_value):
         if filter_value == '1':
             return Property.bathrooms == 1
@@ -189,7 +197,10 @@ def dashboard():
         filter_clauses = []
 
         if filters['area_filter']:
-            filter_clauses.append(Property.area == filters['area_filter'])
+            areas = filters['area_filter'].split(',')  # Split areas into a list
+            area_clauses = [Property.area.ilike(f"%{area.strip().lower()}%") for area in areas]
+            filter_clauses.append(or_(*area_clauses))
+
         if filters['min_price_filter']:
             filter_clauses.append(
                 Property.price >= filters['min_price_filter'])
@@ -288,7 +299,7 @@ def dashboard():
                         filtered_properties.pages, filtered_properties.page)  # Update this line
                 }
             }
-            print("Sending properties data:", properties_data)  # Debug log
+            # print("Sending properties data:", properties_data)  # Debug log
             return jsonify(properties_data)  # Return JSON for AJAX requests
         
         return render_template('dashboard.html',

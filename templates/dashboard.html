@@ -17,7 +17,6 @@
 
 </style>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<!-- static\assets\vendors\autoNumeric-4.9.0\autoNumeric-4.9.0\src\AutoNumeric.js -->
 {% endblock %}
 
 
@@ -223,7 +222,7 @@
                     <div class="form-group row">
                       <label class="col-sm-3 col-form-label">Price Maximum</label>
                       <div class="col-sm-9">
-                        <input type="text" class="form-control" placeholder="" id="max_price_filter" name="max_price_filter" value="{{ max_price_filter }}">
+                        <input type="text" class="form-control" placeholder="" id="max_price_filter" name="max_price_filter">
                       </div>
                     </div>
                   </div>
@@ -248,7 +247,7 @@
                     <div class="form-group row">
                       <label class="col-sm-3 col-form-label">Price Minimum</label>
                       <div class="col-sm-9">
-                        <input type="text" class="form-control" placeholder="" id="min_price_filter" name="min_price_filter" value="{{ min_price_filter }}">
+                        <input type="text" class="form-control" placeholder="" id="min_price_filter" name="min_price_filter">
                       </div>
                     </div>
                   </div>
@@ -427,7 +426,6 @@
   <!-- content-wrapper ends -->
   <!-- partial:partials/_footer -->
   <!-- partial -->
-    </div>
 <!-- main-panel ends -->
 {% endblock %}
 
@@ -437,15 +435,28 @@
 <script src="./static/assets/js/AutoNumeric.min.js"></script>
 <script src="./static/assets/js/sort_table.js"></script>
 <script>
+minPriceAutoNumeric = new AutoNumeric('#min_price_filter', {
+  currencySymbol: 'R ',
+  currencySymbolPlacement: AutoNumeric.options.currencySymbolPlacement.prefix,
+  decimalPlaces: 0,
+  unformatOnSubmit: true
+});
+
+maxPriceAutoNumeric = new AutoNumeric('#max_price_filter', {
+  currencySymbol: 'R ',
+  currencySymbolPlacement: AutoNumeric.options.currencySymbolPlacement.prefix,
+  decimalPlaces: 0,
+  unformatOnSubmit: true
+});
+
 $(document).ready(function () {
 
-  initializeAutoNumeric(['#min_price_filter', '#max_price_filter']);
   // Event listener for form submission
   document.getElementById('filter-form').addEventListener('submit', function (event) {
     const minPriceInput = document.getElementById('min_price_filter');
     const maxPriceInput = document.getElementById('max_price_filter');
 
-    if (minPriceInput.value !== '' && maxPriceInput.value !== '' && Number(minPriceInput.value) > Number(maxPriceInput.value)) {
+    if (minPriceInput.value !== 0 && maxPriceInput.value !== 0 && Number(minPriceInput.value) > Number(maxPriceInput.value)) {
       event.preventDefault();
       alert('Min price cannot be greater than max price.');
     }
@@ -467,7 +478,8 @@ $(document).ready(function () {
   });
 
   // Event listener for the "Reset Filters" button click
-  $('#reset-filters, #reset-filters-hidden').on('click', function () {
+  $('#reset-filters, #reset-filters-hidden').on('click', function (event) {
+    event.preventDefault(); // Prevent the default behavior
     resetFilters();
   });
 
@@ -482,29 +494,19 @@ $(document).ready(function () {
 
   $("#expand-toggle-btn").click(function () {
     $(".expandable-column").toggle();
-    $('#properties-table').sort_table();
+    $('#properties-table').sortTable();
   });
 
 
-  {% if request.method == 'POST' %}
-    // Only populate the dropdown with selected areas when filters are applied
-    var selectedAreas = [
+  var selectedAreas = [
       {% for area in selected_areas %}
-        "{{ area }}"{% if not loop.last %},{% endif %}
+          "{{ area }}"{% if not loop.last %},{% endif %}
       {% endfor %}
-    ];
+  ];
 
-    $("#expand-toggle-btn").click(function () {
-      $(".expandable-column").toggle();
-      $('#properties-table').sort_table();
-    });
-
-
-    // Set the selected areas in the dropdown
-    $('.js-example-basic-multiple').val(selectedAreas);
-    $('.js-example-basic-multiple').trigger('change'); // Refresh the dropdown to display selected values
-    {% endif %}
-  // Initialize other code...
+  // Set the selected areas in the dropdown
+  $('.js-example-basic-multiple').val(selectedAreas);
+  $('.js-example-basic-multiple').trigger('change'); // Refresh the dropdown to display selected values
 
   // Initial page load
   var formData = new FormData(document.getElementById('filter-form'));
@@ -515,6 +517,7 @@ $(document).ready(function () {
     updatePaginationLinks();
   });
 });
+
 
 function handlePaginationClick(page, formData) {
   console.log("handlePaginationClick called");
@@ -586,19 +589,43 @@ function updateProperties(data) {
       if (property.complex_name) {
           propertyDesc += property.complex_name;
       }
-      row.append($('<td>').text(propertyDesc));
+      var descriptionCell = $('<td>', {
+          'data-column': 'prop_desc'
+      }).text(propertyDesc);
+      row.append(descriptionCell);
+
       
       // Other columns
-      row.append($('<td>').text(property.area));
+      var areaCell = $('<td>', {
+          'data-column': 'area'
+      }).text(property.area);
+      row.append(areaCell);
+      
       // Price column without decimals
       var priceFormatted = 'R ' + numberWithCommas(Math.floor(property.price));
-      var priceCell = $('<td>').text(priceFormatted);
+      var priceCell = $('<td>', {
+          'data-column': 'price' // Add the data-column attribute
+      }).text(priceFormatted);
       row.append(priceCell);
 
-      propertiesBody.append(row);
-      row.append($('<td>').text(property.bedrooms));
-      row.append($('<td>').text(property.bathrooms));
-      row.append($('<td>').text(property.garages));
+      // Bedrooms column
+      var bedroomsCell = $('<td>', {
+          'data-column': 'bedrooms' // Add the data-column attribute
+      }).text(property.bedrooms);
+      row.append(bedroomsCell);
+
+      // Bathrooms column
+      var bathroomsCell = $('<td>', {
+          'data-column': 'bathrooms' // Add the data-column attribute
+      }).text(property.bathrooms);
+      row.append(bathroomsCell);
+
+      // Garages column
+      var garagesCell = $('<td>', {
+          'data-column': 'garages' // Add the data-column attribute
+      }).text(property.garages);
+      row.append(garagesCell);
+
       
       // P-24 Link
       var p24Link = $('<a>', {
@@ -610,61 +637,84 @@ function updateProperties(data) {
       row.append($('<td>').append(p24Link));
 
       // Expandable columns
-      row.append($('<td>').text(property.swimming_pool).addClass('expandable-column'));
-      row.append($('<td>').text(property.garden_flat).addClass('expandable-column'));
-      row.append($('<td>').text(property.study).addClass('expandable-column'));
-      row.append($('<td>').text(property.ground_floor).addClass('expandable-column'));
-      row.append($('<td>').text(property.pet_friendly).addClass('expandable-column'));
+      row.append($('<td>', {
+          'data-column': 'swimming_pool' // Add the data-column attribute
+      }).text(property.swimming_pool).addClass('expandable-column'));
+
+      row.append($('<td>', {
+          'data-column': 'garden_flat' // Add the data-column attribute
+      }).text(property.garden_flat).addClass('expandable-column'));
+
+      row.append($('<td>', {
+          'data-column': 'study' // Add the data-column attribute
+      }).text(property.study).addClass('expandable-column'));
+
+      row.append($('<td>', {
+          'data-column': 'ground_floor' // Add the data-column attribute
+      }).text(property.ground_floor).addClass('expandable-column'));
+
+      row.append($('<td>', {
+          'data-column': 'pet_friendly' // Add the data-column attribute
+      }).text(property.pet_friendly).addClass('expandable-column'));
 
       propertiesBody.append(row);
     }
   }
 
 function handleFormSubmit() {
-      console.log("handleFormSubmit called"); // Debug log
-      var formData = new FormData(); // Create a new FormData object
-      formData.append('street_name_filter', $('[name="street_name_filter"]').val());
-      formData.append('complex_name_filter', $('[name="complex_name_filter"]').val());
+  console.log("handleFormSubmit called"); // Debug log
 
-      // Convert max and min price to numeric values
-      var minPriceValue = parseFloat($('#min_price_filter').val().replace(/\D/g, ''));
-      var maxPriceValue = parseFloat($('#max_price_filter').val().replace(/\D/g, ''));
-      if (!isNaN(minPriceValue)) {
-          formData.append('min_price_filter', minPriceValue);
-      }
+  var minPriceValue = parseFloat($('#min_price_filter').val().replace(/\D/g, ''));
+  var maxPriceValue = parseFloat($('#max_price_filter').val().replace(/\D/g, ''));
 
-      if (!isNaN(maxPriceValue)) {
-          formData.append('max_price_filter', maxPriceValue);
-      }
+  if (minPriceValue !== '' && maxPriceValue !== '' && parseInt(minPriceValue) > parseInt(maxPriceValue)) {
+    alert("Minimum price cannot be higher than maximum price.");
+  } else {
 
+    var formData = new FormData(); // Create a new FormData object
+    formData.append('street_name_filter', $('[name="street_name_filter"]').val());
+    formData.append('complex_name_filter', $('[name="complex_name_filter"]').val());
 
-      formData.append('max_price_filter', $('[name="max_price_filter"]').val());
-      formData.append('number_filter', $('[name="number_filter"]').val());
-      formData.append('bedroom_filter', $('[name="bedroom_filter"]').val());
-      formData.append('bathroom_filter', $('[name="bathroom_filter"]').val());
-      formData.append('garages_filter', $('[name="garages_filter"]').val());
+    // Convert max and min price to numeric values
+    var minPriceValue = parseFloat($('#min_price_filter').val().replace(/\D/g, ''));
+    var maxPriceValue = parseFloat($('#max_price_filter').val().replace(/\D/g, ''));
+    if (!isNaN(minPriceValue)) {
+        formData.append('min_price_filter', minPriceValue);
+    }
 
-      // Handle checkboxes
-      if ($('#study_filter').prop('checked')) {
-          formData.append('study_filter', 'true');
-      }
-      if ($('#swimming_pool_filter').prop('checked')) {
-          formData.append('swimming_pool_filter', 'true');
-      }
-      if ($('#ground_floor_filter').prop('checked')) {
-          formData.append('ground_floor_filter', 'true');
-      }
-      if ($('#garden_flat_filter').prop('checked')) {
-          formData.append('garden_flat_filter', 'true');
-      }
-      if ($('#pet_friendly_filter').prop('checked')) {
-          formData.append('pet_friendly_filter', 'true');
-      }
-      
-      handlePaginationClick(1, formData); // Send the form data along with page number
+    if (!isNaN(maxPriceValue)) {
+        formData.append('max_price_filter', maxPriceValue);
+    }
+
+    formData.append('area_filter', $('[name="area_filter"]').val());
+    formData.append('max_price_filter', $('[name="max_price_filter"]').val());
+    formData.append('number_filter', $('[name="number_filter"]').val());
+    formData.append('bedroom_filter', $('[name="bedroom_filter"]').val());
+    formData.append('bathroom_filter', $('[name="bathroom_filter"]').val());
+    formData.append('garages_filter', $('[name="garages_filter"]').val());
+
+    // Handle checkboxes
+    if ($('#study_filter').prop('checked')) {
+        formData.append('study_filter', 'true');
+    }
+    if ($('#swimming_pool_filter').prop('checked')) {
+        formData.append('swimming_pool_filter', 'true');
+    }
+    if ($('#ground_floor_filter').prop('checked')) {
+        formData.append('ground_floor_filter', 'true');
+    }
+    if ($('#garden_flat_filter').prop('checked')) {
+        formData.append('garden_flat_filter', 'true');
+    }
+    if ($('#pet_friendly_filter').prop('checked')) {
+        formData.append('pet_friendly_filter', 'true');
+    }
+    
+    handlePaginationClick(1, formData); // Send the form data along with page number
   }  
+}
   
-  function updatePaginationLinks() {
+function updatePaginationLinks() {
   var formData = new FormData($('.filter-form')[0]); // Construct FormData object
   
   // Construct the URLSearchParams manually
@@ -687,6 +737,7 @@ function handleFormSubmit() {
     });
   }
 }
+
 function resetFilters() {
     // console.log("Reset button clicked");
 
@@ -695,8 +746,8 @@ function resetFilters() {
     $('[name="complex_name_filter"]').val("");
     $('[name="number_filter"]').val("");
     $('[name="area_filter"]').val("");
-    $('#min_price_filter').val("");  // Reset the value directly
-    $('#max_price_filter').val("");  // Reset the value directly
+    $('[name="max_price_filter"]').val(0);  // Reset the value directly
+    $('[name="min_price_filter"]').val(0);  // Reset the value directly
     $('[name="bedroom_filter"]').val("");
     $('[name="bathroom_filter"]').val("");
     $('[name="garages_filter"]').val("");
@@ -706,7 +757,9 @@ function resetFilters() {
     $('#garden_flat_filter').prop('checked', false);
     $('#pet_friendly_filter').prop('checked', false);
 
-    initializeAutoNumeric(['#min_price_filter', '#max_price_filter']);
+    minPriceAutoNumeric.clear();
+    maxPriceAutoNumeric.clear();
+
 
     // Make an AJAX request to clear filters and update the table
     $.ajax({
@@ -714,7 +767,6 @@ function resetFilters() {
         method: 'POST',
         data: {
             reset_filters: true 
-             // Add this data field to indicate resetting filters
         },
         success: function(data) {
             // Update the table using the data received from the server
@@ -723,6 +775,9 @@ function resetFilters() {
             updatePaginationControls(data.pagination.paginationHTML)
             // Clear the filter form inputs after successful response
             $('#filter-form')[0].reset();
+            // Clear the selected areas in the dropdown for area filters
+            $('.js-example-basic-multiple').val([]); // Set an empty array to clear selection
+            $('.js-example-basic-multiple').trigger('change'); // Refresh the dropdown to clear selected values
         },
         error: function(error) {
             console.error('Error clearing filters:', error);
@@ -744,21 +799,8 @@ function updatePaginationControls(paginationHTML) {
   // Add a class to each pagination link
   newPaginationContainer.find('.pagination-link').addClass('dynamic-pagination-link');
 }
-
-function initializeAutoNumeric(elementIds) {
-  elementIds.forEach(function(id) {
-    new AutoNumeric(id, {
-      currencySymbol: 'R ',
-      currencySymbolPlacement: AutoNumeric.options.currencySymbolPlacement.prefix,
-      decimalPlaces: 0,
-      unformatOnSubmit: true
-    });
-  });
-}
-
 </script>
 <!-- Custom js for this page -->
 <script src="./static/assets/js/dashboard.js"></script>
-
   
 {% endblock %}
