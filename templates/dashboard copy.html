@@ -17,6 +17,7 @@
 
 </style>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- static\assets\vendors\autoNumeric-4.9.0\autoNumeric-4.9.0\src\AutoNumeric.js -->
 {% endblock %}
 
 
@@ -109,18 +110,18 @@
                 </div>
                 <div class="text-right col-md-6 col-sl-3">
                   <button type="button" class="btn btn-success align-self-center" id="toggleFilters" >Show Filters</button>
-                  <input type="submit" class="btn btn-primary align-self-center" value="Filter" form="filter-form" id="filter-button">
-                  <button class="btn btn-danger" id="reset-filters">Reset Filters</button>
+                  <input type="submit" class="btn btn-primary align-self-center" value="Filter" form="filter-form">
+                  <button class="btn btn-danger" id="reset-filters" onclick="resetFilters()">Reset Filters</button>
                 </div>
               </div>                                      
-              <form class="form-sample" id="filter-form" name="filter-form" method="post" action="{{ request.path }}">
+              <form class="form-sample" id="filter-form" method="post" action="{{ request.path }}" onsubmit="console.log" >
                 <h4 class="card-description"> Adress/Location Filters </h4>
                 <div class="row">
                   <div class="col-md-6">
                     <div class="form-group row">
                       <label class="col-sm-3 col-form-label">Street Name</label>
                       <div class="col-sm-9">
-                        <input type="text" class="form-control" id="street_name_filter" name="street_name_filter" value="{{ street_name_filter or ''}}" />
+                        <input type="text" class="form-control" name="street_name_filter" value="{{ street_name_filter or ''}}" />
                       </div>
                     </div>
                   </div>
@@ -128,7 +129,7 @@
                     <div class="form-group row">
                       <label class="col-sm-3 col-form-label">Complex Name</label>
                       <div class="col-sm-9">
-                        <input type="text" class="form-control" id="complex_name_filter" name="complex_name_filter" value="{{ complex_name_filter or ''}}" />
+                        <input type="text" class="form-control" name="complex_name_filter" value="{{ complex_name_filter or ''}}" />
                       </div>
                     </div>
                   </div>
@@ -140,7 +141,7 @@
                     <div class="form-group row">
                       <label class="col-sm-3 col-form-label">Property Type</label>
                       <div class="col-sm-9">
-                        <select class="form-control" id="prop_type_filter" name="prop_type_filter">
+                        <select class="form-control" name="prop_type_filter">
                           <option>Any</option>
                           <option>Full Title</option>
                           <option>Sectonal Scheme</option>
@@ -156,7 +157,7 @@
                     <div class="form-group row">
                       <label class="col-sm-3 col-form-label">Unit / Street Number</label>
                       <div class="col-sm-9">
-                        <input class="form-control" id="number_filter" name="number_filter" value="{{ number_filter or ''}}"/>
+                        <input class="form-control" name="number_filter" value="{{ number_filter or ''}}"/>
                       </div>
                     </div>
                   </div>                          
@@ -222,7 +223,7 @@
                     <div class="form-group row">
                       <label class="col-sm-3 col-form-label">Price Maximum</label>
                       <div class="col-sm-9">
-                        <input type="text" class="form-control" placeholder="" id="max_price_filter" name="max_price_filter">
+                        <input type="text" class="form-control" placeholder="" id="max_price_filter" name="max_price_filter" value="{{ max_price_filter }}">
                       </div>
                     </div>
                   </div>
@@ -247,7 +248,7 @@
                     <div class="form-group row">
                       <label class="col-sm-3 col-form-label">Price Minimum</label>
                       <div class="col-sm-9">
-                        <input type="text" class="form-control" placeholder="" id="min_price_filter" name="min_price_filter">
+                        <input type="text" class="form-control" placeholder="" id="min_price_filter" name="min_price_filter" value="{{ min_price_filter }}">
                       </div>
                     </div>
                   </div>
@@ -341,8 +342,8 @@
                 
                 <div class="text-center">
                   <button type="button" class="btn btn-success" id="toggleFilters1">Hide Filters</button>
-                  <input type="submit" class="btn btn-primary" value="Filter" form="filter-form" id="filter-button-hidden">
-                  <button class="btn btn-danger" id="reset-filters-hidden">Reset Filters</button>
+                  <input type="submit" class="btn btn-primary" value="Filter" form="filter-form">
+                  <button class="btn btn-danger" id="reset-filters" onclick="resetFilters()">Reset Filters</button>
                 </div>                    
               </form>
             </div>
@@ -356,7 +357,7 @@
               <button id="expand-toggle-btn" class="btn btn-primary">Expand/Collapse</button>
             </div>
             <br>
-            <div class="table-responsive table-responsive-sm .table-responsive-md table-responsive-lg table-responsive-xl">
+            <div id="properties-container" class="table-responsive table-responsive-sm .table-responsive-md table-responsive-lg table-responsive-xl">
               <table class="table table-hover" id="properties_table">
                 <thead>
                   <tr>
@@ -415,8 +416,29 @@
               </table>
               <br>
               <!-- Page Navigation -->
-              <div id="new-pagination-container"></div>
-              </div>
+              <nav aria-label="Page navigation">
+                <div id="pagination-controls">
+                  <ul class="pagination pagination-links justify-content-center">
+                    {% if properties.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('dashboard', page=properties.prev_num, **get_filtered_params(request.form)) }}">Previous</a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for num in properties.iter_pages() %}
+                    <li class="page-item {% if properties.page == num %}active{% endif %}">
+                        <a class="page-link" href="{{ url_for('dashboard', page=num, **get_filtered_params(request.form)) }}">{{ num }}</a>
+                    </li>
+                    {% endfor %}
+                    
+                    {% if properties.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('dashboard', page=properties.next_num, **get_filtered_params(request.form)) }}">Next</a>
+                    </li>
+                    {% endif %}
+                </ul>
+                </div>
+            </nav>
               <!-- table ends here -->
             </div>
           </div>
@@ -426,6 +448,7 @@
   <!-- content-wrapper ends -->
   <!-- partial:partials/_footer -->
   <!-- partial -->
+    </div>
 <!-- main-panel ends -->
 {% endblock %}
 
@@ -435,320 +458,91 @@
 <script src="./static/assets/js/AutoNumeric.min.js"></script>
 <script src="./static/assets/js/sort_table.js"></script>
 <script>
-minPriceAutoNumeric = new AutoNumeric('#min_price_filter', {
-  currencySymbol: 'R ',
-  currencySymbolPlacement: AutoNumeric.options.currencySymbolPlacement.prefix,
-  decimalPlaces: 0,
-  unformatOnSubmit: true
-});
-
-maxPriceAutoNumeric = new AutoNumeric('#max_price_filter', {
-  currencySymbol: 'R ',
-  currencySymbolPlacement: AutoNumeric.options.currencySymbolPlacement.prefix,
-  decimalPlaces: 0,
-  unformatOnSubmit: true
-});
-
-$(document).ready(function () {
-
-  // Event listener for form submission
-  document.getElementById('filter-form').addEventListener('submit', function (event) {
-    const minPriceInput = document.getElementById('min_price_filter');
-    const maxPriceInput = document.getElementById('max_price_filter');
-
-    if (minPriceInput.value !== 0 && maxPriceInput.value !== 0 && Number(minPriceInput.value) > Number(maxPriceInput.value)) {
-      event.preventDefault();
-      alert('Min price cannot be greater than max price.');
-    }
-  });
-
-  // Event listener for pagination links
-  $(document).on('click', '.pagination-link', function (e) {
-    e.preventDefault();
-    var page = $(this).data('page');
-    var formData = new FormData(document.getElementById('filter-form'));
-    handlePaginationClick(page, formData);
-  });
-
-  // Event listener for the "Filter" button click
-  $('#filter-button, #filter-button-hidden').on('click', function (e) {
-    e.preventDefault();
-    // console.log('Filter button clicked');
-    handleFormSubmit();
-  });
-
-  // Event listener for the "Reset Filters" button click
-  $('#reset-filters, #reset-filters-hidden').on('click', function (event) {
-    event.preventDefault(); // Prevent the default behavior
-    resetFilters();
-  });
-
-  // Event listener for the "Toggle Filters" button click
-  $("#toggleFilters, #toggleFilters1").click(function () {
-    $("#filter-form").toggle();
-    var isVisible = $("#filter-form").is(":visible");
-    var buttonText = isVisible ? "Hide Filters" : "Show Filters";
-    $("#toggleFilters, #toggleFilters1").text(buttonText);
-  });
-
-
-  $("#expand-toggle-btn").click(function () {
-    $(".expandable-column").toggle();
-    $('#properties-table').sortTable();
-  });
-
-
-  var selectedAreas = [
+  $(document).ready(function() {
+    {% if request.method == 'POST' %}
+    // Only populate the dropdown with selected areas when filters are applied
+    var selectedAreas = [
       {% for area in selected_areas %}
-          "{{ area }}"{% if not loop.last %},{% endif %}
+        "{{ area }}"{% if not loop.last %},{% endif %}
       {% endfor %}
-  ];
+    ];
 
-  // Set the selected areas in the dropdown
-  $('.js-example-basic-multiple').val(selectedAreas);
-  $('.js-example-basic-multiple').trigger('change'); // Refresh the dropdown to display selected values
-
-  // Initial page load
-  var formData = new FormData(document.getElementById('filter-form'));
-  handlePaginationClick(1, formData);
-
-  // Attach event listener to form fields
-  $('.filter-form input, .filter-form select').on('change', function () {
-    updatePaginationLinks();
+    // Set the selected areas in the dropdown
+    $('.js-example-basic-multiple').val(selectedAreas);
+    $('.js-example-basic-multiple').trigger('change'); // Refresh the dropdown to display selected values
+    {% endif %}
   });
-});
+</script>
+<script>
+  <!-- Inside the <script> tag in your template -->
+$(document).ready(function () {
+  loadProperties(1); // Load initial page on page load
 
-
-function handlePaginationClick(page, formData) {
-  console.log("handlePaginationClick called");
-  console.log("Page:", page);
-
-  $.ajax({
-    type: 'POST',
-    url: '/dashboard?page=' + page,
-    data: formData,
-    contentType: false,
-    processData: false,
-    dataType: 'json',
-    success: function (data) {
-      console.log('Server Response:', data);
-      updateProperties(data);
-      updatePaginationControls(data.pagination.paginationHTML);
-      updatePaginationLinks(); // Add this line to update the pagination links
-    },
-    error: function (error) {
-      console.error('Error fetching properties:', error);
-    }
-  });
-}
-
-// Function to update properties and pagination
-function updateProperties(data) {  
- // Update properties in #properties_table tbody
-    // console.log('Updating properties with data:', data);
-    var propertiesBody = $('#properties_table tbody');
-    propertiesBody.empty();
-
-    for (var i = 0; i < data.properties.length; i++) {
-      var property = data.properties[i];
-      // console.log("Processing property:", property); // Debug log
-      var row = $('<tr>');
-
-      row.append($('<td>').html(
-        '<div class="form-check form-check-muted m-0">' +
-        '<label class="form-check-label">' +
-        '<input type="checkbox" class="form-check-input">' +
-        '</label>' +
-        '</div>'
-      ));
-    
-      // Add the classes for responsiveness
-      var tableResponsive = $('<div>', {
-        class: 'table-responsive table-responsive-sm table-responsive-md table-responsive-lg table-responsive-xl'
-      });
-      var table = $('<table>', {
-        class: 'table'
-      });
-      // Append the table to the table-responsive container
-      tableResponsive.append(table);
-
-      // Append the table-responsive container to propertiesBody
-      propertiesBody.append(tableResponsive);
-      
-      // Property Description
-      var propertyDesc = '';
-      if (property.street_number) {
-          propertyDesc += property.street_number + ' ';
+  function loadProperties(page) {
+    $.ajax({
+      url: '/dashboard?page=' + page,
+      method: 'GET',
+      dataType: 'json',
+      success: function (data) {
+        updateProperties(data.properties);
+        updatePagination(data.page, data.pages);
+      },
+      error: function () {
+        console.log('Error loading properties.');
       }
-      if (property.street_name) {
-          propertyDesc += property.street_name + ' ';
-      }
-      if (property.complex_number) {
-          propertyDesc += property.complex_number + ' ';
-      }
-      if (property.complex_name) {
-          propertyDesc += property.complex_name;
-      }
-      var descriptionCell = $('<td>', {
-          'data-column': 'prop_desc'
-      }).text(propertyDesc);
-      row.append(descriptionCell);
-
-      
-      // Other columns
-      var areaCell = $('<td>', {
-          'data-column': 'area'
-      }).text(property.area);
-      row.append(areaCell);
-      
-      // Price column without decimals
-      var priceFormatted = 'R ' + numberWithCommas(Math.floor(property.price));
-      var priceCell = $('<td>', {
-          'data-column': 'price' // Add the data-column attribute
-      }).text(priceFormatted);
-      row.append(priceCell);
-
-      // Bedrooms column
-      var bedroomsCell = $('<td>', {
-          'data-column': 'bedrooms' // Add the data-column attribute
-      }).text(property.bedrooms);
-      row.append(bedroomsCell);
-
-      // Bathrooms column
-      var bathroomsCell = $('<td>', {
-          'data-column': 'bathrooms' // Add the data-column attribute
-      }).text(property.bathrooms);
-      row.append(bathroomsCell);
-
-      // Garages column
-      var garagesCell = $('<td>', {
-          'data-column': 'garages' // Add the data-column attribute
-      }).text(property.garages);
-      row.append(garagesCell);
-
-      
-      // P-24 Link
-      var p24Link = $('<a>', {
-        class: 'btn btn-primary',
-        href: property.link,
-        target: '_blank',
-        text: property.link_display
-      });
-      row.append($('<td>').append(p24Link));
-
-      // Expandable columns
-      row.append($('<td>', {
-          'data-column': 'swimming_pool' // Add the data-column attribute
-      }).text(property.swimming_pool).addClass('expandable-column'));
-
-      row.append($('<td>', {
-          'data-column': 'garden_flat' // Add the data-column attribute
-      }).text(property.garden_flat).addClass('expandable-column'));
-
-      row.append($('<td>', {
-          'data-column': 'study' // Add the data-column attribute
-      }).text(property.study).addClass('expandable-column'));
-
-      row.append($('<td>', {
-          'data-column': 'ground_floor' // Add the data-column attribute
-      }).text(property.ground_floor).addClass('expandable-column'));
-
-      row.append($('<td>', {
-          'data-column': 'pet_friendly' // Add the data-column attribute
-      }).text(property.pet_friendly).addClass('expandable-column'));
-
-      propertiesBody.append(row);
-    }
-  }
-
-function handleFormSubmit() {
-  console.log("handleFormSubmit called"); // Debug log
-
-  var minPriceValue = parseFloat($('#min_price_filter').val().replace(/\D/g, ''));
-  var maxPriceValue = parseFloat($('#max_price_filter').val().replace(/\D/g, ''));
-
-  if (minPriceValue !== '' && maxPriceValue !== '' && parseInt(minPriceValue) > parseInt(maxPriceValue)) {
-    alert("Minimum price cannot be higher than maximum price.");
-  } else {
-
-    var formData = new FormData(); // Create a new FormData object
-    formData.append('street_name_filter', $('[name="street_name_filter"]').val());
-    formData.append('complex_name_filter', $('[name="complex_name_filter"]').val());
-
-    // Convert max and min price to numeric values
-    var minPriceValue = parseFloat($('#min_price_filter').val().replace(/\D/g, ''));
-    var maxPriceValue = parseFloat($('#max_price_filter').val().replace(/\D/g, ''));
-    if (!isNaN(minPriceValue)) {
-        formData.append('min_price_filter', minPriceValue);
-    }
-
-    if (!isNaN(maxPriceValue)) {
-        formData.append('max_price_filter', maxPriceValue);
-    }
-
-    formData.append('area_filter', $('[name="area_filter"]').val());
-    formData.append('max_price_filter', $('[name="max_price_filter"]').val());
-    formData.append('number_filter', $('[name="number_filter"]').val());
-    formData.append('bedroom_filter', $('[name="bedroom_filter"]').val());
-    formData.append('bathroom_filter', $('[name="bathroom_filter"]').val());
-    formData.append('garages_filter', $('[name="garages_filter"]').val());
-
-    // Handle checkboxes
-    if ($('#study_filter').prop('checked')) {
-        formData.append('study_filter', 'true');
-    }
-    if ($('#swimming_pool_filter').prop('checked')) {
-        formData.append('swimming_pool_filter', 'true');
-    }
-    if ($('#ground_floor_filter').prop('checked')) {
-        formData.append('ground_floor_filter', 'true');
-    }
-    if ($('#garden_flat_filter').prop('checked')) {
-        formData.append('garden_flat_filter', 'true');
-    }
-    if ($('#pet_friendly_filter').prop('checked')) {
-        formData.append('pet_friendly_filter', 'true');
-    }
-    
-    handlePaginationClick(1, formData); // Send the form data along with page number
-  }  
-}
-  
-function updatePaginationLinks() {
-  var formData = new FormData($('.filter-form')[0]); // Construct FormData object
-  
-  // Construct the URLSearchParams manually
-  var params = [];
-  formData.forEach(function(value, key){
-    params.push(key + '=' + encodeURIComponent(value));
-  });
-  var queryString = params.join('&');
-
-  var paginationLinks = $('.dynamic-pagination-link');
-  if (paginationLinks.length === 1) {
-    var page = paginationLinks.data('page');
-    var newHref = '/dashboard?page=' + page + '&' + queryString;
-    paginationLinks.attr('href', newHref);
-  } else {
-    paginationLinks.each(function () {
-      var page = $(this).data('page');
-      var newHref = '/dashboard?page=' + page + '&' + queryString;
-      $(this).attr('href', newHref);
     });
   }
-}
 
+  function updateProperties(properties) {
+    var propertiesContainer = $('#properties-container');
+    propertiesContainer.empty();
+
+    for (var i = 0; i < properties.length; i++) {
+      // Create HTML content for each property and append to propertiesContainer
+    }
+  }
+
+  function updatePagination(currentPage, totalPages) {
+    var paginationControls = $('#pagination-controls');
+    paginationControls.empty();
+
+    for (var i = 1; i <= totalPages; i++) {
+      var pageLink = $('<a>', {
+        href: 'javascript:void(0);',
+        text: i,
+        class: i === currentPage ? 'active' : '',
+        click: function () {
+          loadProperties(i);
+        }
+      });
+      paginationControls.append(pageLink);
+    }
+  }
+});
+
+</script>
+<script>
+    $(document).ready(function() {
+      $("#toggleFilters, #toggleFilters1").click(function() {
+        $("#filter-form").toggle(); // Toggle the visibility of the filters section
+  
+        var isVisible = $("#filter-form").is(":visible"); // Check if the form is visible
+        var buttonText = isVisible ? "Hide Filters" : "Show Filters"; // Set the button text based on visibility
+  
+        $("#toggleFilters, #toggleFilters1").text(buttonText); // Update the button text for both buttons
+      });
+    });
+</script>
+<Script>
 function resetFilters() {
-    // console.log("Reset button clicked");
-
-    // Reset filter input values
+    console.log("Reset button clicked");
     $('[name="street_name_filter"]').val("");
     $('[name="complex_name_filter"]').val("");
     $('[name="number_filter"]').val("");
     $('[name="area_filter"]').val("");
-    $('[name="max_price_filter"]').val(0);  // Reset the value directly
-    $('[name="min_price_filter"]').val(0);  // Reset the value directly
+    $('[name="max_price_filter"]').val("");
     $('[name="bedroom_filter"]').val("");
+    $('[name="min_price_filter"]').val("");
     $('[name="bathroom_filter"]').val("");
     $('[name="garages_filter"]').val("");
     $('#study_filter').prop('checked', false);
@@ -757,50 +551,78 @@ function resetFilters() {
     $('#garden_flat_filter').prop('checked', false);
     $('#pet_friendly_filter').prop('checked', false);
 
-    minPriceAutoNumeric.clear();
-    maxPriceAutoNumeric.clear();
-
-
-    // Make an AJAX request to clear filters and update the table
-    $.ajax({
-        url: '/dashboard',  // Use the /dashboard route for clearing filters
-        method: 'POST',
-        data: {
-            reset_filters: true 
-        },
-        success: function(data) {
-            // Update the table using the data received from the server
-            updateProperties(data);
-            // Generate new pagination HTML based on the updated data
-            updatePaginationControls(data.pagination.paginationHTML)
-            // Clear the filter form inputs after successful response
-            $('#filter-form')[0].reset();
-            // Clear the selected areas in the dropdown for area filters
-            $('.js-example-basic-multiple').val([]); // Set an empty array to clear selection
-            $('.js-example-basic-multiple').trigger('change'); // Refresh the dropdown to clear selected values
-        },
-        error: function(error) {
-            console.error('Error clearing filters:', error);
-        }
-    });
-  }
-
-function numberWithCommas(number) {
-  return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    // Submit the form to clear the filters
+    $('#filter-form').submit();
 }
 
-function updatePaginationControls(paginationHTML) {
-  // Create a jQuery object from the paginationHTML
-  var paginationContent = $(paginationHTML);
-  // Get the new pagination container
-  var newPaginationContainer = $('#new-pagination-container');
-  // Empty the new pagination container and insert the pagination content
-  newPaginationContainer.empty().append(paginationContent);
-  // Add a class to each pagination link
-  newPaginationContainer.find('.pagination-link').addClass('dynamic-pagination-link');
-}
+</Script>
+<!-- Script for handling AutoNumeric and form submission -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      // Initialize AutoNumeric with custom options
+      new AutoNumeric('#min_price_filter', {
+          currencySymbol: 'R ',
+          currencySymbolPlacement: AutoNumeric.options.currencySymbolPlacement.prefix,
+          decimalPlaces: 0,
+          unformatOnSubmit: true // Convert formatted value back to raw numeric value before submission
+      });
+
+      new AutoNumeric('#max_price_filter', {
+          currencySymbol: 'R ',
+          currencySymbolPlacement: AutoNumeric.options.currencySymbolPlacement.prefix,
+          decimalPlaces: 0,
+          unformatOnSubmit: true // Convert formatted value back to raw numeric value before submission
+      });
+
+      // Add event listener for form submission
+      document.getElementById('filter-form').addEventListener('submit', function(event) {
+          const minPriceInput = document.getElementById('min_price_filter');
+          const maxPriceInput = document.getElementById('max_price_filter');
+
+          // If min price is greater than max price, prevent form submission
+          if (minPriceInput.value !== '' && maxPriceInput.value !== '' && Number(minPriceInput.value) > Number(maxPriceInput.value)) {
+              event.preventDefault();
+              alert('Min price cannot be greater than max price.');
+          }
+      });
+      
+      // Add event listener for reset button
+      document.getElementById('reset-filters').addEventListener('click', function() {
+          minPriceInput.remove(); // Remove AutoNumeric formatting from min price input
+          maxPriceInput.remove(); // Remove AutoNumeric formatting from max price input
+          minPriceInput.value = ''; // Clear min price input
+          maxPriceInput.value = ''; // Clear max price input
+      });      
+  });
 </script>
-<!-- Custom js for this page -->
-<script src="./static/assets/js/dashboard.js"></script>
+<script>
+  $(document).ready(function() {
+    // Attach event listener to form fields
+    $('.filter-form input, .filter-form select').on('change', function() {
+      updatePaginationLinks();
+    });
+
+    // Function to update pagination links with form data
+    function updatePaginationLinks() {
+      var formData = $('.filter-form').serialize();
+      $('.pagination-links a').each(function() {
+        var href = $(this).attr('href').split('?')[0]; // Remove existing query string
+        $(this).attr('href', href + '?' + formData); // Append form data as query string
+      });
+    }
+  });
+</script>
+    <!-- endinject -->
+  <!-- Custom js for this page -->
+  <script src="./static/assets/js/dashboard.js"></script>
+  <script>
+    $(document).ready(function () {
+        $("#expand-toggle-btn").click(function () {
+            $(".expandable-column").toggle();
+            $('#properties-table').sort_table();
+        });
+
+    });
+</script>
   
 {% endblock %}

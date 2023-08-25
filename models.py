@@ -54,5 +54,27 @@ class Property(db.Model):
     link_display = db.Column(db.String(30))
     note = db.Column(db.String(255))
 
+    def serialize(self):
+        return {
+            'id': self.id,
+            'street_number': self.street_number,
+            'street_name': self.street_name,
+            'complex_number': self.complex_number,
+            'complex_name': self.complex_name,
+            'area': self.area,
+            'price': self.price,
+            'bedrooms': self.bedrooms,
+            'bathrooms': self.bathrooms,
+            'garages': self.garages,
+            'swimming_pool': self.swimming_pool,
+            'garden_flat': self.garden_flat,
+            'study': self.study,
+            'ground_floor': self.ground_floor,
+            'pet_friendly': self.pet_friendly,
+            'link': self.link,
+            'link_display': self.link_display
+            # ... Add other attributes here ...
+        }
+
     def __repr__(self):
         return f"Property(id={self.id}, street_name={self.street_name}, price={self.price})"

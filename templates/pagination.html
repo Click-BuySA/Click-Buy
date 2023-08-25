@@ -1,0 +1,23 @@
+<nav aria-label="Page navigation">
+    <div id="pagination-controls">
+      <ul class="pagination pagination-links justify-content-center">
+        {% if properties.has_prev %}
+        <li class="page-item">
+          <a class="page-link pagination-link" href="#" data-page="{{ properties.prev_num }}">Previous</a>
+        </li>
+        {% endif %}
+    
+        {% for num in properties.iter_pages() %}
+        <li class="page-item {% if properties.page == num %}active{% endif %}">
+          <a class="page-link pagination-link" href="#" data-page="{{ num }}">{{ num }}</a>
+        </li>
+        {% endfor %}
+    
+        {% if properties.has_next %}
+        <li class="page-item">
+          <a class="page-link pagination-link" href="#" data-page="{{ properties.next_num }}">Next</a>
+        </li>
+        {% endif %}
+      </ul>
+    </div>
+</nav>
