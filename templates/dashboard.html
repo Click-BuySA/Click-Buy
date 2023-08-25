@@ -416,6 +416,8 @@
               </table>
               <br>
               <!-- Page Navigation -->
+              <div id="new-pagination-container"></div>
+              </div>
               <!-- table ends here -->
             </div>
           </div>
@@ -436,21 +438,8 @@
 <script src="./static/assets/js/sort_table.js"></script>
 <script>
 $(document).ready(function () {
-  // Initialize AutoNumeric
-  new AutoNumeric('#min_price_filter', {
-    currencySymbol: 'R ',
-    currencySymbolPlacement: AutoNumeric.options.currencySymbolPlacement.prefix,
-    decimalPlaces: 0,
-    unformatOnSubmit: true
-  });
 
-  new AutoNumeric('#max_price_filter', {
-    currencySymbol: 'R ',
-    currencySymbolPlacement: AutoNumeric.options.currencySymbolPlacement.prefix,
-    decimalPlaces: 0,
-    unformatOnSubmit: true
-  });
-
+  initializeAutoNumeric(['#min_price_filter', '#max_price_filter']);
   // Event listener for form submission
   document.getElementById('filter-form').addEventListener('submit', function (event) {
     const minPriceInput = document.getElementById('min_price_filter');
@@ -530,21 +519,19 @@ $(document).ready(function () {
 function handlePaginationClick(page, formData) {
   console.log("handlePaginationClick called");
   console.log("Page:", page);
-  console.log('Form Data:', formData);
-  for (var pair of formData.entries()) {
-    console.log(pair[0] + ': ' + pair[1]);
-  }
 
   $.ajax({
     type: 'POST',
-    url: '/dashboard',
+    url: '/dashboard?page=' + page,
     data: formData,
-    processData: false,
     contentType: false,
+    processData: false,
+    dataType: 'json',
     success: function (data) {
-      console.log('Pagination HTML:', data.paginationHTML); // Log pagination HTML
+      console.log('Server Response:', data);
       updateProperties(data);
-      updatePaginationControls(data.paginationHTML);
+      updatePaginationControls(data.pagination.paginationHTML);
+      updatePaginationLinks(); // Add this line to update the pagination links
     },
     error: function (error) {
       console.error('Error fetching properties:', error);
@@ -572,6 +559,19 @@ function updateProperties(data) {
         '</div>'
       ));
     
+      // Add the classes for responsiveness
+      var tableResponsive = $('<div>', {
+        class: 'table-responsive table-responsive-sm table-responsive-md table-responsive-lg table-responsive-xl'
+      });
+      var table = $('<table>', {
+        class: 'table'
+      });
+      // Append the table to the table-responsive container
+      tableResponsive.append(table);
+
+      // Append the table-responsive container to propertiesBody
+      propertiesBody.append(tableResponsive);
+      
       // Property Description
       var propertyDesc = '';
       if (property.street_number) {
@@ -625,6 +625,19 @@ function handleFormSubmit() {
       var formData = new FormData(); // Create a new FormData object
       formData.append('street_name_filter', $('[name="street_name_filter"]').val());
       formData.append('complex_name_filter', $('[name="complex_name_filter"]').val());
+
+      // Convert max and min price to numeric values
+      var minPriceValue = parseFloat($('#min_price_filter').val().replace(/\D/g, ''));
+      var maxPriceValue = parseFloat($('#max_price_filter').val().replace(/\D/g, ''));
+      if (!isNaN(minPriceValue)) {
+          formData.append('min_price_filter', minPriceValue);
+      }
+
+      if (!isNaN(maxPriceValue)) {
+          formData.append('max_price_filter', maxPriceValue);
+      }
+
+
       formData.append('max_price_filter', $('[name="max_price_filter"]').val());
       formData.append('number_filter', $('[name="number_filter"]').val());
       formData.append('bedroom_filter', $('[name="bedroom_filter"]').val());
@@ -651,17 +664,29 @@ function handleFormSubmit() {
       handlePaginationClick(1, formData); // Send the form data along with page number
   }  
   
-function updatePaginationLinks() {
-  var formData = $('.filter-form').serialize();
-  console.log('Form Data:', formData);
+  function updatePaginationLinks() {
+  var formData = new FormData($('.filter-form')[0]); // Construct FormData object
   
-  $('.dynamic-pagination-link').each(function () {
-    console.log('Pagination Link:', this);
-    var href = $(this).data('page'); // Get the page number from data attribute
-    $(this).attr('href', '#' + href + '?' + formData); // Update href attribute
+  // Construct the URLSearchParams manually
+  var params = [];
+  formData.forEach(function(value, key){
+    params.push(key + '=' + encodeURIComponent(value));
   });
-}
+  var queryString = params.join('&');
 
+  var paginationLinks = $('.dynamic-pagination-link');
+  if (paginationLinks.length === 1) {
+    var page = paginationLinks.data('page');
+    var newHref = '/dashboard?page=' + page + '&' + queryString;
+    paginationLinks.attr('href', newHref);
+  } else {
+    paginationLinks.each(function () {
+      var page = $(this).data('page');
+      var newHref = '/dashboard?page=' + page + '&' + queryString;
+      $(this).attr('href', newHref);
+    });
+  }
+}
 function resetFilters() {
     // console.log("Reset button clicked");
 
@@ -670,9 +695,9 @@ function resetFilters() {
     $('[name="complex_name_filter"]').val("");
     $('[name="number_filter"]').val("");
     $('[name="area_filter"]').val("");
-    $('[name="max_price_filter"]').val("");
+    $('#min_price_filter').val("");  // Reset the value directly
+    $('#max_price_filter').val("");  // Reset the value directly
     $('[name="bedroom_filter"]').val("");
-    $('[name="min_price_filter"]').val("");
     $('[name="bathroom_filter"]').val("");
     $('[name="garages_filter"]').val("");
     $('#study_filter').prop('checked', false);
@@ -681,17 +706,21 @@ function resetFilters() {
     $('#garden_flat_filter').prop('checked', false);
     $('#pet_friendly_filter').prop('checked', false);
 
+    initializeAutoNumeric(['#min_price_filter', '#max_price_filter']);
+
     // Make an AJAX request to clear filters and update the table
     $.ajax({
         url: '/dashboard',  // Use the /dashboard route for clearing filters
         method: 'POST',
         data: {
-            reset_filters: true  // Add this data field to indicate resetting filters
+            reset_filters: true 
+             // Add this data field to indicate resetting filters
         },
         success: function(data) {
             // Update the table using the data received from the server
             updateProperties(data);
-
+            // Generate new pagination HTML based on the updated data
+            updatePaginationControls(data.pagination.paginationHTML)
             // Clear the filter form inputs after successful response
             $('#filter-form')[0].reset();
         },
@@ -706,12 +735,26 @@ function numberWithCommas(number) {
 }
 
 function updatePaginationControls(paginationHTML) {
-  var paginationControls = $('#pagination-container');
-  paginationControls.html(paginationHTML);
+  // Create a jQuery object from the paginationHTML
+  var paginationContent = $(paginationHTML);
+  // Get the new pagination container
+  var newPaginationContainer = $('#new-pagination-container');
+  // Empty the new pagination container and insert the pagination content
+  newPaginationContainer.empty().append(paginationContent);
   // Add a class to each pagination link
-  $('.pagination-link').addClass('dynamic-pagination-link');
+  newPaginationContainer.find('.pagination-link').addClass('dynamic-pagination-link');
 }
 
+function initializeAutoNumeric(elementIds) {
+  elementIds.forEach(function(id) {
+    new AutoNumeric(id, {
+      currencySymbol: 'R ',
+      currencySymbolPlacement: AutoNumeric.options.currencySymbolPlacement.prefix,
+      decimalPlaces: 0,
+      unformatOnSubmit: true
+    });
+  });
+}
 
 </script>
 <!-- Custom js for this page -->

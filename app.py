@@ -28,6 +28,25 @@ def format_currency(value):
     return f'R {value:,.2f}'
 
 
+def generate_pagination_html(total_pages, current_page):
+    pagination_html = '<ul class="pagination pagination-links justify-content-center">'
+    
+    # Previous page link
+    if current_page > 1:
+        pagination_html += f'<li class="page-item"><a class="page-link pagination-link" data-page="{current_page - 1}" href="#">Previous</a></li>'
+    
+    # Page number links
+    for page in range(1, total_pages + 1):
+        active_class = 'active' if page == current_page else ''
+        pagination_html += f'<li class="page-item {active_class}"><a class="page-link pagination-link" data-page="{page}" href="#">{page}</a></li>'
+    
+    # Next page link
+    if current_page < total_pages:
+        pagination_html += f'<li class="page-item"><a class="page-link pagination-link" data-page="{current_page + 1}" href="#">Next</a></li>'
+    
+    pagination_html += '</ul>'
+    return pagination_html
+
 # Function to check if the user is authenticated before each request
 def require_login():
     # Add routes that do not require authentication to the following list
@@ -250,6 +269,13 @@ def dashboard():
         selected_areas = [area for area in properties_query.with_entities(
             Property.area).distinct()]
         
+        total_pages = properties_query.paginate(
+        page=page, per_page=per_page).total
+        current_page = page
+        pagination_html = generate_pagination_html(total_pages, current_page)
+        paginationHTML = generate_pagination_html(
+                        filtered_properties.pages, filtered_properties.page)
+        
         if request.method == 'POST':
             properties_data = {
                 'properties': [property.serialize() for property in filtered_properties.items],
@@ -257,7 +283,9 @@ def dashboard():
                     'total': filtered_properties.total,
                     'per_page': filtered_properties.per_page,
                     'current_page': filtered_properties.page,
-                    'pages': filtered_properties.pages
+                    'pages': filtered_properties.pages,
+                    'paginationHTML': generate_pagination_html(
+                        filtered_properties.pages, filtered_properties.page)  # Update this line
                 }
             }
             print("Sending properties data:", properties_data)  # Debug log
@@ -281,7 +309,8 @@ def dashboard():
                                study_filter=filters.get('study_filter'),
                                ground_floor_filter=filters.get('ground_floor_filter'),
                                pet_friendly_filter=filters.get('pet_friendly_filter'),
-                               get_filtered_params=get_filtered_params)
+                               get_filtered_params=get_filtered_params,
+                               pagination_html=paginationHTML)
     else:
         flash('You need to login first.', 'error')
         return redirect(url_for('login_page'))
