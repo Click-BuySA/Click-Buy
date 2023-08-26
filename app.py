@@ -299,7 +299,7 @@ def dashboard():
                         filtered_properties.pages, filtered_properties.page)  # Update this line
                 }
             }
-            # print("Sending properties data:", properties_data)  # Debug log
+            print("Sending properties data:", properties_data)  # Debug log
             return jsonify(properties_data)  # Return JSON for AJAX requests
         
         return render_template('dashboard.html',
@@ -325,6 +325,29 @@ def dashboard():
     else:
         flash('You need to login first.', 'error')
         return redirect(url_for('login_page'))
+
+
+@app.route('/view_property/<int:property_id>')
+@require_login()
+def view_property(property_id):
+    user = get_current_user_info()
+    property = Property.query.get_or_404(property_id)
+
+    if request.method == 'POST':
+        # Check if the user has permission to edit
+        if session['is_admin']:  # You can adjust this condition based on your logic
+            # Update property attributes based on form data
+            if 'price' in request.form:
+                property.price = request.form['price']
+            # Update other attributes similarly
+            
+            db.session.commit()
+            flash('Property information updated successfully.', 'success')
+        else:
+            flash('You do not have permission to edit this property.', 'danger')
+
+    return render_template('property_details.html', user=user,
+                           property=property)
 
 
 @app.route('/login', methods=['GET', 'POST'])

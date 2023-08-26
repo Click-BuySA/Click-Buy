@@ -589,11 +589,19 @@ function updateProperties(data) {
       if (property.complex_name) {
           propertyDesc += property.complex_name;
       }
+
+      // Wrap the property description in an anchor tag
+      var propertyDescLink = $('<a>', {
+          href: '/view_property/' + property.id, // Modify this URL as needed
+          class: 'clickable-property-desc',
+          text: propertyDesc
+      });
+
       var descriptionCell = $('<td>', {
           'data-column': 'prop_desc'
-      }).text(propertyDesc);
-      row.append(descriptionCell);
+      }).append(propertyDescLink);
 
+      row.append(descriptionCell);
       
       // Other columns
       var areaCell = $('<td>', {

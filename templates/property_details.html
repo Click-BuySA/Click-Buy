@@ -1,0 +1,96 @@
+{% extends "navbar.html" %}
+{% block title %}View Property - Click & Buy{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <div class="card">
+            <div class="card-body">
+                <h1>Property Details</h1>
+                <form id="propertyForm">
+                    <p><strong>ID:</strong> {{ property.id }}</p>
+                    <div class="form-group">
+                        <label for="street_number">Street Number</label>
+                        <input type="text" class="form-control" id="street_number" name="street_number" value="{{ property.street_number }}" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label for="street_name">Street Name</label>
+                        <input type="text" class="form-control" id="street_name" name="street_name" value="{{ property.street_name }}" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label for="complex_number">Complex Number</label>
+                        <input type="text" class="form-control" id="complex_number" name="complex_number" value="{{ property.complex_number }}" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label for="complex_name">Complex Name</label>
+                        <input type="text" class="form-control" id="complex_name" name="complex_name" value="{{ property.complex_name }}" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label for="area">Area</label>
+                        <input type="text" class="form-control" id="area" name="area" value="{{ property.area }}" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label for="price">Price</label>
+                        <input type="text" class="form-control" id="price" name="price" value="{{ property.price }}" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label for="bedrooms">Bedrooms</label>
+                        <input type="number" class="form-control" id="bedrooms" name="bedrooms" value="{{ property.bedrooms }}" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label for="bathrooms">Bathrooms</label>
+                        <input type="number" class="form-control" id="bathrooms" name="bathrooms" value="{{ property.bathrooms }}" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label for="garages">Garages</label>
+                        <input type="number" class="form-control" id="garages" name="garages" value="{{ property.garages }}" disabled>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="swimming_pool" name="swimming_pool" {% if property.swimming_pool %}checked{% endif %} disabled>
+                        <label class="form-check-label" for="swimming_pool">Swimming Pool</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="garden_flat" name="garden_flat" {% if property.garden_flat %}checked{% endif %} disabled>
+                        <label class="form-check-label" for="garden_flat">Garden Flat</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="study" name="study" {% if property.study %}checked{% endif %} disabled>
+                        <label class="form-check-label" for="study">Study</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="ground_floor" name="ground_floor" {% if property.ground_floor %}checked{% endif %} disabled>
+                        <label class="form-check-label" for="ground_floor">Ground Floor</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="pet_friendly" name="pet_friendly" {% if property.pet_friendly %}checked{% endif %} disabled>
+                        <label class="form-check-label" for="pet_friendly">Pet Friendly</label>
+                    </div>
+                    <button type="button" id="editButton" class="btn btn-primary">Edit</button>
+                    <button type="submit" id="saveButton" class="btn btn-success" style="display: none;">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block additional_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const propertyForm = document.getElementById('propertyForm');
+        const editButton = document.getElementById('editButton');
+        const saveButton = document.getElementById('saveButton');
+        
+        editButton.addEventListener('click', function () {
+            enableFormFields();
+        });
+        
+        function enableFormFields() {
+            const formElements = propertyForm.elements;
+            for (let i = 0; i < formElements.length; i++) {
+                formElements[i].disabled = false;
+            }
+            editButton.style.display = 'none';
+            saveButton.style.display = 'block';
+        }
+    });
+</script>
+{% endblock %}
