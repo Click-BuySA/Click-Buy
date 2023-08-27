@@ -1,33 +1,65 @@
 {% extends "navbar.html" %}
 {% block title %}View Property - Click & Buy{% endblock %}
+
+{% block headers %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<style>
+    /* Custom styles for disabled form controls */
+    .form-control:disabled {
+        color: #333; /* Change this color to your desired color */
+    }
+</style>
+{% endblock %}
 {% block content %}
-<div class="row">
-    <div class="col-md-6 offset-md-3">
-        <div class="card">
-            <div class="card-body">
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6 offset-md-3">
                 <h1>Property Details</h1>
-                <form id="propertyForm">
+                <form id="propertyForm" method="post" action="{{ url_for('update_property', property_id=property.id) }}">
                     <p><strong>ID:</strong> {{ property.id }}</p>
                     <div class="form-group">
                         <label for="street_number">Street Number</label>
-                        <input type="text" class="form-control" id="street_number" name="street_number" value="{{ property.street_number }}" disabled>
+                        <input type="text" class="form-control" id="street_number" name="street_number" value="{{ property.street_number or '' }}" disabled>
                     </div>
                     <div class="form-group">
                         <label for="street_name">Street Name</label>
-                        <input type="text" class="form-control" id="street_name" name="street_name" value="{{ property.street_name }}" disabled>
+                        <input type="text" class="form-control" id="street_name" name="street_name" value="{{ property.street_name or '' }}" disabled>
                     </div>
                     <div class="form-group">
                         <label for="complex_number">Complex Number</label>
-                        <input type="text" class="form-control" id="complex_number" name="complex_number" value="{{ property.complex_number }}" disabled>
+                        <input type="text" class="form-control" id="complex_number" name="complex_number" value="{{ property.complex_number or '' }}" disabled>
                     </div>
                     <div class="form-group">
                         <label for="complex_name">Complex Name</label>
-                        <input type="text" class="form-control" id="complex_name" name="complex_name" value="{{ property.complex_name }}" disabled>
+                        <input type="text" class="form-control" id="complex_name" name="complex_name" value="{{ property.complex_name or '' }}" disabled>
                     </div>
                     <div class="form-group">
                         <label for="area">Area</label>
-                        <input type="text" class="form-control" id="area" name="area" value="{{ property.area }}" disabled>
-                    </div>
+                        <select class="form-control" id="area" name="area" disabled>
+                            <option value="Baillie Park">Baillie Park</option>
+                            <option value="Bult">Bult</option>
+                            <option value="Central">Central</option>
+                            <option value="Dam">Dam</option>
+                            <option value="Dassierand">Dassierand</option>
+                            <option value="Grimbeek Park">Grimbeek Park</option>
+                            <option value="Heilige akker">Heilige akker</option>
+                            <option value="de Land">de Land</option>
+                            <option value="Industrial">Industrial</option>
+                            <option value="Kannonierspark">Kannonierspark</option>
+                            <option value="Lekwena">Lekwena</option>
+                            <option value="Lifestyle">Lifestyle</option>
+                            <option value="Miederpark">Miederpark</option>
+                            <option value="Mohadin">Mohadin</option>
+                            <option value="Mooivallei Park">Mooivallei Park</option>
+                            <option value="Oewersig">Oewersig</option>
+                            <option value="Promosa">Promosa</option>
+                            <option value="Rural">Rural</option>
+                            <option value="Tuscany Ridge">Tuscany Ridge</option>
+                            <option value="Van der Hoff Park">Van der Hoff Park</option>
+                            <option value="Wilgeboom">Wilgeboom</option>
+                        </select>
+                    </div>                  
                     <div class="form-group">
                         <label for="price">Price</label>
                         <input type="text" class="form-control" id="price" name="price" value="{{ property.price }}" disabled>
@@ -64,33 +96,87 @@
                         <input type="checkbox" class="form-check-input" id="pet_friendly" name="pet_friendly" {% if property.pet_friendly %}checked{% endif %} disabled>
                         <label class="form-check-label" for="pet_friendly">Pet Friendly</label>
                     </div>
-                    <button type="button" id="editButton" class="btn btn-primary">Edit</button>
-                    <button type="submit" id="saveButton" class="btn btn-success" style="display: none;">Save Changes</button>
+                    <button type="button" 
+                    id="editButton" 
+                    class="btn btn-primary">Edit</button>
+                    <button type="submit" id="saveButton" class="btn btn-success" method="post" style="display: none;">Save Changes</button>
+                </form>
+                <form action="{{ url_for('delete_property', property_id=property.id) }}" method="post" id="deleteForm" style="display: none;">
+                    <button type="submit" 
+                    class="btn btn-danger" 
+                    onclick="return confirm('Are you sure you want to delete this property?')"
+>Delete</button>
                 </form>
             </div>
         </div>
     </div>
 </div>
+
 {% endblock %}
 {% block additional_scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        console.log("DOM content loaded."); // Debug statement
         const propertyForm = document.getElementById('propertyForm');
         const editButton = document.getElementById('editButton');
         const saveButton = document.getElementById('saveButton');
-        
+        const areaDropdown = document.getElementById('area');  // Get the area dropdown
+        const deleteForm = document.getElementById('deleteForm'); // Get the delete form
+
+        // Store initial values for form fields
+        const initialFormValues = {};
+        const formElements = propertyForm.elements;
+        for (let i = 0; i < formElements.length; i++) {
+            initialFormValues[formElements[i].name] = formElements[i].value;
+        }
+
         editButton.addEventListener('click', function () {
             enableFormFields();
+            deleteForm.style.display = 'block';
         });
-        
+
+        saveButton.addEventListener('click', function () {
+            deleteForm.style.display = 'none'; // Hide the delete form when saving changes
+        });
+
+        propertyForm.addEventListener('submit', function (event) {
+            if (!areFormValuesChanged()) {
+                event.preventDefault();
+                alert('No changes were made.');
+            }
+        });
+
         function enableFormFields() {
-            const formElements = propertyForm.elements;
+            console.log("Form fields enabled."); // Debug statement
             for (let i = 0; i < formElements.length; i++) {
                 formElements[i].disabled = false;
             }
             editButton.style.display = 'none';
             saveButton.style.display = 'block';
+            areaDropdown.disabled = false;
+            deleteForm.style.display = 'block'; // Show the delete form
+        }
+
+        function areFormValuesChanged() {
+            console.log("Checking form values."); // Debug statement
+            for (let i = 0; i < formElements.length; i++) {
+                const element = formElements[i];
+                if (!element.disabled && element.value !== initialFormValues[element.name]) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // Set the selected value of the area dropdown
+        const selectedArea = "{{ property.area }}";
+        if (selectedArea) {
+            const option = areaDropdown.querySelector(`[value="${selectedArea}"]`);
+            if (option) {
+                option.selected = true;
+            }
         }
     });
 </script>
+
 {% endblock %}

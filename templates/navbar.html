@@ -30,8 +30,8 @@
       <!-- partial:partials/_sidebar -->
       <nav class="sidebar sidebar-offcanvas" id="sidebar">
         <div class="sidebar-brand-wrapper d-none d-lg-flex align-items-center justify-content-center fixed-top">        
-          <a class="sidebar-brand brand-logo" href="index"><img src="{{ url_for('static', filename='assets/images/logo-1.svg') }}" alt="logo" /></a>
-          <a class="sidebar-brand brand-logo-mini" href="index"><img src="{{ url_for('static', filename='assets/images/logo-mini-1.svg') }}" alt="logo" /></a>
+          <a class="sidebar-brand brand-logo" href="{{ url_for('index') }}"><img src="{{ url_for('static', filename='assets/images/logo-1.svg') }}" alt="logo" /></a>
+          <a class="sidebar-brand brand-logo-mini" href="{{ url_for('index') }}"><img src="{{ url_for('static', filename='assets/images/logo-mini-1.svg') }}" alt="logo" /></a>
         </div>
         <ul class="nav">
           <li class="nav-item profile">
@@ -87,7 +87,7 @@
             <span class="nav-link">Navigation</span>
           </li>
           <li class="nav-item menu-items">
-            <a class="nav-link" href="index">
+            <a class="nav-link" href="{{ url_for('index') }}">
               <span class="menu-icon">
                 <i class="mdi mdi-speedometer"></i>
               </span>
@@ -104,13 +104,13 @@
             </a>
             <div class="collapse" id="ui-basic">
               <ul class="nav flex-column sub-menu">
-                <li class="nav-item"> <a class="nav-link" href="about">About</a></li>
-                <li class="nav-item"> <a class="nav-link" href="contact">Contact</a></li>
+                <li class="nav-item"> <a class="nav-link" href="{{ url_for('html_page', page_name='about') }}">About</a></li>
+                <li class="nav-item"> <a class="nav-link" href="{{ url_for('html_page', page_name='contact') }}">Contact</a></li>
               </ul>
             </div>
           </li>
           <li class="nav-item menu-items">
-            <a class="nav-link" href="body_corps">
+            <a class="nav-link" href="{{ url_for('html_page', page_name='body_corps') }}">
               <span class="menu-icon">
                 <i class="mdi mdi-table-large"></i>
               </span>
@@ -131,7 +131,7 @@
         <!-- partial:partials/_navbar -->
         <nav class="navbar p-0 fixed-top d-flex flex-row">
           <div class="navbar-brand-wrapper d-flex d-lg-none align-items-center justify-content-center">            
-            <a class="navbar-brand brand-logo-mini" href="index"><img src="{{ url_for('static', filename='assets/images/logo-mini-1.svg') }}" alt="logo" /></a>
+            <a class="navbar-brand brand-logo-mini" href="{{ url_for('index') }}"><img src="{{ url_for('static', filename='assets/images/logo-mini-1.svg') }}" alt="logo" /></a>
           </div>
           
           
@@ -159,7 +159,7 @@
                   <div class="dropdown-divider"></div>
                   <a class="dropdown-item preview-item">
                     <div class="preview-thumbnail">
-                      <img src="./static/assets/images/faces/face4.jpg" alt="image" class="rounded-circle profile-pic">
+                      <img src="{{ url_for('static', filename='assets/images/faces/face4.jpg') }}" alt="image" class="rounded-circle profile-pic">
                     </div>
                     <div class="preview-item-content">
                       <p class="preview-subject ellipsis mb-1">Mark send you a message</p>
@@ -169,7 +169,7 @@
                   <div class="dropdown-divider"></div>
                   <a class="dropdown-item preview-item">
                     <div class="preview-thumbnail">
-                      <img src="./static/assets/images/faces/face2.jpg" alt="image" class="rounded-circle profile-pic">
+                      <img src="{{ url_for('static', filename='assets/images/faces/face2.jpg') }}" alt="image" class="rounded-circle profile-pic">
                     </div>
                     <div class="preview-item-content">
                       <p class="preview-subject ellipsis mb-1">Cregh send you a message</p>
@@ -179,7 +179,7 @@
                   <div class="dropdown-divider"></div>
                   <a class="dropdown-item preview-item">
                     <div class="preview-thumbnail">
-                      <img src="./static/assets/images/faces/face3.jpg" alt="image" class="rounded-circle profile-pic">
+                      <img src="{{ url_for('static', filename='assets/images/faces/face3.jpg') }}" alt="image" class="rounded-circle profile-pic">
                     </div>
                     <div class="preview-item-content">
                       <p class="preview-subject ellipsis mb-1">Profile picture updated</p>

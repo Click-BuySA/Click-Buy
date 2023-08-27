@@ -299,7 +299,7 @@ def dashboard():
                         filtered_properties.pages, filtered_properties.page)  # Update this line
                 }
             }
-            print("Sending properties data:", properties_data)  # Debug log
+            # print("Sending properties data:", properties_data)  # Debug log
             return jsonify(properties_data)  # Return JSON for AJAX requests
         
         return render_template('dashboard.html',
@@ -330,24 +330,92 @@ def dashboard():
 @app.route('/view_property/<int:property_id>')
 @require_login()
 def view_property(property_id):
-    user = get_current_user_info()
-    property = Property.query.get_or_404(property_id)
+    with Session() as db_session:
+        user = get_current_user_info()
+        property = db_session.query(Property).get(property_id)
 
-    if request.method == 'POST':
-        # Check if the user has permission to edit
-        if session['is_admin']:  # You can adjust this condition based on your logic
+        if not property:
+            flash('Property not found.', 'error')
+            return redirect(url_for('dashboard'))
+
+        return render_template('property_details.html', user=user, property=property)
+    
+@app.route('/update_property/<int:property_id>', methods=['POST'])
+@require_login()
+def update_property(property_id):
+    if session['is_admin']:
+        with Session() as db_session:
+            property = db_session.query(Property).get(property_id)
+            
+            if not property:
+                flash('Property not found.', 'error')
+                return redirect(url_for('dashboard'))
+
             # Update property attributes based on form data
-            if 'price' in request.form:
-                property.price = request.form['price']
+            property.street_number = request.form.get('street_number') or None
+            property.street_name = request.form.get('street_name') or None
+            complex_name = request.form.get('complex_name')
+            property.complex_name = complex_name if complex_name != 'None' and complex_name else None
+            property.complex_name = request.form.get('complex_name') or None
+            property.area = request.form.get('area')
+            property.price = request.form.get('price')
+            bedrooms = request.form.get('bedrooms')
+            property.bedrooms = int(bedrooms) if bedrooms else None if bedrooms != '' else None
+            bathrooms = request.form.get('bathrooms')
+            property.bathrooms = float(bathrooms) if bathrooms else None if bathrooms != '' else None
+            garages = request.form.get('garages')
+            property.garages = int(garages) if garages else None if garages != '' else None
+            property.swimming_pool = bool(request.form.get('swimming_pool'))
+            property.garden_flat = bool(request.form.get('garden_flat'))
+            property.study = bool(request.form.get('study'))
+            property.ground_floor = bool(request.form.get('ground_floor'))
+            property.pet_friendly = bool(request.form.get('pet_friendly'))
+
+            # Only commit changes if there are non-empty fields
+            if any([
+                property.price,
+                property.bathrooms is not None,
+                property.garages is not None,
+                property.bedrooms is not None,
+                # Add other conditions for numeric fields
+            ]):
+
+
             # Update other attributes similarly
             
-            db.session.commit()
-            flash('Property information updated successfully.', 'success')
-        else:
-            flash('You do not have permission to edit this property.', 'danger')
+                db_session.commit()
+                flash('Property information updated successfully.', 'success')
+    else:
+        flash('You do not have permission to edit this property.', 'error')
+    
+    return redirect(url_for('view_property', property_id=property_id))
 
-    return render_template('property_details.html', user=user,
-                           property=property)
+
+@app.route('/delete_property/<int:property_id>', methods=['POST'])
+@require_login()
+def delete_property(property_id):
+    print("Delete Property Route Reached")  # Debug statement
+
+    if session['is_admin']:
+        with Session() as db_session:
+            property_to_delete = db_session.query(Property).get(property_id)
+
+            if not property_to_delete:
+                print("Property not found.")  # Debug statement
+                flash('Property not found.', 'error')
+                return redirect(url_for('dashboard'))
+
+            db_session.delete(property_to_delete)
+            db_session.commit()
+
+            print("Property deleted successfully.")  # Debug statement
+            flash('Property deleted successfully.', 'success')
+    else:
+        print("No admin permission.")  # Debug statement
+        flash('You do not have permission to delete this property.', 'error')
+
+    return redirect(url_for('dashboard'))
+
 
 
 @app.route('/login', methods=['GET', 'POST'])

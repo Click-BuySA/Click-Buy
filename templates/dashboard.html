@@ -558,9 +558,12 @@ function updateProperties(data) {
         '<div class="form-check form-check-muted m-0">' +
         '<label class="form-check-label">' +
         '<input type="checkbox" class="form-check-input">' +
+        '<i class="input-helper"></i>' +
         '</label>' +
         '</div>'
       ));
+
+
     
       // Add the classes for responsiveness
       var tableResponsive = $('<div>', {
@@ -588,6 +591,10 @@ function updateProperties(data) {
       }
       if (property.complex_name) {
           propertyDesc += property.complex_name;
+      }
+
+      if (propertyDesc === '') {
+          propertyDesc = 'No description available'; // Fallback text
       }
 
       // Wrap the property description in an anchor tag
