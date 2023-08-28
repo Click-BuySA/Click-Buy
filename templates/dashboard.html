@@ -39,7 +39,7 @@
           </div>
         </a>
         <div class="dropdown-divider"></div>
-        <a class="dropdown-item preview-item">
+        <a class="dropdown-item preview-item send-email-link" href="#">
           <div class="preview-thumbnail">
             <div class="preview-icon bg-dark rounded-circle">
               <i class="mdi mdi-web text-info"></i>
@@ -363,7 +363,7 @@
                     <th>
                       <div class="form-check form-check-muted m-0">
                         <label class="form-check-label">
-                          <input type="checkbox" class="form-check-input">
+                          <input type="checkbox" class="form-check-input" id="select_all_properties">
                         </label>
                       </div>
                     </th>
@@ -450,6 +450,111 @@ maxPriceAutoNumeric = new AutoNumeric('#max_price_filter', {
 });
 
 $(document).ready(function () {
+  // Initialize an array to store the selected property IDs
+  var selectedProperties = [];
+
+// Event handler for sending selected properties via email
+$('.send-email-link').on('click', function (event) {
+  event.preventDefault(); // Prevent the default anchor behavior
+  console.log("Selected properties:", selectedProperties);
+
+
+  // Check if any property is selected
+  if (selectedProperties.length > 0) {
+    console.log("Sending email...");
+
+    // Construct an array of selected property details
+    var selectedPropertyDetails = selectedProperties.map(function (propertyId) {
+      var propertyRow = $('.property-checkbox[data-property-id="' + propertyId + '"]').closest('tr');
+      return {
+        id: propertyId,
+        description: propertyRow.find('.clickable-property-desc').text(),
+        price: propertyRow.find('[data-column="price"]').text(),
+        beds: propertyRow.find('[data-column="bedrooms"]').text(),
+        baths: propertyRow.find('[data-column="bathrooms"]').text(),
+        garages: propertyRow.find('[data-column="garages"]').text(),
+        link: propertyRow.find('a.btn-primary').attr('href'),
+        link_display: propertyRow.find('a.btn-primary').text(),
+      };
+    });
+
+    console.log("Selected property details:", selectedPropertyDetails); // Debug statement
+
+    // Send the AJAX request with the selected property details
+    $.ajax({
+      url: '/send_email',
+      method: 'POST',
+      data: JSON.stringify(selectedPropertyDetails),
+      contentType: 'application/json',
+      success: function (response) {
+        console.log("Email response:", response);
+
+        if (response.message === "success") {
+          // Show success alert message
+          alert("Export successful to " + response.email);
+        } else {
+          // Show error alert message
+          alert("Export failed. Please contact an administrator.");
+        }
+      },
+      error: function (error) {
+        console.log("Email error:", error);
+
+        // Show error alert message
+        alert("Export failed. Please contact an administrator.");
+      }
+    });
+  } else {
+    // Show info alert message
+    alert("No properties selected.");
+  }
+});
+
+// Event handler for the "Select All" checkbox
+$('#select_all_properties').on('change', function () {
+  var isChecked = $(this).prop('checked');
+
+  // Find and update all individual property checkboxes
+  $('.property-checkbox').prop('checked', isChecked);
+
+  // Update selectedProperties based on all checkboxes
+  if (isChecked) {
+    selectedProperties = $('.property-checkbox').map(function () {
+      var propertyId = parseInt($(this).data('property-id'));
+      return !isNaN(propertyId) ? propertyId : null;
+    }).get();
+  } else {
+    selectedProperties = [];
+  }
+
+  console.log("Selected properties:", selectedProperties);
+});
+
+// Event handler for individual property checkboxes
+$(document).on('change', '.property-checkbox', function () {
+  var propertyId = parseInt($(this).data('property-id'));
+
+  console.log("Checkbox change - Property ID:", propertyId);
+
+  if (this.checked) {
+    console.log("Checkbox change - Checked:", propertyId);
+
+    // Add property ID to selectedProperties if not already added
+    if (!isNaN(propertyId) && selectedProperties.indexOf(propertyId) === -1) {
+      selectedProperties.push(propertyId);
+    }
+  } else {
+    console.log("Checkbox change - Unchecked:", propertyId);
+
+    // Remove property ID from selectedProperties
+    var index = selectedProperties.indexOf(propertyId);
+    if (index !== -1) {
+      selectedProperties.splice(index, 1);
+    }
+  }
+
+  console.log("Selected properties:", selectedProperties);
+});
 
   // Event listener for form submission
   document.getElementById('filter-form').addEventListener('submit', function (event) {
@@ -557,13 +662,11 @@ function updateProperties(data) {
       row.append($('<td>').html(
         '<div class="form-check form-check-muted m-0">' +
         '<label class="form-check-label">' +
-        '<input type="checkbox" class="form-check-input">' +
+        '<input type="checkbox" class="form-check-input property-checkbox" data-property-id="' + property.id + '">' +
         '<i class="input-helper"></i>' +
         '</label>' +
         '</div>'
       ));
-
-
     
       // Add the classes for responsiveness
       var tableResponsive = $('<div>', {
