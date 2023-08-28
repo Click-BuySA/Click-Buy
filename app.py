@@ -27,6 +27,29 @@ db.init_app(app)
 def format_currency(value):
     return f'R {value:,.2f}'
 
+# Common Email Sending Function
+def send_email(subject, recipients, content):
+    html_template = Template(content)
+    html_content = html_template.substitute()
+
+    message = EmailMessage()
+    message['from'] = 'Click & Buy - Mailer'
+    message['subject'] = subject
+    message.set_content(html_content, 'html')
+
+    with smtplib.SMTP(host='smtp.gmail.com', port=587) as smtp:
+        smtp.ehlo()
+        smtp.starttls()
+        smtp.login('johandrehdb@gmail.com', 'afjtruqujroeylvx')
+        
+        for recipient in recipients:
+            print("Sending email to:", recipient)  # Debug print
+            print("Sending email content:", message.as_string())  # Debug print
+            
+            message['to'] = recipient
+            smtp.send_message(message)
+            print("Email sent to:", recipient)  # Debug print
+
 
 def generate_pagination_html(total_pages, current_page):
     pagination_html = '<ul class="pagination pagination-links justify-content-center">'
@@ -46,6 +69,7 @@ def generate_pagination_html(total_pages, current_page):
     
     pagination_html += '</ul>'
     return pagination_html
+
 
 # Function to check if the user is authenticated before each request
 def require_login():
@@ -92,27 +116,23 @@ def is_admin(user_id):
         return False
 
 
-# Function that sends an email whenever a new user is registered.
+# Function that sends a notification email whenever a new user is registered.
 def send_notification_email(new_user_info):
-    html = Template(Path('mail.html').read_text())
+    html_template = Template(Path('mail.html').read_text())
+    html_content = html_template.substitute(
+        name=new_user_info['name'],
+        email=new_user_info['email']
+    )
+
     with Session() as db_session:
         admin_emails = [user.email for user in db_session.query(
             User).filter_by(is_admin=True).all()]
 
-    for admin_email in admin_emails:
-        message = EmailMessage()
-        message['from'] = 'Click & Buy - Mailer'
-        message['to'] = admin_email
-        message['subject'] = 'New User Registration Notification'
-        message.set_content(html.substitute(
-            name=new_user_info['name'], email=new_user_info['email']), 'html')
-
-        with smtplib.SMTP(host='smtp.gmail.com', port=587) as smtp:
-            smtp.ehlo()
-            smtp.starttls()
-            smtp.login('johandrehdb@gmail.com', 'afjtruqujroeylvx')
-            smtp.send_message(message)
-
+    send_email(
+        subject='New User Registration Notification',
+        recipients=admin_emails,
+        content=html_content,
+    )
 
 @app.route('/')
 @app.route('/index')
@@ -132,6 +152,7 @@ def index():
 @app.route('/dashboard', methods=['GET', 'POST'])
 @require_login()
 def dashboard():
+    print("Session contents:", session)
     min_price = request.form.get('min_price_filter')
     max_price = request.form.get('max_price_filter')
 
@@ -438,6 +459,7 @@ def login_page():
             if user and check_password_hash(user.login[0].hash, password) and user.has_access:
                 # User is authenticated, store user info in Flask's session
                 session['user_id'] = user.id
+                session['user_email'] = user.email  # Store the user's email in the session
                 session['is_admin'] = user.is_admin
                 flash('You have successfully logged in.', 'success')
                 # Redirect to the homepage or any other page after successful login
@@ -590,6 +612,72 @@ def admin_delete_user(user_id):
 
     flash('User deleted successfully.', 'success')
     return redirect(url_for('admin_users'))
+
+
+@app.route('/send_email', methods=['POST'])
+def send_email_route():
+    try:
+        selected_properties = request.get_json()  # Get selected property IDs from the request
+
+        # Get the user's email from the session
+        user_email = session.get('user_email')  # Adjust the session key as needed
+
+        if user_email is None:
+            flash("User email not found in session.", "danger")
+            return jsonify({"message": "error"})
+        
+        # Generate the list of property details
+        properties_list = ""
+        for property in selected_properties:
+            property_id = property.get('id', 'N/A')
+            description = property.get('description', 'N/A')
+            price = property.get('price', 'N/A')
+            beds = property.get('beds', 'N/A')
+            baths = property.get('baths', 'N/A')
+            garages = property.get('garages', 'N/A')
+            link_display = property.get('link_display', 'N/A')
+            link = property.get('link', 'N/A')
+
+            property_item = """
+            <li>
+                <strong>Property ID:</strong> {id}<br>
+                <strong>Description:</strong> {description}<br>
+                <strong>Price:</strong> {price}<br>
+                <strong>Beds:</strong> {beds}<br>
+                <strong>Baths:</strong> {baths}<br>
+                <strong>Garages:</strong> {garages}<br>
+                <strong>Link Display:</strong> {link_display}<br>
+                <strong>Link:</strong> <a href="{link}">{link_display}</a>
+            </li>
+            """.format(
+                id=property_id,
+                description=description,
+                price=price,
+                beds=beds,
+                baths=baths,
+                garages=garages,
+                link_display=link_display,
+                link=link
+            )
+            properties_list += property_item
+
+        # Load the export template and format the content
+        with open('export_template.html', 'r') as template_file:
+            email_content = template_file.read().replace('{properties}', properties_list)
+
+        # Send the email
+        send_email(
+            subject="Property Export",
+            recipients=[user_email],
+            content=email_content,
+        )
+
+        flash("Export successful to " + user_email, "success")
+        return jsonify({"message": "success", "email": user_email})
+    except Exception as e:
+        print("Exception:", e)  # Print the exception details
+        flash("Export failed. Please contact an administrator.", "danger")
+        return jsonify({"message": "error"})
 
 
 @app.route('/admin/users/<int:user_id>/edit', methods=['GET', 'POST'])
