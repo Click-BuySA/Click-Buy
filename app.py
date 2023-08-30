@@ -28,6 +28,8 @@ def format_currency(value):
     return f'R {value:,.2f}'
 
 # Common Email Sending Function
+
+
 def send_email(subject, recipients, content, cc=None):
     html_template = Template(content)
     html_content = html_template.substitute()
@@ -41,11 +43,11 @@ def send_email(subject, recipients, content, cc=None):
         smtp.ehlo()
         smtp.starttls()
         smtp.login('johandrehdb@gmail.com', 'afjtruqujroeylvx')
-        
+
         for recipient in recipients:
             print("Sending email to:", recipient)  # Debug print
             print("Sending email content:", message.as_string())  # Debug print
-            
+
             message['to'] = recipient
             if cc:
                 message['cc'] = cc  # Set the cc field if provided
@@ -55,20 +57,20 @@ def send_email(subject, recipients, content, cc=None):
 
 def generate_pagination_html(total_pages, current_page):
     pagination_html = '<ul class="pagination pagination-links justify-content-center">'
-    
+
     # Previous page link
     if current_page > 1:
         pagination_html += f'<li class="page-item"><a class="page-link pagination-link" data-page="{current_page - 1}" href="#">Previous</a></li>'
-    
+
     # Page number links
     for page in range(1, total_pages + 1):
         active_class = 'active' if page == current_page else ''
         pagination_html += f'<li class="page-item {active_class}"><a class="page-link pagination-link" data-page="{page}" href="#">{page}</a></li>'
-    
+
     # Next page link
     if current_page < total_pages:
         pagination_html += f'<li class="page-item"><a class="page-link pagination-link" data-page="{current_page + 1}" href="#">Next</a></li>'
-    
+
     pagination_html += '</ul>'
     return pagination_html
 
@@ -138,6 +140,7 @@ def send_notification_email(new_user_info, cc=None):
         cc=cc
     )
 
+
 @app.route('/')
 @app.route('/index')
 def index():
@@ -162,8 +165,6 @@ def dashboard():
 
     if min_price and max_price and float(min_price) > float(max_price):
         flash("Minimum price cannot be higher than maximum price", "warning")
-
-
 
     def apply_numeric_filter(property_attr, filter_value):
         if filter_value == '1':
@@ -222,8 +223,10 @@ def dashboard():
         filter_clauses = []
 
         if filters['area_filter']:
-            areas = filters['area_filter'].split(',')  # Split areas into a list
-            area_clauses = [Property.area.ilike(f"%{area.strip().lower()}%") for area in areas]
+            areas = filters['area_filter'].split(
+                ',')  # Split areas into a list
+            area_clauses = [Property.area.ilike(
+                f"%{area.strip().lower()}%") for area in areas]
             filter_clauses.append(or_(*area_clauses))
 
         if filters['min_price_filter']:
@@ -233,12 +236,15 @@ def dashboard():
             filter_clauses.append(
                 Property.price <= filters['max_price_filter'])
         if filters['street_name_filter']:
-            filter_clauses.append(func.lower(Property.street_name).ilike(f"%{filters['street_name_filter'].lower()}%"))
+            filter_clauses.append(func.lower(Property.street_name).ilike(
+                f"%{filters['street_name_filter'].lower()}%"))
 
         if filters['complex_name_filter']:
             complex_name_clause = or_(
-                func.lower(Property.complex_name).ilike(f"%{filters['complex_name_filter'].lower()}%"),
-                func.lower(Property.street_name).ilike(f"%{filters['complex_name_filter'].lower()}%")
+                func.lower(Property.complex_name).ilike(
+                    f"%{filters['complex_name_filter'].lower()}%"),
+                func.lower(Property.street_name).ilike(
+                    f"%{filters['complex_name_filter'].lower()}%")
             )
             filter_clauses.append(complex_name_clause)
 
@@ -264,7 +270,6 @@ def dashboard():
             filter_clauses.append(Property.swimming_pool == True)
         if filters['garden_flat_filter']:
             filter_clauses.append(Property.garden_flat == True)
-
 
         if filters['study_filter']:
             filter_clauses.append(Property.study == filters['study_filter'])
@@ -304,14 +309,14 @@ def dashboard():
             page=page, per_page=per_page)
         selected_areas = [area for area in properties_query.with_entities(
             Property.area).distinct()]
-        
+
         total_pages = properties_query.paginate(
-        page=page, per_page=per_page).total
+            page=page, per_page=per_page).total
         current_page = page
         pagination_html = generate_pagination_html(total_pages, current_page)
         paginationHTML = generate_pagination_html(
-                        filtered_properties.pages, filtered_properties.page)
-        
+            filtered_properties.pages, filtered_properties.page)
+
         if request.method == 'POST':
             properties_data = {
                 'properties': [property.serialize() for property in filtered_properties.items],
@@ -326,25 +331,33 @@ def dashboard():
             }
             # print("Sending properties data:", properties_data)  # Debug log
             return jsonify(properties_data)  # Return JSON for AJAX requests
-        
+
         return render_template('dashboard.html',
                                user=user,
                                properties=filtered_properties,
                                selected_areas=[],
                                filters=filters,
-                               min_price_filter=filters.get('min_price_filter'),
-                               max_price_filter=filters.get('max_price_filter'),
-                               street_name_filter=filters.get('street_name_filter'),
-                               complex_name_filter=filters.get('complex_name_filter'),
+                               min_price_filter=filters.get(
+                                   'min_price_filter'),
+                               max_price_filter=filters.get(
+                                   'max_price_filter'),
+                               street_name_filter=filters.get(
+                                   'street_name_filter'),
+                               complex_name_filter=filters.get(
+                                   'complex_name_filter'),
                                number_filter=filters.get('number_filter'),
                                bathroom_filter=filters.get('bathroom_filter'),
                                bedroom_filter=filters.get('bedroom_filter'),
                                garages_filter=filters.get('garages_filter'),
-                               swimming_pool_filter=filters.get('swimming_pool_filter'),
-                               garden_flat_filter=filters.get('garden_flat_filter'),
+                               swimming_pool_filter=filters.get(
+                                   'swimming_pool_filter'),
+                               garden_flat_filter=filters.get(
+                                   'garden_flat_filter'),
                                study_filter=filters.get('study_filter'),
-                               ground_floor_filter=filters.get('ground_floor_filter'),
-                               pet_friendly_filter=filters.get('pet_friendly_filter'),
+                               ground_floor_filter=filters.get(
+                                   'ground_floor_filter'),
+                               pet_friendly_filter=filters.get(
+                                   'pet_friendly_filter'),
                                get_filtered_params=get_filtered_params,
                                pagination_html=paginationHTML)
     else:
@@ -364,14 +377,15 @@ def view_property(property_id):
             return redirect(url_for('dashboard'))
 
         return render_template('property_details.html', user=user, property=property)
-    
+
+
 @app.route('/update_property/<int:property_id>', methods=['POST'])
 @require_login()
 def update_property(property_id):
     if session['is_admin']:
         with Session() as db_session:
             property = db_session.query(Property).get(property_id)
-            
+
             if not property:
                 flash('Property not found.', 'error')
                 return redirect(url_for('dashboard'))
@@ -385,11 +399,14 @@ def update_property(property_id):
             property.area = request.form.get('area')
             property.price = request.form.get('price')
             bedrooms = request.form.get('bedrooms')
-            property.bedrooms = int(bedrooms) if bedrooms else None if bedrooms != '' else None
+            property.bedrooms = int(
+                bedrooms) if bedrooms else None if bedrooms != '' else None
             bathrooms = request.form.get('bathrooms')
-            property.bathrooms = float(bathrooms) if bathrooms else None if bathrooms != '' else None
+            property.bathrooms = float(
+                bathrooms) if bathrooms else None if bathrooms != '' else None
             garages = request.form.get('garages')
-            property.garages = int(garages) if garages else None if garages != '' else None
+            property.garages = int(
+                garages) if garages else None if garages != '' else None
             property.swimming_pool = bool(request.form.get('swimming_pool'))
             property.garden_flat = bool(request.form.get('garden_flat'))
             property.study = bool(request.form.get('study'))
@@ -405,14 +422,13 @@ def update_property(property_id):
                 # Add other conditions for numeric fields
             ]):
 
+                # Update other attributes similarly
 
-            # Update other attributes similarly
-            
                 db_session.commit()
                 flash('Property information updated successfully.', 'success')
     else:
         flash('You do not have permission to edit this property.', 'error')
-    
+
     return redirect(url_for('view_property', property_id=property_id))
 
 
@@ -442,7 +458,6 @@ def delete_property(property_id):
     return redirect(url_for('dashboard'))
 
 
-
 @app.route('/login', methods=['GET', 'POST'])
 def login_page():
     # Check if the user is already logged in
@@ -463,7 +478,8 @@ def login_page():
             if user and check_password_hash(user.login[0].hash, password) and user.has_access:
                 # User is authenticated, store user info in Flask's session
                 session['user_id'] = user.id
-                session['user_email'] = user.email  # Store the user's email in the session
+                # Store the user's email in the session
+                session['user_email'] = user.email
                 session['is_admin'] = user.is_admin
                 flash('You have successfully logged in.', 'success')
                 # Redirect to the homepage or any other page after successful login
@@ -526,7 +542,7 @@ def register_user():
             'surname': last_name,
             'email': email,
         }
-        
+
         send_notification_email(new_user_info)
 
         # Return a success response
@@ -626,17 +642,19 @@ def send_email_route():
 
         with Session() as db_session:
             admin_emails = [user.email for user in db_session.query(
-            User).filter_by(is_admin=True).all()]
-        
-        selected_properties = request.get_json()  # Get selected property IDs from the request
+                User).filter_by(is_admin=True).all()]
+
+        # Get selected property IDs from the request
+        selected_properties = request.get_json()
 
         # Get the user's email from the session
-        user_email = session.get('user_email')  # Adjust the session key as needed
+        # Adjust the session key as needed
+        user_email = session.get('user_email')
 
         if user_email is None:
             flash("User email not found in session.", "danger")
             return jsonify({"message": "error"})
-        
+
         # Generate the list of property details
         properties_list = ""
         for property in selected_properties:
@@ -674,7 +692,8 @@ def send_email_route():
 
         # Load the export template and format the content
         with open('export_template.html', 'r') as template_file:
-            email_content = template_file.read().replace('{properties}', properties_list)
+            email_content = template_file.read().replace(
+                '{properties}', properties_list)
 
         # Send the email
         send_email(
@@ -749,6 +768,128 @@ def admin_edit_user(user_id):
 @app.route('/thank_you', methods=['GET'])
 def thank_you():
     return render_template('thank_you.html')
+
+
+
+@app.route('/contact', methods=['GET', 'POST'])
+def contact():
+    if request.method == 'POST':
+        try:
+            email = request.form.get('email')
+            subject = request.form.get('subject')
+            message = request.form.get('message')
+
+            email_content = f'''
+            <html>
+            <head></head>
+            <body>
+                <p><strong>Email:</strong> {email}</p>
+                <p><strong>Subject:</strong> {subject}</p>
+                <p><strong>Message:</strong> {message}</p>
+            </body>
+            </html>
+            '''
+            # Send the email
+            send_email(
+                subject="Contact Form Submission",
+                # Replace with your admin email
+                recipients=["johandrehdb@gmail.com"],
+                content=email_content
+            )
+
+            flash("Message sent successfully.", "success")
+        except Exception as e:
+            print("Exception:", e)
+            flash("Message failed to send. Please try again later.", "danger")
+
+        # Redirect back to the contact page
+        return redirect(url_for('contact'))
+
+    # For GET requests, render the contact form template
+    return render_template('contact.html')
+
+
+@app.route('/add_property', methods=['GET', 'POST'])
+def add_property():
+
+    # Check if the user is an admin
+    if 'user_id' in session and session['is_admin']:
+        if request.method == 'POST':
+            # Retrieve form data
+            street_number = request.form.get('street_number')
+            street_name = request.form.get('street_name')
+            complex_number = request.form.get('complex_number')
+            complex_name = request.form.get('complex_name')
+            area = request.form.get('area')
+            price = request.form.get('price')
+            bedrooms = request.form.get('bedrooms')
+            bathrooms = request.form.get('bathrooms')
+            garages = request.form.get('garages')
+            swimming_pool = 'swimming_pool' in request.form
+            garden_flat = 'garden_flat' in request.form
+            study = 'study' in request.form
+            ground_floor = 'ground_floor' in request.form
+            pet_friendly = 'pet_friendly' in request.form
+
+            # Create a Property object and add it to the database
+            new_property = Property(
+                street_number=street_number,
+                street_name=street_name,
+                complex_number=complex_number,
+                complex_name=complex_name,
+                area=area,
+                price=price,
+                bedrooms=bedrooms,
+                bathrooms=bathrooms,
+                garages=garages,
+                swimming_pool=swimming_pool,
+                garden_flat=garden_flat,
+                study=study,
+                ground_floor=ground_floor,
+                pet_friendly=pet_friendly
+            )
+            db.session.add(new_property)
+            db.session.commit()
+
+            flash('Property added successfully!', 'success')
+            return redirect(url_for('dashboard'))
+
+        # For GET requests, render the add_property.html template
+        return render_template('add_property.html')
+
+    else:
+        flash('You need to be logged in as an admin to access this page.', 'error')
+        return redirect(url_for('login_page'))
+
+    
+@app.route('/report', methods=['GET', 'POST'])
+@require_login()
+def report_issue():
+    user = get_current_user_info()
+    if request.method == 'POST':
+        subject = request.form.get('subject')
+        message = request.form.get('message')
+        name = request.form.get('name')
+        email = request.form.get('email')
+
+        with Session() as db_session:
+            admin_emails = [user.email for user in db_session.query(
+                User).filter_by(is_admin=True).all()]
+
+        # Prepare email content
+        email_subject = f'Issue Report: {subject}'
+        recipients = [admin_emails]  # Replace with your admin email(s)
+        
+        email_content = f"Name: {name}<br>Email: {email}<br>Subject: {subject}<br>Message: {message}"
+        
+        # Send email to admins using your send_email function
+        send_email(email_subject, recipients, email_content)
+        
+        flash('Issue reported successfully. Thank you!', 'success')
+        return redirect(url_for('dashboard'))
+
+    return render_template('report.html', user=user)
+
 
 
 @app.route('/<string:page_name>')
