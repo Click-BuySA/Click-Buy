@@ -28,7 +28,7 @@ def format_currency(value):
     return f'R {value:,.2f}'
 
 # Common Email Sending Function
-def send_email(subject, recipients, content):
+def send_email(subject, recipients, content, cc=None):
     html_template = Template(content)
     html_content = html_template.substitute()
 
@@ -47,6 +47,8 @@ def send_email(subject, recipients, content):
             print("Sending email content:", message.as_string())  # Debug print
             
             message['to'] = recipient
+            if cc:
+                message['cc'] = cc  # Set the cc field if provided
             smtp.send_message(message)
             print("Email sent to:", recipient)  # Debug print
 
@@ -117,10 +119,11 @@ def is_admin(user_id):
 
 
 # Function that sends a notification email whenever a new user is registered.
-def send_notification_email(new_user_info):
+def send_notification_email(new_user_info, cc=None):
     html_template = Template(Path('mail.html').read_text())
     html_content = html_template.substitute(
         name=new_user_info['name'],
+        surname=new_user_info['surname'],
         email=new_user_info['email']
     )
 
@@ -130,8 +133,9 @@ def send_notification_email(new_user_info):
 
     send_email(
         subject='New User Registration Notification',
-        recipients=admin_emails,
+        recipients=[admin_emails],
         content=html_content,
+        cc=cc
     )
 
 @app.route('/')
@@ -519,8 +523,10 @@ def register_user():
         # Generate new user info and runs the mailer to inform admins that a new user is registered.
         new_user_info = {
             'name': first_name,
+            'surname': last_name,
             'email': email,
         }
+        
         send_notification_email(new_user_info)
 
         # Return a success response
@@ -617,6 +623,11 @@ def admin_delete_user(user_id):
 @app.route('/send_email', methods=['POST'])
 def send_email_route():
     try:
+
+        with Session() as db_session:
+            admin_emails = [user.email for user in db_session.query(
+            User).filter_by(is_admin=True).all()]
+        
         selected_properties = request.get_json()  # Get selected property IDs from the request
 
         # Get the user's email from the session
@@ -639,16 +650,16 @@ def send_email_route():
             link = property.get('link', 'N/A')
 
             property_item = """
-            <li>
-                <strong>Property ID:</strong> {id}<br>
-                <strong>Description:</strong> {description}<br>
-                <strong>Price:</strong> {price}<br>
-                <strong>Beds:</strong> {beds}<br>
-                <strong>Baths:</strong> {baths}<br>
-                <strong>Garages:</strong> {garages}<br>
-                <strong>Link Display:</strong> {link_display}<br>
-                <strong>Link:</strong> <a href="{link}">{link_display}</a>
-            </li>
+            <div class="column">
+                <div class="card">
+                    <h3>{description}</h3>
+                    <p><strong>Price:</strong> {price}</p>
+                    <p><strong>Beds:</strong> {beds}</p>
+                    <p><strong>Baths:</strong> {baths}</p>
+                    <p><strong>Garages:</strong> {garages}</p>
+                    <p><strong>Link:</strong> <a href="{link}">{link_display}</a></p>
+                </div>
+            </div>
             """.format(
                 id=property_id,
                 description=description,
@@ -670,6 +681,7 @@ def send_email_route():
             subject="Property Export",
             recipients=[user_email],
             content=email_content,
+            cc=admin_emails
         )
 
         flash("Export successful to " + user_email, "success")
