@@ -1,0 +1,65 @@
+<html>
+    <head>
+        <style>
+                    /* Global styles */
+        body {
+            font-family: "Rubik", sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Card styles */
+        .card {
+            border: 1px solid #2A3038;
+            padding: 1em;
+            margin: 0.5em;
+            background-color: #2A3038;
+            color: #ffffff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+            min-width: 300px;
+        }
+
+        .card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5em;
+        }
+
+        .card p {
+            font-size: 0.875rem;
+            margin-bottom: 0.5em;
+        }
+
+        .card a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        /* Container styles */
+        .container {
+            font-size: 1rem;
+            font-weight: normal;
+            line-height: 1.5;
+            color: white;
+            background-color: #292d35;
+            border: 5em solid rgba(0, 0, 0, 0.125);
+            padding: 2em;
+            margin: 2em;
+            font-family: "Rubik", sans-serif;
+        }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h3>Hi Admins,</h3>
+            <h4>A new error has been reported:</h4>
+            <div class="card">
+                <p><strong>Name:</strong> {{ name }}</p>
+                <p><strong>Email:</strong> {{ email }}</p>
+                <p><strong>Subject:</strong> {{ subject }}</p>
+                <p><strong>Message:</strong></p>
+                <p>{{ message }}</p>
+            </div>
+            <p>Regards,<br>Click & Buy Team</p>
+        </div>
+    </body>
+    </html>

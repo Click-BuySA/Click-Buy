@@ -878,17 +878,51 @@ def report_issue():
 
         # Prepare email content
         email_subject = f'Issue Report: {subject}'
-        recipients = [admin_emails]  # Replace with your admin email(s)
         
-        email_content = f"Name: {name}<br>Email: {email}<br>Subject: {subject}<br>Message: {message}"
+        # Render the email template with the provided data
+        email_content = render_template('mail_report.html',
+                                        name=name,
+                                        email=email,
+                                        subject=subject,
+                                        message=message)        
         
         # Send email to admins using your send_email function
-        send_email(email_subject, recipients, email_content)
+        send_email(email_subject, [admin_emails], email_content)
         
         flash('Issue reported successfully. Thank you!', 'success')
         return redirect(url_for('dashboard'))
 
     return render_template('report.html', user=user)
+
+
+@app.route('/change_password', methods=['GET', 'POST'])
+@require_login()
+def change_password():
+    user = get_current_user_info()
+    
+    if request.method == 'POST':
+        current_password = request.form.get('current_password')
+        new_password = request.form.get('new_password')
+        confirm_password = request.form.get('confirm_password')
+
+        with Session() as db_session:
+            user = db_session.query(User).filter_by(
+                email=user.email).options(joinedload(User.login)).first()
+
+            if not check_password_hash(user.login[0].hash, current_password):
+                flash('Current password is incorrect.', 'danger')
+            elif new_password != confirm_password:
+                flash('New passwords do not match.', 'danger')
+            else:
+                new_password_hash = generate_password_hash(new_password)
+                db_session.query(Login).filter_by(user_email=user.email).update({'hash': new_password_hash})  # Update the filter
+                db_session.commit()
+                flash('Password changed successfully.', 'success')
+                return redirect(url_for('dashboard'))
+            
+            return redirect(url_for('change_password'))
+
+    return render_template('change_password.html', user=user)
 
 
 
