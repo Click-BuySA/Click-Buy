@@ -55,32 +55,6 @@
                   {% endif%}
                 </div>
               </div>
-              {% if user %}
-              <a href="#" id="profile-dropdown" data-toggle="dropdown"><i class="mdi mdi-dots-vertical"></i></a>
-              <div class="dropdown-menu dropdown-menu-right sidebar-dropdown preview-list" aria-labelledby="profile-dropdown">
-                <a href="#" class="dropdown-item preview-item">
-                  <div class="preview-thumbnail">
-                    <div class="preview-icon bg-dark rounded-circle">
-                      <i class="mdi mdi-settings text-primary"></i>
-                    </div>
-                  </div>
-                  <div class="preview-item-content">
-                    <p class="preview-subject ellipsis mb-1 text-small">Account settings</p>
-                  </div>
-                </a>
-                <div class="dropdown-divider"></div>
-                <a href="{{ url_for('change_password') }}" class="dropdown-item preview-item">
-                  <div class="preview-thumbnail">
-                    <div class="preview-icon bg-dark rounded-circle">
-                      <i class="mdi mdi-onepassword  text-info"></i>
-                    </div>
-                  </div>
-                  <div class="preview-item-content">
-                    <p class="preview-subject ellipsis mb-1 text-small">Change Password</p>
-                  </div>
-                </a>
-              </div>
-              {% endif %}
             </div>
           </li>
           <li class="nav-item nav-category">
@@ -185,17 +159,6 @@
                 <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list" aria-labelledby="profileDropdown">
                   <h6 class="p-3 mb-0">Profile</h6>
                   <div class="dropdown-divider"></div>
-                  <a class="dropdown-item preview-item">
-                    <div class="preview-thumbnail">
-                      <div class="preview-icon bg-dark rounded-circle">
-                        <i class="mdi mdi-settings text-success"></i>
-                      </div>
-                    </div>
-                    <div class="preview-item-content">
-                      <p class="preview-subject mb-1">Settings</p>
-                    </div>
-                  </a>
-                  <div class="dropdown-divider"></div>
                   <a class="dropdown-item preview-item" href="logout">
                     <div class="preview-thumbnail">
                       <div class="preview-icon bg-dark rounded-circle">
@@ -207,7 +170,29 @@
                     </div>
                   </a>
                   <div class="dropdown-divider"></div>
-                  <p class="p-3 mb-0 text-center">Advanced settings</p>
+                  <h6 class="p-3 mb-0">Advanced Settings</h6>
+                  <div class="dropdown-divider"></div>
+                  <a href="{{ url_for('account_settings') }}" class="dropdown-item preview-item">
+                    <div class="preview-thumbnail">
+                      <div class="preview-icon bg-dark rounded-circle">
+                        <i class="mdi mdi-settings text-primary"></i>
+                      </div>
+                    </div>
+                    <div class="preview-item-content">
+                      <p class="preview-subject ellipsis mb-1">Account settings</p>
+                    </div>
+                  </a>
+                  <div class="dropdown-divider"></div>
+                  <a href="{{ url_for('change_password') }}" class="dropdown-item preview-item">
+                    <div class="preview-thumbnail">
+                      <div class="preview-icon bg-dark rounded-circle">
+                        <i class="mdi mdi-onepassword  text-info"></i>
+                      </div>
+                    </div>
+                    <div class="preview-item-content">
+                      <p class="preview-subject ellipsis mb-1">Change Password</p>
+                    </div>
+                  </a>
                 </div>
                 {% else %}
                 <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list" aria-labelledby="profileDropdown">
@@ -235,7 +220,6 @@
                     </div>
                   </a>
                   <div class="dropdown-divider"></div>
-                  <p class="p-3 mb-0 text-center">Advanced settings</p>
                 </div>
                 {% endif %}
               </li>
@@ -260,19 +244,18 @@
           {% endwith %} 
           <div class="content-wrapper">
             {% block content %}{% endblock %}
-            <div class="row ">
-              <div class="col-12 grid-margin">
+          </div>
+          <footer class="footer">
+            <div class="d-sm-flex justify-content-center justify-content-sm-between">
+              <span class="text-muted d-block text-center text-sm-left d-sm-inline-block">Copyright © Johandré de Beer | 2023</span>
+              <!-- <span class="float-none float-sm-right d-block mt-1 mt-sm-0 text-center"> Free <a href="https://www.bootstrapdash.com/bootstrap-admin-template/" target="_blank">Bootstrap admin templates</a> from Bootstrapdash.com</span> -->
             </div>
+          </footer>
           <!-- partial -->
         </div>
         <!-- main-panel ends -->
       </div>
-      <footer class="footer">
-        <div class="d-sm-flex justify-content-center justify-content-sm-between">
-          <span class="text-muted d-block text-center text-sm-left d-sm-inline-block">Copyright © Johandré de Beer | 2023</span>
-          <!-- <span class="float-none float-sm-right d-block mt-1 mt-sm-0 text-center"> Free <a href="https://www.bootstrapdash.com/bootstrap-admin-template/" target="_blank">Bootstrap admin templates</a> from Bootstrapdash.com</span> -->
-        </div>
-      </footer>
+
       <!-- page-body-wrapper ends -->
     </div>
     <!-- container-scroller -->

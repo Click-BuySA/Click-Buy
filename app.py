@@ -925,6 +925,36 @@ def change_password():
     return render_template('change_password.html', user=user)
 
 
+@app.route('/account_settings', methods=['GET', 'POST'])
+@require_login()
+def account_settings():
+    user_id = session.get('user_id')
+    if user_id:
+        with Session() as db_session:
+            user = db_session.query(User).get(user_id)
+
+            if request.method == 'POST':
+                new_name = request.form.get('name')
+                new_surname = request.form.get('surname')
+                new_email = request.form.get('email')
+
+                # Update user information
+                user.name = new_name
+                user.surname = new_surname
+                user.email = new_email
+
+                # Commit changes
+                db_session.commit()
+
+                flash('User information updated successfully.', 'success')
+                return redirect(url_for('account_settings'))
+
+            return render_template('account_settings.html', user=user)
+
+    flash('You need to be logged in to access this page.', 'error')
+    return redirect(url_for('login_page'))
+
+
 
 @app.route('/<string:page_name>')
 def html_page(page_name):

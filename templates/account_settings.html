@@ -1,0 +1,80 @@
+{% extends "navbar.html" %}
+{% block title %}Account Information - Click & Buy{% endblock %}
+{% block headers %}
+<style>
+    /* Custom styles for disabled form controls */
+    .form-control:disabled {
+        color: #333; /* Change this color to your desired color */
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <div class="card">
+            <div class="card-body">
+                <h1>Account Information</h1>
+                <form method="POST" action="account_settings" id="accountSettingsForm">
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" class="form-control" id="name" name="name" value="{{ user.name }}" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label for="surname">Surname</label>
+                        <input type="text" class="form-control" id="surname" name="surname" value="{{ user.surname }}" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" disabled>
+                    </div>
+                    <button type="button" id="editButton" class="btn btn-primary">Edit</button>
+                    <button type="submit" id="saveButton" class="btn btn-success" style="display: none;">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block additional_scripts %}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('accountSettingsForm');
+        const editButton = document.getElementById('editButton');
+        const saveButton = document.getElementById('saveButton');
+
+        const inputFields = form.querySelectorAll('input');
+        let hasChanges = false;
+
+        inputFields.forEach(function (input) {
+            input.addEventListener('input', function () {
+                hasChanges = true;
+                saveButton.style.display = 'block';
+            });
+        });
+
+        editButton.addEventListener('click', function () {
+            inputFields.forEach(function (input) {
+                input.removeAttribute('disabled');
+            });
+
+            editButton.style.display = 'none';
+            saveButton.style.display = 'block';
+        });
+
+        form.addEventListener('submit', function (event) {
+            if (!hasChanges) {
+                event.preventDefault();
+                alert('No changes have been made.');
+                // Reset form to initial state
+                inputFields.forEach(function (input) {
+                    input.setAttribute('disabled', 'true');
+                });
+                saveButton.style.display = 'none';
+                editButton.style.display = 'block';
+            }
+        });
+    });
+</script>
+
+{% endblock %}
