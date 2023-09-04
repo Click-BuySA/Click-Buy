@@ -21,6 +21,8 @@ class User(Base):
     joined = Column(DateTime)
     has_access = Column(Boolean, default=False)
     is_admin = Column(Boolean, default=False)
+    reset_token = Column(String(255), unique=True)
+    reset_token_created_at = Column(DateTime)
 
     login = relationship("Login", back_populates='user')
 

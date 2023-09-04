@@ -2,13 +2,15 @@ from flask import Flask, jsonify, render_template, request, redirect, url_for, s
 from sqlalchemy import create_engine, or_, and_, func
 from sqlalchemy.orm import sessionmaker, joinedload
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
+from datetime import datetime, timedelta
 from models import User, Login, Property, Base, db
 from functools import wraps
 import smtplib
 from email.message import EmailMessage
 from string import Template
 from pathlib import Path
+import secrets
+
 
 app = Flask(__name__)
 
@@ -139,6 +141,40 @@ def send_notification_email(new_user_info, cc=None):
         content=html_content,
         cc=cc
     )
+
+
+# Function to generate a password reset token
+def generate_reset_token(length=32):
+    return secrets.token_hex(length)
+
+
+# Function to send reset mail to user
+def send_password_reset_email(user, reset_token):
+    subject = 'Password Reset for Your Click & Buy Account'
+    recipients = [user.email]
+
+    # Generate the reset link with the token
+    reset_link = f'{reset_token}'
+
+    # Create the email content using an HTML template
+    content = f'''
+    <p>Hello {user.name},</p>
+    <p>You have requested to reset your password for your Click & Buy account.</p>
+    <p>Please click the following link to reset your password:</p>
+    <p><a href="{reset_link}">Reset Password</a></p>
+    <p>If you did not request this password reset, please ignore this email.</p>
+    <p>Best regards,<br>Your Click & Buy Team</p>
+    '''
+
+    # Send the email
+    send_email(subject, recipients, content)
+
+
+# Function for expiring tokens.
+def is_token_expired(token_creation_time, expiration_duration):
+    now = datetime.utcnow()
+    token_age = now - token_creation_time
+    return token_age > expiration_duration
 
 
 @app.route('/')
@@ -953,6 +989,62 @@ def account_settings():
 
     flash('You need to be logged in to access this page.', 'error')
     return redirect(url_for('login_page'))
+
+
+@app.route('/forgot_password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        email = request.form.get('email')
+
+        with Session() as db_session:
+            user = db_session.query(User).filter_by(email=email).first()
+
+            if user:
+                # Generate a unique reset token and store it in the database
+                reset_token = generate_reset_token()
+                user.reset_token = reset_token
+                user.reset_token_created_at = datetime.utcnow()
+                db_session.commit()
+
+                # Send reset link via email
+                reset_link = url_for('reset_password', token=reset_token, _external=True)
+                send_password_reset_email(user, reset_link)
+
+                flash('A password reset link has been sent to your email.', 'info')
+                return redirect(url_for('login_page'))
+            else:
+                flash('No user with that email address found.', 'error')
+
+    return render_template('forgot_password.html')
+
+
+
+@app.route('/reset_password', methods=['GET', 'POST'])
+def reset_password():    
+    with Session() as db_session:
+
+        token = request.args.get('token')
+        user = db_session.query(User).filter_by(reset_token=token).first()
+            # Check if the token is expired
+        if is_token_expired(user.reset_token_created_at, timedelta(hours=1)):
+            return "Token has expired. Please request a new password reset."
+
+
+        if not user:
+            flash('Invalid or expired reset token. Please request a new password reset.', 'error')
+            return redirect(url_for('login_page'))
+
+        if request.method == 'POST':
+            # Update the user's password and remove the reset token
+            new_password = request.form.get('new_password')
+            user.login[0].hash = generate_password_hash(new_password)
+            user.reset_token = None  # Remove the reset token
+            user.reset_token_created_at = None
+            db_session.commit()
+            flash('Password reset successfully. You can now log in with your new password.', 'success')
+            return redirect(url_for('login_page'))
+
+        return render_template('reset_password.html', token=token)
 
 
 
