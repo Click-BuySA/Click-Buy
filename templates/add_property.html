@@ -69,6 +69,14 @@
                         <label for="garages">Garages</label>
                         <input type="number" class="form-control" id="garages" name="garages">
                     </div>
+                    <div class="form-group">
+                        <label for="link">P-24 Link</label>
+                        <input type="text" class="form-control" id="link" name="link">
+                    </div>
+                    <div class="form-group">
+                        <label for="link-display">Link Display</label>
+                        <input type="text" class="form-control" id="link_display" name="link_display">
+                    </div>                    
                     <div class="form-check">
                         <input type="checkbox" class="form-check-input" id="swimming_pool" name="swimming_pool">
                         <label class="form-check-label" for="swimming_pool">Swimming Pool</label>
@@ -98,7 +106,15 @@
 
 {% endblock %}
 {% block additional_scripts %}
+<script src="./static/assets/js/AutoNumeric.min.js"></script>
 <script>
+minPriceAutoNumeric = new AutoNumeric('#price', {
+  currencySymbol: 'R ',
+  currencySymbolPlacement: AutoNumeric.options.currencySymbolPlacement.prefix,
+  decimalPlaces: 0,
+  unformatOnSubmit: true
+});
+
     // Clear form fields when the page is loaded
     $(document).ready(function () {
         $('#propertyForm').trigger('reset');

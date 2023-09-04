@@ -443,6 +443,8 @@ def update_property(property_id):
             garages = request.form.get('garages')
             property.garages = int(
                 garages) if garages else None if garages != '' else None
+            property.link = request.form.get('link')
+            property.link_display = request.form.get('link_display')
             property.swimming_pool = bool(request.form.get('swimming_pool'))
             property.garden_flat = bool(request.form.get('garden_flat'))
             property.study = bool(request.form.get('study'))
@@ -806,7 +808,6 @@ def thank_you():
     return render_template('thank_you.html')
 
 
-
 @app.route('/contact', methods=['GET', 'POST'])
 def contact():
     if request.method == 'POST':
@@ -861,6 +862,8 @@ def add_property():
             bedrooms = request.form.get('bedrooms')
             bathrooms = request.form.get('bathrooms')
             garages = request.form.get('garages')
+            link = request.form.get('link')
+            link_display = request.form.get('link_display')
             swimming_pool = 'swimming_pool' in request.form
             garden_flat = 'garden_flat' in request.form
             study = 'study' in request.form
@@ -878,6 +881,8 @@ def add_property():
                 bedrooms=bedrooms,
                 bathrooms=bathrooms,
                 garages=garages,
+                link=link,
+                link_display=link_display,
                 swimming_pool=swimming_pool,
                 garden_flat=garden_flat,
                 study=study,
@@ -897,7 +902,7 @@ def add_property():
         flash('You need to be logged in as an admin to access this page.', 'error')
         return redirect(url_for('login_page'))
 
-    
+
 @app.route('/report', methods=['GET', 'POST'])
 @require_login()
 def report_issue():
@@ -914,17 +919,17 @@ def report_issue():
 
         # Prepare email content
         email_subject = f'Issue Report: {subject}'
-        
+
         # Render the email template with the provided data
         email_content = render_template('mail_report.html',
                                         name=name,
                                         email=email,
                                         subject=subject,
-                                        message=message)        
-        
+                                        message=message)
+
         # Send email to admins using your send_email function
         send_email(email_subject, [admin_emails], email_content)
-        
+
         flash('Issue reported successfully. Thank you!', 'success')
         return redirect(url_for('dashboard'))
 
@@ -935,7 +940,7 @@ def report_issue():
 @require_login()
 def change_password():
     user = get_current_user_info()
-    
+
     if request.method == 'POST':
         current_password = request.form.get('current_password')
         new_password = request.form.get('new_password')
@@ -951,11 +956,12 @@ def change_password():
                 flash('New passwords do not match.', 'danger')
             else:
                 new_password_hash = generate_password_hash(new_password)
-                db_session.query(Login).filter_by(user_email=user.email).update({'hash': new_password_hash})  # Update the filter
+                db_session.query(Login).filter_by(user_email=user.email).update(
+                    {'hash': new_password_hash})  # Update the filter
                 db_session.commit()
                 flash('Password changed successfully.', 'success')
                 return redirect(url_for('dashboard'))
-            
+
             return redirect(url_for('change_password'))
 
     return render_template('change_password.html', user=user)
@@ -1007,7 +1013,8 @@ def forgot_password():
                 db_session.commit()
 
                 # Send reset link via email
-                reset_link = url_for('reset_password', token=reset_token, _external=True)
+                reset_link = url_for(
+                    'reset_password', token=reset_token, _external=True)
                 send_password_reset_email(user, reset_link)
 
                 flash('A password reset link has been sent to your email.', 'info')
@@ -1018,20 +1025,19 @@ def forgot_password():
     return render_template('forgot_password.html')
 
 
-
 @app.route('/reset_password', methods=['GET', 'POST'])
-def reset_password():    
+def reset_password():
     with Session() as db_session:
 
         token = request.args.get('token')
         user = db_session.query(User).filter_by(reset_token=token).first()
-            # Check if the token is expired
+        # Check if the token is expired
         if is_token_expired(user.reset_token_created_at, timedelta(hours=1)):
             return "Token has expired. Please request a new password reset."
 
-
         if not user:
-            flash('Invalid or expired reset token. Please request a new password reset.', 'error')
+            flash(
+                'Invalid or expired reset token. Please request a new password reset.', 'error')
             return redirect(url_for('login_page'))
 
         if request.method == 'POST':
@@ -1041,11 +1047,11 @@ def reset_password():
             user.reset_token = None  # Remove the reset token
             user.reset_token_created_at = None
             db_session.commit()
-            flash('Password reset successfully. You can now log in with your new password.', 'success')
+            flash(
+                'Password reset successfully. You can now log in with your new password.', 'success')
             return redirect(url_for('login_page'))
 
         return render_template('reset_password.html', token=token)
-
 
 
 @app.route('/<string:page_name>')

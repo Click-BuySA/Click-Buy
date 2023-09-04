@@ -76,6 +76,14 @@
                         <label for="garages">Garages</label>
                         <input type="number" class="form-control" id="garages" name="garages" value="{{ property.garages }}" disabled>
                     </div>
+                    <div class="form-group">
+                        <label for="link">P-24 Link</label>
+                        <input type="text" class="form-control" id="link" name="link" value="{{ property.link }}" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label for="link_display">Link Display</label>
+                        <input type="text" class="form-control" id="link_display" name="link_display" value="{{ property.link_display }}" disabled>
+                    </div>
                     <div class="form-check">
                         <input type="checkbox" class="form-check-input" id="swimming_pool" name="swimming_pool" {% if property.swimming_pool %}checked{% endif %} disabled>
                         <label class="form-check-label" for="swimming_pool">Swimming Pool</label>
@@ -114,7 +122,14 @@
 
 {% endblock %}
 {% block additional_scripts %}
+<script src="{{ url_for('static', filename='assets/js/AutoNumeric.min.js') }}"></script>
 <script>
+PriceAutoNumeric = new AutoNumeric('#price', {
+  currencySymbol: 'R ',
+  currencySymbolPlacement: AutoNumeric.options.currencySymbolPlacement.prefix,
+  decimalPlaces: 0,
+  unformatOnSubmit: true
+});
     document.addEventListener('DOMContentLoaded', function () {
         console.log("DOM content loaded."); // Debug statement
         const propertyForm = document.getElementById('propertyForm');
