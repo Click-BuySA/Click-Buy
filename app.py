@@ -54,14 +54,10 @@ def send_email(subject, recipients, content, cc=None):
         smtp.login(smtp_email, smtp_password)
 
         for recipient in recipients:
-            print("Sending email to:", recipient)  # Debug print
-            print("Sending email content:", message.as_string())  # Debug print
-
             message['to'] = recipient
             if cc:
                 message['cc'] = cc  # Set the cc field if provided
             smtp.send_message(message)
-            print("Email sent to:", recipient)  # Debug print
 
 
 def generate_pagination_html(total_pages, current_page):
@@ -202,7 +198,6 @@ def index():
 @app.route('/dashboard', methods=['GET', 'POST'])
 @require_login()
 def dashboard():
-    print("Session contents:", session)
     min_price = request.form.get('min_price_filter')
     max_price = request.form.get('max_price_filter')
 
@@ -343,7 +338,6 @@ def dashboard():
         if request.method == 'POST':
             filters = build_filters_from_form(request.form)
             properties_query = apply_filters(properties_query, filters)
-            print("Filters:", filters)
         else:
             filters = build_filters_from_request_args(request.args)
             properties_query = apply_filters(properties_query, filters)
@@ -372,7 +366,6 @@ def dashboard():
                         filtered_properties.pages, filtered_properties.page)  # Update this line
                 }
             }
-            # print("Sending properties data:", properties_data)  # Debug log
             return jsonify(properties_data)  # Return JSON for AJAX requests
 
         return render_template('dashboard.html',
@@ -480,24 +473,19 @@ def update_property(property_id):
 @app.route('/delete_property/<int:property_id>', methods=['POST'])
 @require_login()
 def delete_property(property_id):
-    print("Delete Property Route Reached")  # Debug statement
-
     if session['is_admin']:
         with Session() as db_session:
             property_to_delete = db_session.query(Property).get(property_id)
 
             if not property_to_delete:
-                print("Property not found.")  # Debug statement
                 flash('Property not found.', 'error')
                 return redirect(url_for('dashboard'))
 
             db_session.delete(property_to_delete)
             db_session.commit()
 
-            print("Property deleted successfully.")  # Debug statement
             flash('Property deleted successfully.', 'success')
     else:
-        print("No admin permission.")  # Debug statement
         flash('You do not have permission to delete this property.', 'error')
 
     return redirect(url_for('dashboard'))
@@ -552,7 +540,6 @@ def get_users():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register_user():
-    print("Received POST request to /register")
     if request.method == 'POST':
         first_name = request.form.get('first_name')
         last_name = request.form.get('last_name')
@@ -787,11 +774,6 @@ def admin_edit_user(user_id):
             user.is_admin = bool(is_admin_new)
             user.has_access = bool(has_access)
             db_session.commit()
-
-            # Print the user's details for debugging purposes
-            print("User ID:", user.id)
-            print("User Name:", user.name)
-            print("Is Admin:", user.is_admin)
 
             flash('User updated successfully.', 'success')
             return redirect(url_for('admin_users'))

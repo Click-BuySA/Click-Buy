@@ -247,7 +247,7 @@
           </div>
           <footer class="footer">
             <div class="d-sm-flex justify-content-center justify-content-sm-between">
-              <span class="text-muted d-block text-center text-sm-left d-sm-inline-block">Copyright © Johandré de Beer | 2023</span>
+              <span class="text-muted d-block text-center text-sm-left d-sm-inline-block">Copyright © JHDigitalCreations | 2023</span>
               <!-- <span class="float-none float-sm-right d-block mt-1 mt-sm-0 text-center"> Free <a href="https://www.bootstrapdash.com/bootstrap-admin-template/" target="_blank">Bootstrap admin templates</a> from Bootstrapdash.com</span> -->
             </div>
           </footer>
@@ -260,22 +260,7 @@
     </div>
     <!-- container-scroller -->
     <!-- plugins:js -->
-    <script>
-      function updatePendingUsersBadge() {
-          $.get('/get_pending_users_count', function(data) {
-              if (data.pending_users > 0) {
-                  $('#newUsersBadgeContainer').find('.badge').text(data.pending_users).show();
-              } else {
-                  $('#newUsersBadgeContainer').find('.badge').hide();
-              }
-          });
-      }
-
-      $(document).ready(function() {
-        updatePendingUsersBadge();
-      });
-      </script>
-
+    <script src="{{ url_for('static', filename='assets/js/pendingUsersBadge.js') }}"></script>
     <!-- endinject -->
     <!-- Plugin js for this page -->
     <script src="{{ url_for('static', filename='assets/vendors/js/vendor.bundle.base.js') }}"></script>
