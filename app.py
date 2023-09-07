@@ -10,12 +10,15 @@ from email.message import EmailMessage
 from string import Template
 from pathlib import Path
 import secrets
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
 
 app = Flask(__name__)
 
-app.config['SECRET_KEY'] = 'your_secret_key_here'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:SQLPassX&7@localhost/click_and_buy'
+app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
@@ -23,6 +26,10 @@ Base.metadata.create_all(engine)
 Session = sessionmaker(bind=engine)
 
 db.init_app(app)
+
+
+smtp_email = os.getenv("SMTP_EMAIL")
+smtp_password = os.getenv("SMTP_PASSWORD")
 
 
 @app.template_filter('format_currency')
@@ -44,7 +51,7 @@ def send_email(subject, recipients, content, cc=None):
     with smtplib.SMTP(host='smtp.gmail.com', port=587) as smtp:
         smtp.ehlo()
         smtp.starttls()
-        smtp.login('johandrehdb@gmail.com', 'afjtruqujroeylvx')
+        smtp.login(smtp_email, smtp_password)
 
         for recipient in recipients:
             print("Sending email to:", recipient)  # Debug print
@@ -830,7 +837,7 @@ def contact():
             send_email(
                 subject="Contact Form Submission",
                 # Replace with your admin email
-                recipients=["johandrehdb@gmail.com"],
+                recipients=[smtp_email],
                 content=email_content
             )
 
