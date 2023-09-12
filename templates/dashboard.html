@@ -357,6 +357,11 @@
               </div>
             </div>
             <br>
+            <div id="loading-overlay">
+              <div id="loading-indicator">
+                  Loading...
+              </div>
+          </div>
             <div class="table-responsive table-responsive-sm .table-responsive-md table-responsive-lg table-responsive-xl">
               <table class="table table-hover" id="properties_table">
                 <thead>
@@ -438,29 +443,6 @@
 <!-- Custom js for this page -->
 <script src="./static/assets/js/dashboard.js"></script>
 <script>
-minPriceAutoNumeric = new AutoNumeric('#min_price_filter', {
-  currencySymbol: 'R ',
-  currencySymbolPlacement: AutoNumeric.options.currencySymbolPlacement.prefix,
-  decimalPlaces: 0,
-  unformatOnSubmit: true
-});
-
-maxPriceAutoNumeric = new AutoNumeric('#max_price_filter', {
-  currencySymbol: 'R ',
-  currencySymbolPlacement: AutoNumeric.options.currencySymbolPlacement.prefix,
-  decimalPlaces: 0,
-  unformatOnSubmit: true
-});
-
-
-// Event listener for the "Toggle Filters" button click
-$("#toggleFilters, #toggleFilters1").click(function () {
-  $("#filter-form").toggle();
-  var isVisible = $("#filter-form").is(":visible");
-  var buttonText = isVisible ? "Hide Filters" : "Show Filters";
-  $("#toggleFilters, #toggleFilters1").text(buttonText);
-});
-
 var selectedAreas = [
     {% for area in selected_areas %}
         "{{ area }}"{% if not loop.last %},{% endif %}

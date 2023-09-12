@@ -34,6 +34,8 @@ smtp_password = os.getenv("SMTP_PASSWORD")
 
 @app.template_filter('format_currency')
 def format_currency(value):
+    if not isinstance(value, (int, float)):
+        return ''  # Return an empty string for non-numeric values
     return f'R {value:,.2f}'
 
 # Common Email Sending Function
@@ -858,6 +860,11 @@ def add_property():
             study = 'study' in request.form
             ground_floor = 'ground_floor' in request.form
             pet_friendly = 'pet_friendly' in request.form
+
+            # Check if the input is an empty string, and if so, set it to None
+            garages = int(garages) if garages.strip() else None
+            bedrooms = int(bedrooms) if bedrooms.strip() else None
+            bathrooms = int(bathrooms) if bathrooms.strip() else None
 
             # Create a Property object and add it to the database
             new_property = Property(

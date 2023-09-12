@@ -13,7 +13,7 @@
             border: 1px solid #2A3038;
             padding: 1em;
             margin: 0.5em;
-            background-color: #2A3038;
+            background-color: #ffffff;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             border-radius: 4px;
             min-width: 300px;
@@ -40,7 +40,7 @@
             font-weight: normal;
             line-height: 1.5;
             color: white;
-            background-color: #292d35;
+            background-color: #ffffff;
             border: 5em solid rgba(0, 0, 0, 0.125);
             padding: 2em;
             margin: 2em;
@@ -54,7 +54,8 @@
         }
 
         .property-row {
-            border: 1px solid #2A3038;
+            border: 1px solid #ffffff;
+            background-color: #ffffff;
         }
 
         .property-cell {
@@ -68,21 +69,17 @@
     <title>Property Export</title>
 </head>
 <body>
-    <div class="container">
-        <h2>Selected Properties Export</h2>
-        <p>Thank you for using our export service. Below are the details of the selected properties:</p>
-        
-        <table class="property-table">
-            <tbody>
-                <tr class="property-row">
-                    {properties}
-                </tr>
-            </tbody>
-        </table>
-        
-        <p>If you have any questions or need further assistance, please feel free to contact an admin.</p>
-        <p>Best regards,</p>
-        <p>Click & Buy Team</p>
-    </div>
+    <h1>Selected Properties Export</h1>
+    <p>Thank you for using our export service. Below are the details of the selected properties:</p>
+    <table class="property-table">
+        <tbody>
+            <tr class="property-row">
+                {properties}
+            </tr>
+        </tbody>
+    </table>
+    <p>If you have any questions or need further assistance, please feel free to contact an admin.</p>
+    <p>Best regards,</p>
+    <p>Click & Buy Team</p>
 </body>
 </html>

@@ -2,6 +2,30 @@
     // Initialize an array to store the selected property IDs
     var selectedProperties = [];
 
+    minPriceAutoNumeric = new AutoNumeric('#min_price_filter', {
+      currencySymbol: 'R ',
+      currencySymbolPlacement: AutoNumeric.options.currencySymbolPlacement.prefix,
+      decimalPlaces: 0,
+      unformatOnSubmit: true
+    });
+    
+    maxPriceAutoNumeric = new AutoNumeric('#max_price_filter', {
+      currencySymbol: 'R ',
+      currencySymbolPlacement: AutoNumeric.options.currencySymbolPlacement.prefix,
+      decimalPlaces: 0,
+      unformatOnSubmit: true
+    });
+    
+    
+    // Event listener for the "Toggle Filters" button click
+    $("#toggleFilters, #toggleFilters1").click(function () {
+      $("#filter-form").toggle();
+      var isVisible = $("#filter-form").is(":visible");
+      var buttonText = isVisible ? "Hide Filters" : "Show Filters";
+      $("#toggleFilters, #toggleFilters1").text(buttonText);
+    });
+    
+
   // Event handler for sending selected properties via email
   $('.send-email-link').on('click', function (event) {
     event.preventDefault(); // Prevent the default anchor behavior
@@ -24,6 +48,8 @@
         };
       });
 
+      $('#loading-overlay').show();
+
       // Send the AJAX request with the selected property details
       $.ajax({
         url: '/send_email',
@@ -34,14 +60,19 @@
           if (response.message === "success") {
             // Show success alert message
             alert("Export successful to " + response.email);
+            // Hide the loading indicator when the request is complete
+            $('#loading-overlay').hide();
           } else {
             // Show error alert message
             alert("Export failed. Please contact an administrator.");
+            // Hide the loading indicator when the request is complete
+            $('#loading-overlay').hide();
           }
         },
         error: function (error) {
           console.log("Email error:", error);
-
+          // Hide the loading indicator when the request is complete
+          $('#loading-overlay').hide();
           // Show error alert message
           alert("Export failed. Please contact an administrator.");
         }
@@ -141,6 +172,7 @@
 
 
   function handlePaginationClick(page, formData) {
+    $('#loading-overlay').show();
     $.ajax({
       type: 'POST',
       url: '/dashboard?page=' + page,
@@ -152,9 +184,13 @@
         updateProperties(data);
         updatePaginationControls(data.pagination.paginationHTML);
         updatePaginationLinks(); // Add this line to update the pagination links
+        // Hide the loading indicator when the request is complete
+        $('#loading-overlay').hide();
       },
       error: function (error) {
         console.error('Error fetching properties:', error);
+        // Hide the loading indicator when the request is complete
+        $('#loading-overlay').hide();
       }
     });
   }
@@ -384,7 +420,7 @@
       minPriceAutoNumeric.clear();
       maxPriceAutoNumeric.clear();
 
-
+      $('#loading-overlay').show();
       // Make an AJAX request to clear filters and update the table
       $.ajax({
           url: '/dashboard',  // Use the /dashboard route for clearing filters
@@ -402,9 +438,13 @@
               // Clear the selected areas in the dropdown for area filters
               $('.js-example-basic-multiple').val([]); // Set an empty array to clear selection
               $('.js-example-basic-multiple').trigger('change'); // Refresh the dropdown to clear selected values
+              // Hide the loading indicator when the request is complete
+              $('#loading-overlay').hide();
           },
           error: function(error) {
               console.error('Error clearing filters:', error);
+              // Hide the loading indicator when the request is complete
+              $('#loading-overlay').hide();
           }
       });
     }
