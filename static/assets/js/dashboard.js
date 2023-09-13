@@ -1,7 +1,6 @@
   $(document).ready(function () {
     // Initialize an array to store the selected property IDs
     var selectedProperties = [];
-
     minPriceAutoNumeric = new AutoNumeric('#min_price_filter', {
       currencySymbol: 'R ',
       currencySymbolPlacement: AutoNumeric.options.currencySymbolPlacement.prefix,
@@ -15,7 +14,8 @@
       decimalPlaces: 0,
       unformatOnSubmit: true
     });
-    
+
+
     
     // Event listener for the "Toggle Filters" button click
     $("#toggleFilters, #toggleFilters1").click(function () {
@@ -121,10 +121,11 @@
 
     // Event listener for form submission
     document.getElementById('filter-form').addEventListener('submit', function (event) {
-      const minPriceInput = document.getElementById('min_price_filter');
-      const maxPriceInput = document.getElementById('max_price_filter');
+      // Get the numeric values using the getNumber method
+      var minPriceValue = minPriceAutoNumeric.getNumber();
+      var maxPriceValue = maxPriceAutoNumeric.getNumber();
 
-      if (minPriceInput.value !== 0 && maxPriceInput.value !== 0 && Number(minPriceInput.value) > Number(maxPriceInput.value)) {
+      if (minPriceValue.valueOf !== 0 && maxPriceValue.valueOf !== 0 && Number(minPriceValue.valueOf) > Number(maxPriceValue.valueOf)) {
         event.preventDefault();
         alert('Min price cannot be greater than max price.');
       }
@@ -135,7 +136,25 @@
       e.preventDefault();
       var page = $(this).data('page');
       var formData = new FormData(document.getElementById('filter-form'));
-      handlePaginationClick(page, formData);
+      // Parse the values
+      var minPriceValue = parseFloat($('#min_price_filter').val().replace(/\D/g, ''));
+      var maxPriceValue = parseFloat($('#max_price_filter').val().replace(/\D/g, ''));
+
+      // Check if minPriceValue is a valid number
+      if (!isNaN(minPriceValue)) {
+        formData.set('min_price_filter', minPriceValue);
+      } else {
+        formData.set('min_price_filter', ''); // Set it to blank if it's not a valid number
+      }
+
+      // Check if maxPriceValue is a valid number
+      if (!isNaN(maxPriceValue)) {
+        formData.set('max_price_filter', maxPriceValue);
+      } else {
+        formData.set('max_price_filter', ''); // Set it to blank if it's not a valid number
+      }
+
+      handlePaginationClick(page, formData); // Pass the updated formData
     });
 
     // Event listener for the "Filter" button click
@@ -337,9 +356,6 @@
       formData.append('street_name_filter', $('[name="street_name_filter"]').val());
       formData.append('complex_name_filter', $('[name="complex_name_filter"]').val());
 
-      // Convert max and min price to numeric values
-      var minPriceValue = parseFloat($('#min_price_filter').val().replace(/\D/g, ''));
-      var maxPriceValue = parseFloat($('#max_price_filter').val().replace(/\D/g, ''));
       if (!isNaN(minPriceValue)) {
           formData.append('min_price_filter', minPriceValue);
       }
@@ -349,7 +365,6 @@
       }
 
       formData.append('area_filter', $('[name="area_filter"]').val());
-      formData.append('max_price_filter', $('[name="max_price_filter"]').val());
       formData.append('number_filter', $('[name="number_filter"]').val());
       formData.append('bedroom_filter', $('[name="bedroom_filter"]').val());
       formData.append('bathroom_filter', $('[name="bathroom_filter"]').val());

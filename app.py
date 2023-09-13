@@ -200,12 +200,6 @@ def index():
 @app.route('/dashboard', methods=['GET', 'POST'])
 @require_login()
 def dashboard():
-    min_price = request.form.get('min_price_filter')
-    max_price = request.form.get('max_price_filter')
-
-    if min_price and max_price and float(min_price) > float(max_price):
-        flash("Minimum price cannot be higher than maximum price", "warning")
-
     def apply_numeric_filter(property_attr, filter_value):
         if filter_value == '1':
             return Property.bathrooms == 1
@@ -275,6 +269,7 @@ def dashboard():
         if filters['max_price_filter']:
             filter_clauses.append(
                 Property.price <= filters['max_price_filter'])
+                
         if filters['street_name_filter']:
             filter_clauses.append(func.lower(Property.street_name).ilike(
                 f"%{filters['street_name_filter'].lower()}%"))
