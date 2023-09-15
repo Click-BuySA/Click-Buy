@@ -469,12 +469,9 @@
   }
 
   function updatePaginationControls(paginationHTML) {
-    // Create a jQuery object from the paginationHTML
-    var paginationContent = $(paginationHTML);
-    // Get the new pagination container
     var newPaginationContainer = $('#new-pagination-container');
-    // Empty the new pagination container and insert the pagination content
-    newPaginationContainer.empty().append(paginationContent);
-    // Add a class to each pagination link
+    newPaginationContainer.empty().append(paginationHTML);
+
+    // Update pagination links
     newPaginationContainer.find('.pagination-link').addClass('dynamic-pagination-link');
-  }
+}

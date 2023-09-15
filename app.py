@@ -70,9 +70,17 @@ def generate_pagination_html(total_pages, current_page):
         pagination_html += f'<li class="page-item"><a class="page-link pagination-link" data-page="{current_page - 1}" href="#">Previous</a></li>'
 
     # Page number links
-    for page in range(1, total_pages + 1):
+    page_range = 2  # Number of pages to display on each side of the current page
+    start_page = max(1, current_page - page_range)
+    end_page = min(total_pages, current_page + page_range)
+
+    if start_page > 1:
+        pagination_html += '<li class="page-item disabled"><span class="page-link">...</span></li>'
+    for page in range(start_page, end_page + 1):
         active_class = 'active' if page == current_page else ''
         pagination_html += f'<li class="page-item {active_class}"><a class="page-link pagination-link" data-page="{page}" href="#">{page}</a></li>'
+    if end_page < total_pages:
+        pagination_html += '<li class="page-item disabled"><span class="page-link">...</span></li>'
 
     # Next page link
     if current_page < total_pages:
@@ -80,6 +88,7 @@ def generate_pagination_html(total_pages, current_page):
 
     pagination_html += '</ul>'
     return pagination_html
+
 
 
 # Function to check if the user is authenticated before each request
