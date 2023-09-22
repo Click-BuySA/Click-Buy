@@ -62,16 +62,17 @@
           <!-- Property Filters Card -->
         <div class="card">
             <div class="card-body">
-              <div class="d-flex justify-content-between align-items-start mb-3">
+              <div class="d-flex flex-column flex-md-row justify-content-between align-items-start">
                 <div>
-                  <h4 class="card-title">Filter Properties</h4>
+                    <h4 class="card-title">Filter Properties</h4>
                 </div>
-                <div class="text-right col-md-6 col-sl-3">
-                  <button type="button" class="btn btn-success align-self-center" id="toggleFilters" >Show Filters</button>
-                  <input type="submit" class="btn btn-primary align-self-center" value="Filter" form="filter-form" id="filter-button">
-                  <button class="btn btn-danger" id="reset-filters">Reset Filters</button>
+                <div class="text-center">
+                    <button type="button" class="btn btn-success" id="toggleFilters">Show Filters</button>
+                    <input type="submit" class="btn btn-primary" value="Filter" form="filter-form" id="filter-button">
+                    <button class="btn btn-danger" id="reset-filters">Reset Filters</button>
                 </div>
-              </div>                                      
+              </div>                       
+              <br>  
               <form class="form-sample" id="filter-form" name="filter-form" method="post" action="{{ request.path }}">
                 <h4 class="card-description"> Adress/Location Filters </h4>
                 <div class="row">
@@ -97,6 +98,16 @@
                 <div class="row">
                   <div class="col-md-6">
                     <div class="form-group row">
+                      <label class="col-sm-3 col-form-label">Unit / Street Number</label>
+                      <div class="col-sm-9">
+                        <input class="form-control" id="number_filter" name="number_filter" value="{{ number_filter or ''}}"/>
+                      </div>
+                    </div>
+                  </div>
+
+
+                  <div class="col-md-6">
+                    <div class="form-group row">
                       <label class="col-sm-3 col-form-label">Property Type</label>
                       <div class="col-sm-9">
                         <select class="form-control" id="prop_type_filter" name="prop_type_filter">
@@ -106,16 +117,6 @@
                           <option>Farms</option>
                           <option>Stands</option>
                         </select>
-                      </div>
-                    </div>
-                  </div>
-
-
-                  <div class="col-md-6">
-                    <div class="form-group row">
-                      <label class="col-sm-3 col-form-label">Unit / Street Number</label>
-                      <div class="col-sm-9">
-                        <input class="form-control" id="number_filter" name="number_filter" value="{{ number_filter or ''}}"/>
                       </div>
                     </div>
                   </div>                          
@@ -144,7 +145,6 @@
                       <label class="col-sm-3 col-form-label">Area</label>
                       <div class="col-sm-9">
                         <select class="js-example-basic-multiple" multiple="multiple" style="width:100%" name="area_filter">
-                          <option>Any</option>
                           <option>Baillie Park</option>
                           <option>Bult</option>
                           <option>Central</option>
@@ -187,6 +187,16 @@
                   </div>
                   <div class="col-md-6">
                     <div class="form-group row">
+                      <label class="col-sm-3 col-form-label">Price Minimum</label>
+                      <div class="col-sm-9">
+                        <input type="text" class="form-control" placeholder="" id="min_price_filter" name="min_price_filter">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group row">
                       <label class="col-sm-3 col-form-label">Bedrooms</label>
                       <div class="col-sm-9">
                         <select class="form-control" name="bedroom_filter">
@@ -196,17 +206,8 @@
                           <option value="2+" {% if bedroom_filter == '2+' %}selected{% endif %}>2+</option>
                           <option value="3" {% if bedroom_filter == '3' %}selected{% endif %}>3</option>
                           <option value="3+" {% if bedroom_filter == '3+' %}selected{% endif %}>3+</option>
+                          <option value="4+" {% if bedroom_filter == '4+' %}selected{% endif %}>4+</option>
                         </select>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-md-6">
-                    <div class="form-group row">
-                      <label class="col-sm-3 col-form-label">Price Minimum</label>
-                      <div class="col-sm-9">
-                        <input type="text" class="form-control" placeholder="" id="min_price_filter" name="min_price_filter">
                       </div>
                     </div>
                   </div>
@@ -229,14 +230,6 @@
                 <div class="row">
                   <div class="col-md-6">
                     <div class="form-group row">
-                      <label class="col-sm-3 col-form-label">City</label>
-                      <div class="col-sm-9">
-                        <input type="text" class="form-control" />
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-md-6">
-                    <div class="form-group row">
                       <label class="col-sm-3 col-form-label">Garages</label>
                       <div class="col-sm-9">
                         <select class="form-control" name="garages_filter">
@@ -247,6 +240,14 @@
                           <option value="3" {% if garages_filter == '3' %}selected{% endif %}>3</option>
                           <option value="3+" {% if garages_filter == '3+' %}selected{% endif %}>3+</option>
                         </select>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group row">
+                      <label class="col-sm-3 col-form-label">City</label>
+                      <div class="col-sm-9">
+                        <input type="text" class="form-control" />
                       </div>
                     </div>
                   </div>
@@ -310,7 +311,7 @@
         <!-- Result Table -->          
         <div class="card table-container">
           <div class="card-body">
-            <div class="card-title d-flex justify-content-between">
+            <div class="card-title d-flex flex-column flex-md-row justify-content-between align-items-start">
               <h4>Properties For Sale</h4>
               <div class="navbar-nav navbar-nav-right">
                 <button id="expand-toggle-btn" class="btn btn-primary">Expand/Collapse</button>
@@ -420,10 +421,24 @@
                 </tbody>
               </table>
               <br>
-              <!-- Page Navigation -->
-              <div id="new-pagination-container"></div>
+              <!-- Page Navigation -->                     
               </div>
               <!-- table ends here -->
+              <div id="new-pagination-container">
+              </div>
+              <div class="row">
+                <div class="col-md-6">
+                  <h4>Total Pages: <span id="total-pages"></span></h4>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end align-items-center">
+                  <div class="col-md-6">
+                    <input type="number" id="jump-to-page" class="form-control" placeholder="Jump to page" min="1" max="{{ total_pages }}">
+                  </div>
+                  <div class="col-md-3">
+                    <button id="jump-button" class="btn btn-primary btn-block">Go</button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
