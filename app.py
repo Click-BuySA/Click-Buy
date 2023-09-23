@@ -67,10 +67,10 @@ def generate_pagination_html(total_pages, current_page):
 
     # Previous page link
     if current_page > 1:
-        pagination_html += f'<li class="page-item"><a class="page-link pagination-link" data-page="{current_page - 1}" href="#">Previous</a></li>'
+        pagination_html += f'<li class="page-item"><a class="page-link pagination-link" data-page="{current_page - 1}" href="#"><</a></li>'
 
     # Page number links
-    page_range = 2  # Number of pages to display on each side of the current page
+    page_range = 1  # Number of pages to display on each side of the current page
     start_page = max(1, current_page - page_range)
     end_page = min(total_pages, current_page + page_range)
 
@@ -84,7 +84,7 @@ def generate_pagination_html(total_pages, current_page):
 
     # Next page link
     if current_page < total_pages:
-        pagination_html += f'<li class="page-item"><a class="page-link pagination-link" data-page="{current_page + 1}" href="#">Next</a></li>'
+        pagination_html += f'<li class="page-item"><a class="page-link pagination-link" data-page="{current_page + 1}" href="#">></a></li>'
 
     pagination_html += '</ul>'
     return pagination_html
@@ -220,6 +220,8 @@ def dashboard():
             return (property_attr == 3) & (property_attr.isnot(None))
         elif filter_value == '3+':
             return (property_attr >= 3) & (property_attr.isnot(None))
+        elif filter_value == '4+':
+            return (property_attr >= 4) & (property_attr.isnot(None))        
         return None
 
     def build_filters_from_form(form_data):
