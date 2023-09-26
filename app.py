@@ -811,6 +811,7 @@ def thank_you():
 
 @app.route('/contact', methods=['GET', 'POST'])
 def contact():
+    user = get_current_user_info()
     if request.method == 'POST':
         try:
             email = request.form.get('email')
@@ -844,7 +845,7 @@ def contact():
         return redirect(url_for('contact'))
 
     # For GET requests, render the contact form template
-    return render_template('contact.html')
+    return render_template('contact.html', user=user)
 
 
 @app.route('/add_property', methods=['GET', 'POST'])

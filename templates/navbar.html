@@ -41,7 +41,7 @@
                   {% if user %}             
                   <img class="img-xs rounded-circle " src="https://robohash.org/{{ user.name }}%20{{user.surname}}?set=set5" alt="">
                   {% else %}
-                  <img class="img-xs rounded-circle" src="{{ url_for('static', filename='assets/images/faces/face15.jpg') }}" alt="">
+                  <img class="img-xs rounded-circle" src="https://robohash.org/human?set=set5" alt="">
                   {% endif%}
                   <span class="count bg-success"></span>
                 </div>
@@ -94,14 +94,6 @@
               </span>
               <span class="menu-title">Body Corporate Index</span>
             </a>
-          <li class="nav-item menu-items">
-            <a class="nav-link" href="http://www.bootstrapdash.com/demo/corona-free/jquery/documentation/documentation">
-              <span class="menu-icon">
-                <i class="mdi mdi-file-document-box"></i>
-              </span>
-              <span class="menu-title">Documentation</span>
-            </a>
-          </li>
         </ul>
       </nav>
       <!-- partial -->
@@ -154,7 +146,7 @@
                     <p class="mb-0 d-none d-sm-block navbar-profile-name">{{ user.name }} {{ user.surname }}</p>
                     <i class="mdi mdi-menu-down d-none d-sm-block"></i>
                     {% else %}
-                    <img class="img-xs rounded-circle" src="{{ url_for('static', filename='assets/images/faces/face15.jpg') }}" alt="">
+                    <img class="img-xs rounded-circle" src="https://robohash.org/human?set=set5" alt="">
                     <p class="mb-0 d-none d-sm-block navbar-profile-name">Guest</p>
                     <i class="mdi mdi-menu-down d-none d-sm-block"></i>
                     {% endif %}
