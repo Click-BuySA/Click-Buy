@@ -138,7 +138,10 @@ def is_admin(user_id):
 
 # Function that sends a notification email whenever a new user is registered.
 def send_notification_email(new_user_info, cc=None):
-    html_template = Template(Path('mail.html').read_text())
+    # Load the email template from the templates folder
+    template_path = os.path.join(os.path.dirname(__file__), 'templates', 'mail.html')
+    html_template = Template(open(template_path, 'r').read())
+    
     html_content = html_template.substitute(
         name=new_user_info['name'],
         surname=new_user_info['surname'],
@@ -731,7 +734,8 @@ def send_email_route():
             properties_list += property_item
 
         # Load the export template and format the content
-        with open('export_template.html', 'r') as template_file:
+        template_path = os.path.join(os.path.dirname(__file__), 'templates', 'export_template.html')
+        with open(template_path, 'r') as template_file:
             email_content = template_file.read().replace(
                 '{properties}', properties_list)
 

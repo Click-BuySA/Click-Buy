@@ -1,0 +1,10 @@
+
+Run my waitress server:
+py -3.11 my_waitress.py
+
+
+Run flask app:
+flask run
+
+Debug mode:
+flask run --debug
