@@ -232,8 +232,8 @@ $(document).ready(function () {
       // Show an error message or take appropriate action for invalid input
       alert(
         "Invalid page number. Please enter a number between 1 and " +
-          total_pages +
-          "."
+        total_pages +
+        "."
       );
     }
   });
@@ -295,13 +295,13 @@ function updateProperties(data) {
     row.append(
       $("<td>").html(
         '<div class="form-check form-check-muted m-0">' +
-          '<label class="form-check-label">' +
-          '<input type="checkbox" class="form-check-input property-checkbox" data-property-id="' +
-          property.id +
-          '">' +
-          '<i class="input-helper"></i>' +
-          "</label>" +
-          "</div>"
+        '<label class="form-check-label">' +
+        '<input type="checkbox" class="form-check-input property-checkbox" data-property-id="' +
+        property.id +
+        '">' +
+        '<i class="input-helper"></i>' +
+        "</label>" +
+        "</div>"
       )
     );
 
@@ -474,6 +474,11 @@ function handleFormSubmit() {
     formData.append("bedroom_filter", $('[name="bedroom_filter"]').val());
     formData.append("bathroom_filter", $('[name="bathroom_filter"]').val());
     formData.append("garages_filter", $('[name="garages_filter"]').val());
+    formData.append("prop_type_filter", $('[name="prop_type_filter"]').val());
+    formData.append("prop_category_filter", $('[name="prop_category_filter"]').val());
+    formData.append("carports_filter", $('[name="carports_filter"]').val());
+    formData.append("agent_filter", $('[name="agent_filter"]').val());
+
 
     // Handle checkboxes
     if ($("#study_filter").prop("checked")) {
@@ -531,11 +536,15 @@ function resetFilters() {
   $('[name="bedroom_filter"]').val("");
   $('[name="bathroom_filter"]').val("");
   $('[name="garages_filter"]').val("");
+  $('[name="agent_filter"]').val("");
+  $('[name="carports_filter"]').val("");
   $("#study_filter").prop("checked", false);
   $("#swimming_pool_filter").prop("checked", false);
   $("#ground_floor_filter").prop("checked", false);
   $("#garden_flat_filter").prop("checked", false);
   $("#pet_friendly_filter").prop("checked", false);
+  $('[name="prop_type_filter"]').val("");
+  $('[name="prop_category_filter"]').val("");
 
   minPriceAutoNumeric.clear();
   maxPriceAutoNumeric.clear();

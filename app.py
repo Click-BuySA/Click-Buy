@@ -21,6 +21,12 @@ app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+# Database configuration
+app.config['SQLALCHEMY_POOL_TIMEOUT'] = 3600  # Set database time-out to 1 hour
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    'pool_pre_ping': True,  # Automatically reconnect on connection loss
+}
+
 engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
 Base.metadata.create_all(engine)
 Session = sessionmaker(bind=engine)
@@ -30,6 +36,10 @@ db.init_app(app)
 
 smtp_email = os.getenv("SMTP_EMAIL")
 smtp_password = os.getenv("SMTP_PASSWORD")
+
+# <---------------------------------------------------------------------------------------------------------------------------------------->
+#                                                                       Function Declarations
+# <---------------------------------------------------------------------------------------------------------------------------------------->
 
 
 @app.template_filter('format_currency')
@@ -90,7 +100,6 @@ def generate_pagination_html(total_pages, current_page):
     return pagination_html
 
 
-
 # Function to check if the user is authenticated before each request
 def require_login():
     # Add routes that do not require authentication to the following list
@@ -139,9 +148,10 @@ def is_admin(user_id):
 # Function that sends a notification email whenever a new user is registered.
 def send_notification_email(new_user_info, cc=None):
     # Load the email template from the templates folder
-    template_path = os.path.join(os.path.dirname(__file__), 'templates', 'mail.html')
+    template_path = os.path.join(os.path.dirname(
+        __file__), 'templates', 'mail.html')
     html_template = Template(open(template_path, 'r').read())
-    
+
     html_content = html_template.substitute(
         name=new_user_info['name'],
         surname=new_user_info['surname'],
@@ -194,6 +204,9 @@ def is_token_expired(token_creation_time, expiration_duration):
     return token_age > expiration_duration
 
 
+# <---------------------------------------------------------------------------------------------------------------------------------------->
+#                                                                       Routes Start
+# <---------------------------------------------------------------------------------------------------------------------------------------->
 @app.route('/')
 @app.route('/index')
 def index():
@@ -214,7 +227,7 @@ def index():
 def dashboard():
     def apply_numeric_filter(property_attr, filter_value):
         if filter_value == '1':
-            return Property.bathrooms == 1
+            return property_attr == 1
         elif filter_value == '2':
             return (property_attr == 2) & (property_attr.isnot(None))
         elif filter_value == '2+':
@@ -224,7 +237,7 @@ def dashboard():
         elif filter_value == '3+':
             return (property_attr >= 3) & (property_attr.isnot(None))
         elif filter_value == '4+':
-            return (property_attr >= 4) & (property_attr.isnot(None))        
+            return (property_attr >= 4) & (property_attr.isnot(None))
         return None
 
     def build_filters_from_form(form_data):
@@ -243,8 +256,13 @@ def dashboard():
             'study_filter': form_data.get('study_filter'),
             'ground_floor_filter': form_data.get('ground_floor_filter'),
             'pet_friendly_filter': form_data.get('pet_friendly_filter'),
+            'prop_type_filter': form_data.get('prop_type_filter'),
+            'prop_category_filter': form_data.get('prop_category_filter'),
+            'carports_filter': form_data.get('carports_filter'),
+            'agent_filter': form_data.get('agent_filter'),
             # Add other filters here...
         }
+
         return filters
 
     def build_filters_from_request_args(args):
@@ -263,6 +281,10 @@ def dashboard():
             'study_filter': args.get('study_filter'),
             'ground_floor_filter': args.get('ground_floor_filter'),
             'pet_friendly_filter': args.get('pet_friendly_filter'),
+            'prop_type_filter': args.get('prop_type_filter'),
+            'prop_category_filter': args.get('prop_category_filter'),
+            'carports_filter': args.get('carports_filter'),
+            'agent_filter': args.get('agent_filter'),
             # Add other filters here...
         }
         return filters
@@ -283,10 +305,14 @@ def dashboard():
         if filters['max_price_filter']:
             filter_clauses.append(
                 Property.price <= filters['max_price_filter'])
-                
+
         if filters['street_name_filter']:
             filter_clauses.append(func.lower(Property.street_name).ilike(
                 f"%{filters['street_name_filter'].lower()}%"))
+            
+        if filters['agent_filter']:
+            filter_clauses.append(func.lower(Property.agent).ilike(
+                f"%{filters['agent_filter'].lower()}%"))
 
         if filters['complex_name_filter']:
             complex_name_clause = or_(
@@ -315,6 +341,10 @@ def dashboard():
             garages_clause = apply_numeric_filter(
                 Property.garages, filters['garages_filter'])
             filter_clauses.append(garages_clause)
+        if filters['carports_filter']:
+            carports_clause = apply_numeric_filter(
+                Property.carports, filters['carports_filter'])
+            filter_clauses.append(carports_clause)
         if filters['swimming_pool_filter']:
             filter_clauses.append(Property.swimming_pool == True)
         if filters['garden_flat_filter']:
@@ -328,6 +358,19 @@ def dashboard():
         if filters['pet_friendly_filter']:
             filter_clauses.append(Property.pet_friendly ==
                                   filters['pet_friendly_filter'])
+        if filters['prop_type_filter'] == 'Any':
+            # Do nothing for 'Any'
+            pass
+        else:
+            filter_clauses.append(Property.prop_type ==
+                                  filters['prop_type_filter'])
+
+        if filters['prop_category_filter'] == 'Any':
+            # Do nothing for 'Any'
+            pass
+        else:
+            filter_clauses.append(Property.prop_category ==
+                                  filters['prop_category_filter'])
 
         # Combine all filter clauses using AND
         if filter_clauses:
@@ -405,12 +448,22 @@ def dashboard():
                                    'ground_floor_filter'),
                                pet_friendly_filter=filters.get(
                                    'pet_friendly_filter'),
+                               prop_type_filter=filters.get(
+                                   'prop_type_filter'),
+                               prop_category_filter=filters.get(
+                                   'prop_category_filter'),
+                                carports_filter=filters.get('carports_filter'),
+                                agent_filter=filters.get('agent_filter'),
                                get_filtered_params=get_filtered_params,
                                pagination_html=paginationHTML)
     else:
         flash('You need to login first.', 'error')
         return redirect(url_for('login_page'))
 
+
+# <---------------------------------------------------------------------------------------------------------------------------------------->
+#                                                                       Property Routes
+# <---------------------------------------------------------------------------------------------------------------------------------------->
 
 @app.route('/view_property/<int:property_id>')
 @require_login()
@@ -460,8 +513,10 @@ def update_property(property_id):
             property.garden_flat = bool(request.form.get('garden_flat'))
             property.study = bool(request.form.get('study'))
             property.ground_floor = bool(request.form.get('ground_floor'))
-            property.pet_friendly = bool(request.form.get('pet_friendly'))
-
+            property.prop_type = request.form.get('prop_type')
+            property.prop_category = request.form.get('prop_category')
+            property.carports = request.form.get('carports')
+            property.agent = request.form.get('agent')
             # Only commit changes if there are non-empty fields
             if any([
                 property.price,
@@ -500,6 +555,83 @@ def delete_property(property_id):
         flash('You do not have permission to delete this property.', 'error')
 
     return redirect(url_for('dashboard'))
+
+
+@app.route('/add_property', methods=['GET', 'POST'])
+@require_login()
+def add_property():
+    user_id = session.get('user_id')
+    if user_id:
+        with Session() as db_session:
+            user = db_session.query(User).get(user_id)
+
+    # Check if the user is an admin
+    if 'user_id' in session and session['is_admin']:
+        if request.method == 'POST':
+            # Retrieve form data
+            street_number = request.form.get('street_number')
+            street_name = request.form.get('street_name')
+            complex_number = request.form.get('complex_number')
+            complex_name = request.form.get('complex_name')
+            area = request.form.get('area')
+            price = request.form.get('price')
+            bedrooms = request.form.get('bedrooms')
+            bathrooms = request.form.get('bathrooms')
+            garages = request.form.get('garages')
+            link = request.form.get('link')
+            link_display = request.form.get('link_display')
+            prop_category = request.form.get('prop_category')
+            prop_type = request.form.get('prop_type')
+            swimming_pool = 'swimming_pool' in request.form
+            garden_flat = 'garden_flat' in request.form
+            study = 'study' in request.form
+            ground_floor = 'ground_floor' in request.form
+            carports = request.form.get('carports')
+            agent = request.form.get('agent')
+
+            # Check if the input is an empty string, and if so, set it to None
+            garages = int(garages) if garages.strip() else None
+            bedrooms = int(bedrooms) if bedrooms.strip() else None
+            bathrooms = int(bathrooms) if bathrooms.strip() else None
+
+            # Create a Property object and add it to the database
+            new_property = Property(
+                street_number=street_number,
+                street_name=street_name,
+                complex_number=complex_number,
+                complex_name=complex_name,
+                area=area,
+                price=price,
+                bedrooms=bedrooms,
+                bathrooms=bathrooms,
+                garages=garages,
+                link=link,
+                link_display=link_display,
+                swimming_pool=swimming_pool,
+                garden_flat=garden_flat,
+                study=study,
+                ground_floor=ground_floor,
+                carports=carports,
+                agent=agent,
+                prop_type=prop_type,
+                prop_category=prop_category
+            )
+            db.session.add(new_property)
+            db.session.commit()
+
+            flash('Property added successfully!', 'success')
+            return redirect(url_for('dashboard'))
+
+        # For GET requests, render the add_property.html template
+        return render_template('add_property.html', user=user)
+
+    else:
+        flash('You need to be logged in as an admin to access this page.', 'error')
+        return redirect(url_for('login_page'))
+
+# <---------------------------------------------------------------------------------------------------------------------------------------->
+#                                                                       Authentication Routes
+# <---------------------------------------------------------------------------------------------------------------------------------------->
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -632,6 +764,10 @@ def get_pending_users_count():
             User).filter_by(has_access=False).count()
         return jsonify(pending_users=pending_users)
 
+# <---------------------------------------------------------------------------------------------------------------------------------------->
+#                                                                      Administrator Routes
+# <---------------------------------------------------------------------------------------------------------------------------------------->
+
 
 @app.route('/admin_users')
 def admin_users():
@@ -734,7 +870,8 @@ def send_email_route():
             properties_list += property_item
 
         # Load the export template and format the content
-        template_path = os.path.join(os.path.dirname(__file__), 'templates', 'export_template.html')
+        template_path = os.path.join(os.path.dirname(
+            __file__), 'templates', 'export_template.html')
         with open(template_path, 'r') as template_file:
             email_content = template_file.read().replace(
                 '{properties}', properties_list)
@@ -804,6 +941,10 @@ def admin_edit_user(user_id):
             return render_template('admin_edit_user.html', user=user)
 
 
+# <---------------------------------------------------------------------------------------------------------------------------------------->
+#                                                                       Mailer Routes
+# <---------------------------------------------------------------------------------------------------------------------------------------->
+
 @app.route('/thank_you', methods=['GET'])
 def thank_you():
     return render_template('thank_you.html')
@@ -846,68 +987,6 @@ def contact():
 
     # For GET requests, render the contact form template
     return render_template('contact.html', user=user)
-
-
-@app.route('/add_property', methods=['GET', 'POST'])
-def add_property():
-
-    # Check if the user is an admin
-    if 'user_id' in session and session['is_admin']:
-        if request.method == 'POST':
-            # Retrieve form data
-            street_number = request.form.get('street_number')
-            street_name = request.form.get('street_name')
-            complex_number = request.form.get('complex_number')
-            complex_name = request.form.get('complex_name')
-            area = request.form.get('area')
-            price = request.form.get('price')
-            bedrooms = request.form.get('bedrooms')
-            bathrooms = request.form.get('bathrooms')
-            garages = request.form.get('garages')
-            link = request.form.get('link')
-            link_display = request.form.get('link_display')
-            swimming_pool = 'swimming_pool' in request.form
-            garden_flat = 'garden_flat' in request.form
-            study = 'study' in request.form
-            ground_floor = 'ground_floor' in request.form
-            pet_friendly = 'pet_friendly' in request.form
-
-            # Check if the input is an empty string, and if so, set it to None
-            garages = int(garages) if garages.strip() else None
-            bedrooms = int(bedrooms) if bedrooms.strip() else None
-            bathrooms = int(bathrooms) if bathrooms.strip() else None
-
-            # Create a Property object and add it to the database
-            new_property = Property(
-                street_number=street_number,
-                street_name=street_name,
-                complex_number=complex_number,
-                complex_name=complex_name,
-                area=area,
-                price=price,
-                bedrooms=bedrooms,
-                bathrooms=bathrooms,
-                garages=garages,
-                link=link,
-                link_display=link_display,
-                swimming_pool=swimming_pool,
-                garden_flat=garden_flat,
-                study=study,
-                ground_floor=ground_floor,
-                pet_friendly=pet_friendly
-            )
-            db.session.add(new_property)
-            db.session.commit()
-
-            flash('Property added successfully!', 'success')
-            return redirect(url_for('dashboard'))
-
-        # For GET requests, render the add_property.html template
-        return render_template('add_property.html')
-
-    else:
-        flash('You need to be logged in as an admin to access this page.', 'error')
-        return redirect(url_for('login_page'))
 
 
 @app.route('/report', methods=['GET', 'POST'])
@@ -972,6 +1051,10 @@ def change_password():
             return redirect(url_for('change_password'))
 
     return render_template('change_password.html', user=user)
+
+# <---------------------------------------------------------------------------------------------------------------------------------------->
+#                                                                       User Routes
+# <---------------------------------------------------------------------------------------------------------------------------------------->
 
 
 @app.route('/account_settings', methods=['GET', 'POST'])
@@ -1060,7 +1143,9 @@ def reset_password():
 
         return render_template('reset_password.html', token=token)
 
-
+# <---------------------------------------------------------------------------------------------------------------------------------------->
+#                                                                       Generic Routes
+# <---------------------------------------------------------------------------------------------------------------------------------------->
 @app.route('/<string:page_name>')
 def html_page(page_name):
     user = get_current_user_info()

@@ -6,7 +6,8 @@
 <style>
     /* Custom styles for disabled form controls */
     .form-control:disabled {
-        color: #333; /* Change this color to your desired color */
+        color: #333;
+        /* Change this color to your desired color */
     }
 </style>
 {% endblock %}
@@ -16,24 +17,43 @@
         <div class="row">
             <div class="col-md-6 offset-md-3">
                 <h1>Property Details</h1>
-                <form id="propertyForm" method="post" action="{{ url_for('update_property', property_id=property.id) }}">
+                <form id="propertyForm" method="post"
+                    action="{{ url_for('update_property', property_id=property.id) }}">
                     <p><strong>ID:</strong> {{ property.id }}</p>
-                    <div class="form-group">
-                        <label for="street_number">Street Number</label>
-                        <input type="text" class="form-control" id="street_number" name="street_number" value="{{ property.street_number or '' }}" disabled>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="street_number">Street Number</label>
+                                <input type="text" class="form-control" id="street_number" name="street_number"
+                                    value="{{ property.street_number or '' }}" disabled>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label for="street_name">Street Name</label>
+                                <input type="text" class="form-control" id="street_name" name="street_name"
+                                    value="{{ property.street_name or '' }}" disabled>
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="street_name">Street Name</label>
-                        <input type="text" class="form-control" id="street_name" name="street_name" value="{{ property.street_name or '' }}" disabled>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="complex_number">Complex Number</label>
+                                <input type="text" class="form-control" id="complex_number" name="complex_number"
+                                    value="{{ property.complex_number or '' }}" disabled>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label for="complex_name">Complex Name</label>
+                                <input type="text" class="form-control" id="complex_name" name="complex_name"
+                                    value="{{ property.complex_name or '' }}" disabled>
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="complex_number">Complex Number</label>
-                        <input type="text" class="form-control" id="complex_number" name="complex_number" value="{{ property.complex_number or '' }}" disabled>
-                    </div>
-                    <div class="form-group">
-                        <label for="complex_name">Complex Name</label>
-                        <input type="text" class="form-control" id="complex_name" name="complex_name" value="{{ property.complex_name or '' }}" disabled>
-                    </div>
+
+
                     <div class="form-group">
                         <label for="area">Area</label>
                         <select class="form-control" id="area" name="area" disabled>
@@ -59,62 +79,152 @@
                             <option value="Van der Hoff Park">Van der Hoff Park</option>
                             <option value="Wilgeboom">Wilgeboom</option>
                         </select>
-                    </div>                  
+                    </div>
+
                     <div class="form-group">
                         <label for="price">Price</label>
-                        <input type="text" class="form-control" id="price" name="price" value="{{ property.price }}" disabled>
+                        <input type="text" class="form-control" id="price" name="price" value="{{ property.price }}"
+                            disabled>
                     </div>
-                    <div class="form-group">
-                        <label for="bedrooms">Bedrooms</label>
-                        <input type="number" class="form-control" id="bedrooms" name="bedrooms" value="{{ property.bedrooms }}" disabled>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-form-label">Property Type</label>
+                                <select class="form-control" id="prop_type" name="prop_type"
+                                    value="{{ property.prop_type or '' }}" disabled>
+                                    <option value="Residential" {% if property.prop_type=='Residential' %}selected{%
+                                        endif %}>Residential</option>
+                                    <option value="Commercial" {% if property.prop_type=='Commercial' %}selected{% endif
+                                        %}>Commercial</option>
+                                    <option value="Farms" {% if property.prop_type=='Farms' %}selected{% endif %}>Farms
+                                    </option>
+                                    <option value="Stands" {% if property.prop_type=='Stands' %}selected{% endif %}>
+                                        Stands</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-form-label">Category</label>
+                                <select class="form-control" id="prop_category" name="prop_category" disabled>
+                                    <option value="Full Title" {% if property.prop_category=='Full Title' %}selected{%
+                                        endif %}>Full Title</option>
+                                    <option value="Apartment" {% if property.prop_category=='Apartment' %}selected{%
+                                        endif %}>Apartment</option>
+                                    <option value="Townhouse" {% if property.prop_category=='Townhouse' %}selected{%
+                                        endif %}>Townhouse</option>
+                                    <option value="Farm" {% if property.prop_category=='Farm' %}selected{% endif %}>Farm
+                                    </option>
+                                    <option value="Smallholding" {% if property.prop_category=='Smallholding'
+                                        %}selected{% endif %}>Farm</option>
+                                    <!-- <option></option> -->
+                                </select>
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="bathrooms">Bathrooms</label>
-                        <input type="number"step="0.5" class="form-control" id="bathrooms" name="bathrooms" value="{{ property.bathrooms }}" disabled>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="bedrooms">Bedrooms</label>
+                                <input type="number" class="form-control" id="bedrooms" name="bedrooms"
+                                    value="{{ property.bedrooms }}" disabled>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="bathrooms">Bathrooms</label>
+                                <input type="number" step="0.5" class="form-control" id="bathrooms" name="bathrooms"
+                                    value="{{ property.bathrooms }}" disabled>
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="garages">Garages</label>
-                        <input type="number" class="form-control" id="garages" name="garages" value="{{ property.garages }}" disabled>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="garages">Garages</label>
+                                <input type="number" class="form-control" id="garages" name="garages"
+                                    value="{{ property.garages }}" disabled>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="carports">Carports</label>
+                                <input type="number" class="form-control" id="carports" name="carports"
+                                    value="{{ property.carports }}" disabled>
+                            </div>
+                        </div>
                     </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="agent">Agent</label>
+                                <input type="text" class="form-control" id="agent" name="agent"
+                                    value="{{ property.agent }}" disabled>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="link_display">Link Display</label>
+                                <input type="text" class="form-control" id="link_display" name="link_display"
+                                    value="{{ property.link_display }}" disabled>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="form-group">
                         <label for="link">P-24 Link</label>
-                        <input type="text" class="form-control" id="link" name="link" value="{{ property.link }}" disabled>
+                        <input type="text" class="form-control" id="link" name="link" value="{{ property.link }}"
+                            disabled>
                     </div>
-                    <div class="form-group">
-                        <label for="link_display">Link Display</label>
-                        <input type="text" class="form-control" id="link_display" name="link_display" value="{{ property.link_display }}" disabled>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="swimming_pool" name="swimming_pool"
+                                    {% if property.swimming_pool %}checked{% endif %} disabled>
+                                <label class="form-check-label" for="swimming_pool">Swimming Pool</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="garden_flat" name="garden_flat" {%
+                                    if property.garden_flat %}checked{% endif %} disabled>
+                                <label class="form-check-label" for="garden_flat">Garden Flat</label>
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="swimming_pool" name="swimming_pool" {% if property.swimming_pool %}checked{% endif %} disabled>
-                        <label class="form-check-label" for="swimming_pool">Swimming Pool</label>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="study" name="study" {% if
+                                    property.study %}checked{% endif %} disabled>
+                                <label class="form-check-label" for="study">Study</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="ground_floor" name="ground_floor" {%
+                                    if property.ground_floor %}checked{% endif %} disabled>
+                                <label class="form-check-label" for="ground_floor">Ground Floor</label>
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="garden_flat" name="garden_flat" {% if property.garden_flat %}checked{% endif %} disabled>
-                        <label class="form-check-label" for="garden_flat">Garden Flat</label>
+                    <div class="row justify-content-between pt-3">
+                        <button type="button" id="editButton" class="btn btn-primary">Edit</button>
+                        <button type="submit" id="saveButton" class="btn btn-success" method="post"
+                            style="display: none;">Save Changes</button>
                     </div>
-                    <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="study" name="study" {% if property.study %}checked{% endif %} disabled>
-                        <label class="form-check-label" for="study">Study</label>
-                    </div>
-                    <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="ground_floor" name="ground_floor" {% if property.ground_floor %}checked{% endif %} disabled>
-                        <label class="form-check-label" for="ground_floor">Ground Floor</label>
-                    </div>
-                    <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="pet_friendly" name="pet_friendly" {% if property.pet_friendly %}checked{% endif %} disabled>
-                        <label class="form-check-label" for="pet_friendly">Pet Friendly</label>
-                    </div>
-                    <button type="button" 
-                    id="editButton" 
-                    class="btn btn-primary">Edit</button>
-                    <button type="submit" id="saveButton" class="btn btn-success" method="post" style="display: none;">Save Changes</button>
                 </form>
-                <form action="{{ url_for('delete_property', property_id=property.id) }}" method="post" id="deleteForm" style="display: none;">
-                    <button type="submit" 
-                    class="btn btn-danger" 
-                    onclick="return confirm('Are you sure you want to delete this property?')"
->Delete</button>
-                </form>
+                <div class="row justify-content-between pt-3">
+                    <form action="{{ url_for('delete_property', property_id=property.id) }}" method="post"
+                        id="deleteForm" style="display: none;">
+                        <button type="submit" class="btn btn-danger"
+                            onclick="return confirm('Are you sure you want to delete this property?')">Delete</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -124,18 +234,20 @@
 {% block additional_scripts %}
 <script src="{{ url_for('static', filename='assets/js/AutoNumeric.min.js') }}"></script>
 <script>
-PriceAutoNumeric = new AutoNumeric('#price', {
-  currencySymbol: 'R ',
-  currencySymbolPlacement: AutoNumeric.options.currencySymbolPlacement.prefix,
-  decimalPlaces: 0,
-  unformatOnSubmit: true
-});
+    PriceAutoNumeric = new AutoNumeric('#price', {
+        currencySymbol: 'R ',
+        currencySymbolPlacement: AutoNumeric.options.currencySymbolPlacement.prefix,
+        decimalPlaces: 0,
+        unformatOnSubmit: true
+    });
     document.addEventListener('DOMContentLoaded', function () {
         console.log("DOM content loaded."); // Debug statement
         const propertyForm = document.getElementById('propertyForm');
         const editButton = document.getElementById('editButton');
         const saveButton = document.getElementById('saveButton');
         const areaDropdown = document.getElementById('area');  // Get the area dropdown
+        const typeDropdown = document.getElementById('prop_type');
+        const categoryDropdown = document.getElementById('prop_category');
         const deleteForm = document.getElementById('deleteForm'); // Get the delete form
 
         // Store initial values for form fields
@@ -191,6 +303,27 @@ PriceAutoNumeric = new AutoNumeric('#price', {
                 option.selected = true;
             }
         }
+
+
+        // Set the selected value of the dropdows
+        const propertyCategory = "{{ property.prop_category }}";
+        const propertyType = "{{ property.prop_type }}";
+        console.log('Property Type:', propertyType)
+        console.log('Property Category:', propertyCategory)
+        if (propertyCategory) {
+            const option = typeDropdown.querySelector(`[value="{propertyType}"]`);
+            if (option) {
+                option.selected = true;
+            }
+        }
+
+        if (propertyCategory) {
+            const option = categoryDropdown.querySelector(`[value="{propertyCategory}"]`);
+            if (option) {
+                option.selected = true;
+            }
+        }
+
     });
 </script>
 

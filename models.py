@@ -45,7 +45,7 @@ class Property(db.Model):
     area = db.Column(db.String(30))
     price = db.Column(db.BigInteger)
     bedrooms = db.Column(db.Integer)
-    bathrooms = db.Column(db.Numeric(precision=2, scale=1))
+    bathrooms = db.Column(db.Numeric(precision=3, scale=1))
     garages = db.Column(db.Integer)
     swimming_pool = db.Column(db.Boolean, default=False)
     garden_flat = db.Column(db.Boolean, default=False) 
@@ -55,6 +55,12 @@ class Property(db.Model):
     link = db.Column(db.String(100))
     link_display = db.Column(db.String(30))
     note = db.Column(db.String(255))
+    prop_type = db.Column(db.String(255))
+    agent = db.Column(db.String(255))
+    stand_area = db.Column(db.Integer)
+    floor_area = db.Column(db.Integer)
+    prop_category = db.Column(db.String(255))
+    carports = db.Column(db.Integer)
 
     def serialize(self):
         return {
@@ -74,7 +80,13 @@ class Property(db.Model):
             'ground_floor': self.ground_floor,
             'pet_friendly': self.pet_friendly,
             'link': self.link,
-            'link_display': self.link_display
+            'link_display': self.link_display,
+            'prop_type': self.prop_type,
+            'agent': self.agent,
+            'stand_area': self.stand_area,
+            'floor_area': self.floor_area,
+            'prop_category': self.prop_category,
+            'carports': self.carports,
             # ... Add other attributes here ...
         }
 

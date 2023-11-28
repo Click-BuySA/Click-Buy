@@ -5,448 +5,495 @@
 <link rel="stylesheet" href="./static/assets/vendors/select2/select2.min.css">
 <style>
   .expandable-column {
-      display: none;
+    display: none;
   }
-  .table-responsive {
-        overflow-x: auto; /* Enable horizontal scrolling */
-    }
-    .table {
-        min-width: 100%; /* Table will take up at least the width of the container */
-    }
 
+  .table-responsive {
+    overflow-x: auto;
+    /* Enable horizontal scrolling */
+  }
+
+  .table {
+    min-width: 100%;
+    /* Table will take up at least the width of the container */
+  }
 </style>
-<style> #filter-form {display: none;}</style>
+<style>
+  #filter-form {
+    display: none;
+  }
+</style>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 {% endblock %}
 
 
 {% block navbar_content %}
 <ul class="navbar-nav navbar-nav-right">
-    <!-- Admin Options -->    
-    <li class="nav-item dropdown">
-      <a class="nav-link btn btn-primary create-new-button" id="adminOptionsDropdown" data-toggle="dropdown" aria-expanded="false" href="#"
-      >Admin</a>            
-      <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list" aria-labelledby="moreOptionsDropdown">
-        <h6 class="p-3 mb-0">Admin Options</h6>
-        <div class="dropdown-divider"></div>
-        <a class="dropdown-item preview-item" href="admin_users">
-          <div class="preview-thumbnail">
-            <div class="preview-icon bg-dark rounded-circle">
-              <i class="mdi mdi-account text-primary"></i>
-            </div>
+  <!-- Admin Options -->
+  <li class="nav-item dropdown">
+    <a class="nav-link btn btn-primary create-new-button" id="adminOptionsDropdown" data-toggle="dropdown"
+      aria-expanded="false" href="#">Admin</a>
+    <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list" aria-labelledby="moreOptionsDropdown">
+      <h6 class="p-3 mb-0">Admin Options</h6>
+      <div class="dropdown-divider"></div>
+      <a class="dropdown-item preview-item" href="admin_users">
+        <div class="preview-thumbnail">
+          <div class="preview-icon bg-dark rounded-circle">
+            <i class="mdi mdi-account text-primary"></i>
           </div>
-          <div class="preview-item-content">
-            <p class="preview-subject ellipsis mb-1">Update Users</p>
+        </div>
+        <div class="preview-item-content">
+          <p class="preview-subject ellipsis mb-1">Update Users</p>
+        </div>
+      </a>
+      <div class="dropdown-divider"></div>
+      <a class="dropdown-item preview-item">
+        <div class="preview-thumbnail">
+          <div class="preview-icon bg-dark rounded-circle">
+            <i class="mdi mdi-web text-info"></i>
           </div>
-        </a>
-        <div class="dropdown-divider"></div>
-        <a class="dropdown-item preview-item">
-          <div class="preview-thumbnail">
-            <div class="preview-icon bg-dark rounded-circle">
-              <i class="mdi mdi-web text-info"></i>
-            </div>
-          </div>
-          <div class="preview-item-content">
-            <p class="preview-subject ellipsis mb-1">Export Table</p>
-          </div>
-        </a>
-      </div>  
-    </li>
-  </ul>
-{% endblock %}  
+        </div>
+        <div class="preview-item-content">
+          <p class="preview-subject ellipsis mb-1">Export Table</p>
+        </div>
+      </a>
+    </div>
+  </li>
+</ul>
+{% endblock %}
 
 {% block content %}
-    <div class="row ">
-      <div class="col-12 grid-margin">
-        <div class="col-12 grid-margin">
-          <!-- Property Filters Card -->
-        <div class="card">
-            <div class="card-body">
-              <div class="d-flex flex-column flex-md-row justify-content-between align-items-start">
-                <div>
-                    <h4 class="card-title">Filter Properties</h4>
-                </div>
-                <div class="text-center">
-                    <button type="button" class="btn btn-success" id="toggleFilters">Show Filters</button>
-                    <input type="submit" class="btn btn-primary" value="Filter" form="filter-form" id="filter-button">
-                    <button class="btn btn-danger" id="reset-filters">Reset Filters</button>
-                </div>
-              </div>                       
-              <br>  
-              <form class="form-sample" id="filter-form" name="filter-form" method="post" action="{{ request.path }}">
-                <h4 class="card-description"> Adress/Location Filters </h4>
-                <div class="row">
-                  <div class="col-md-6">
-                    <div class="form-group row">
-                      <label class="col-sm-3 col-form-label">Street Name</label>
-                      <div class="col-sm-9">
-                        <input type="text" class="form-control" id="street_name_filter" name="street_name_filter" value="{{ street_name_filter or ''}}" />
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-md-6">
-                    <div class="form-group row">
-                      <label class="col-sm-3 col-form-label">Complex Name</label>
-                      <div class="col-sm-9">
-                        <input type="text" class="form-control" id="complex_name_filter" name="complex_name_filter" value="{{ complex_name_filter or ''}}" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-
-                <div class="row">
-                  <div class="col-md-6">
-                    <div class="form-group row">
-                      <label class="col-sm-3 col-form-label">Unit / Street Number</label>
-                      <div class="col-sm-9">
-                        <input class="form-control" id="number_filter" name="number_filter" value="{{ number_filter or ''}}"/>
-                      </div>
-                    </div>
-                  </div>
-
-
-                  <div class="col-md-6">
-                    <div class="form-group row">
-                      <label class="col-sm-3 col-form-label">Property Type</label>
-                      <div class="col-sm-9">
-                        <select class="form-control" id="prop_type_filter" name="prop_type_filter">
-                          <option>Any</option>
-                          <option>Full Title</option>
-                          <option>Sectonal Scheme</option>
-                          <option>Farms</option>
-                          <option>Stands</option>
-                        </select>
-                      </div>
-                    </div>
-                  </div>                          
-                </div>
-
-                
-                <div class="row">
-                  <div class="col-md-6">
-                    <div class="form-group row">
-                      <label class="col-sm-3 col-form-label">Category</label>
-                      <div class="col-sm-9">
-                        <select class="form-control">
-                          <option>Any</option>
-                          <option>Apartment</option>
-                          <option>Townhouse</option>
-                          <option>Detached</option>
-                          <!-- <option></option> -->
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-
-                  
-                  <div class="col-md-6">
-                    <div class="form-group row">
-                      <label class="col-sm-3 col-form-label">Area</label>
-                      <div class="col-sm-9">
-                        <select class="js-example-basic-multiple" multiple="multiple" style="width:100%" name="area_filter">
-                          <option>Baillie Park</option>
-                          <option>Bult</option>
-                          <option>Central</option>
-                          <option>Dam</option>
-                          <option>Dassierand</option>
-                          <option>Grimbeek Park</option>
-                          <option>Heilige akker</option>
-                          <option>de Land</option>
-                          <option>Industrial</option>
-                          <option>Kannonierspark</option>
-                          <option>Lekwena</option>
-                          <option>Lifestyle</option>
-                          <option>Miederpark</option>
-                          <option>Mohadin</option>
-                          <option>Mooivallei Park</option>
-                          <option>Oewersig</option>
-                          <option>Promosa</option>
-                          <option>Rural</option>
-                          <option>Tuscany Ridge</option>
-                          <option>Van der Hoff Park</option>
-                          <option>Wilgeboom</option>
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <br>
-
-                <!-- Whole new section -->
-                <h4 class="card-description"> Attribute Filters </h4>
-                <div class="row">
-                  <div class="col-md-6">
-                    <div class="form-group row">
-                      <label class="col-sm-3 col-form-label">Price Maximum</label>
-                      <div class="col-sm-9">
-                        <input type="text" class="form-control" placeholder="" id="max_price_filter" name="max_price_filter">
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-md-6">
-                    <div class="form-group row">
-                      <label class="col-sm-3 col-form-label">Price Minimum</label>
-                      <div class="col-sm-9">
-                        <input type="text" class="form-control" placeholder="" id="min_price_filter" name="min_price_filter">
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-md-6">
-                    <div class="form-group row">
-                      <label class="col-sm-3 col-form-label">Bedrooms</label>
-                      <div class="col-sm-9">
-                        <select class="form-control" name="bedroom_filter">
-                          <option value="">Any</option>
-                          <option value="1" {% if bedroom_filter == '1' %}selected{% endif %}>1</option>
-                          <option value="2" {% if bedroom_filter == '2' %}selected{% endif %}>2</option>
-                          <option value="2+" {% if bedroom_filter == '2+' %}selected{% endif %}>2+</option>
-                          <option value="3" {% if bedroom_filter == '3' %}selected{% endif %}>3</option>
-                          <option value="3+" {% if bedroom_filter == '3+' %}selected{% endif %}>3+</option>
-                          <option value="4+" {% if bedroom_filter == '4+' %}selected{% endif %}>4+</option>
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-md-6">
-                    <div class="form-group row">
-                      <label class="col-sm-3 col-form-label">Bathrooms</label>
-                      <div class="col-sm-9">
-                        <select class="form-control" name="bathroom_filter">
-                          <option value="">Any</option>
-                          <option value="1" {% if bathroom_filter == '1' %}selected{% endif %}>1</option>
-                          <option value="2" {% if bathroom_filter == '2' %}selected{% endif %}>2</option>
-                          <option value="2+" {% if bathroom_filter == '2+' %}selected{% endif %}>2+</option>
-                          <option value="3" {% if bathroom_filter == '3' %}selected{% endif %}>3</option>
-                          <option value="3+" {% if bathroom_filter == '3+' %}selected{% endif %}>3+</option>
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-md-6">
-                    <div class="form-group row">
-                      <label class="col-sm-3 col-form-label">Garages</label>
-                      <div class="col-sm-9">
-                        <select class="form-control" name="garages_filter">
-                          <option value="">Any</option>
-                          <option value="1" {% if garages_filter == '1' %}selected{% endif %}>1</option>
-                          <option value="2" {% if garages_filter == '2' %}selected{% endif %}>2</option>
-                          <option value="2+" {% if garages_filter == '2+' %}selected{% endif %}>2+</option>
-                          <option value="3" {% if garages_filter == '3' %}selected{% endif %}>3</option>
-                          <option value="3+" {% if garages_filter == '3+' %}selected{% endif %}>3+</option>
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-md-6">
-                    <div class="form-group row">
-                      <label class="col-sm-3 col-form-label">City</label>
-                      <div class="col-sm-9">
-                        <input type="text" class="form-control" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-md-stretch">
-                  <div class="form-group row justify-content-start align-items-center">
-                    <label class="col-sm-3 col-form-label">Others</label>
-                    <div class="col-sm-9">
-                      <div class="row">
-                        <div class="col-sm-6">
-                          <div class="form-check d-flex justify-content-start">
-                            <label class="form-check-label">
-                              <input type="checkbox" class="form-check-input" name="swimming_pool_filter" id="swimming_pool_filter" {% if filters['swimming_pool_filter'] == 'on' %}checked{% endif %}>Swimming Pool
-                            </label>
-                          </div>
-                        </div>
-                        <div class="col-sm-6">
-                          <div class="form-check d-flex justify-content-start">
-                            <label class="form-check-label">
-                              <input type="checkbox" class="form-check-input" name="garden_flat_filter" id="garden_flat_filter" value="true" {% if garden_flat_filter %}checked{% endif %}>Garden Flat
-                            </label>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="row">
-                        <div class="col-sm-6">
-                          <div class="form-check d-flex justify-content-start">
-                            <label class="form-check-label">
-                              <input type="checkbox" class="form-check-input" name="study_filter" id="study_filter" {% if study_filter %}checked{% endif %} >Study
-                            </label>
-                          </div>
-                        </div>
-                        <div class="col-sm-6">
-                          <div class="form-check d-flex justify-content-start">
-                            <label class="form-check-label">
-                              <input type="checkbox" class="form-check-input" name="ground_floor_filter" id="ground_floor_filter" {% if ground_floor_filter %}checked{% endif %}>Ground Floor
-                            </label>
-                          </div>
-                        </div>
-                        <div class="col-sm-6">
-                          <div class="form-check d-flex justify-content-start">
-                            <label class="form-check-label">
-                              <input type="checkbox" class="form-check-input" name="pet_friendly_filter" id="pet_friendly_filter" {% if pet_friendly_filter %}checked{% endif %}>Pet-Friendly
-                            </label>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                <div class="text-center">
-                  <button type="button" class="btn btn-success" id="toggleFilters1">Hide Filters</button>
-                  <input type="submit" class="btn btn-primary" value="Filter" form="filter-form" id="filter-button-hidden">
-                  <button class="btn btn-danger" id="reset-filters-hidden">Reset Filters</button>
-                </div>                    
-              </form>
+<div class="row ">
+  <div class="col-12 grid-margin">
+    <div class="col-12 grid-margin">
+      <!-- Property Filters Card -->
+      <div class="card">
+        <div class="card-body">
+          <div class="d-flex flex-column flex-md-row justify-content-between align-items-start">
+            <div>
+              <h4 class="card-title">Filter Properties</h4>
             </div>
-        </div>
-        <br>
-        <!-- Result Table -->          
-        <div class="card table-container">
-          <div class="card-body">
-            <div class="card-title d-flex flex-column flex-md-row justify-content-between align-items-start">
-              <h4>Properties For Sale</h4>
-              <div class="navbar-nav navbar-nav-right">
-                <button id="expand-toggle-btn" class="btn btn-primary">Expand/Collapse</button>
-                <div class="nav-item dropdown">
-                  <a class="btn btn-success create-new-button nav-link-new" id="moreOptionsDropdown" data-toggle="dropdown" aria-expanded="false" href="#"
-                  >More Options</a>            
-                  <div class="dropdown-menu dropdown-menu-right navbar-dropdown new-preview-list" aria-labelledby="moreOptionsDropdown">
-                    <h6 class="p-3 mb-0">More Options</h6>
-                    <div class="dropdown-divider no-margin"></div>
-                    <a class="dropdown-item preview-item" href="add_property">
-                      <div class="preview-thumbnail">
-                        <div class="preview-icon bg-dark rounded-circle">
-                          <i class="mdi mdi-file-outline text-primary"></i>
-                        </div>
-                      </div>
-                      <div class="preview-item-content">
-                        <p class="preview-subject ellipsis mb-1">Add Property</p>
-                      </div>
-                    </a>
-                    <div class="dropdown-divider no-margin"></div>
-                    <a class="dropdown-item preview-item send-email-link" href="#">
-                      <div class="preview-thumbnail">
-                        <div class="preview-icon bg-dark rounded-circle">
-                          <i class="mdi mdi-web text-info"></i>
-                        </div>
-                      </div>
-                      <div class="preview-item-content">
-                        <p class="preview-subject ellipsis mb-1">Export Table</p>
-                      </div>
-                    </a>
-                    <div class="dropdown-divider no-margin"></div>
-                    <a class="dropdown-item preview-item" href="report">
-                      <div class="preview-thumbnail">
-                        <div class="preview-icon bg-dark rounded-circle">
-                          <i class="mdi mdi-layers text-danger"></i>
-                        </div>
-                      </div>
-                      <div class="preview-item-content">
-                        <p class="preview-subject ellipsis mb-1">Report an Issue</p>
-                      </div>
-                    </a>
-                  </div>
-                </div>
-              </div>
+            <div class="text-center">
+              <button type="button" class="btn btn-success" id="toggleFilters">Show Filters</button>
+              <input type="submit" class="btn btn-primary" value="Filter" form="filter-form" id="filter-button">
+              <button class="btn btn-danger" id="reset-filters">Reset Filters</button>
             </div>
-            <br>
-            <div id="loading-overlay">
-              <div id="loading-indicator">
-                  Loading...
-              </div>
           </div>
-            <div class="table-responsive table-responsive-sm .table-responsive-md table-responsive-lg table-responsive-xl">
-              <table class="table table-hover" id="properties_table">
-                <thead>
-                  <tr>
-                    <th>
-                      <div class="form-check form-check-muted m-0">
-                        <label class="form-check-label">
-                          <input type="checkbox" class="form-check-input" id="select_all_properties">
-                        </label>
-                      </div>
-                    </th>
-                    <!-- Collapsed Headers -->
-                    <th><a href="#" class="sort-header" data-column="prop_desc">Property Description<span class="sort-icon"></span></a></th>
-                    <th><a href="#" class="sort-header" data-column="area">Area<span class="sort-icon"></span></a></th>
-                    <th><a href="#" class="sort-header" data-column="price">Price<span class="sort-icon"></span></a></th>
-                    <th><a href="#" class="sort-header" data-column="bedrooms">Bedrooms<span class="sort-icon"></span></a></th>
-                    <th><a href="#" class="sort-header" data-column="bathrooms">Bathrooms<span class="sort-icon"></span></a></th>
-                    <th><a href="#" class="sort-header" data-column="garages">Garages<span class="sort-icon"></span></a></th>
-                    <th><a href="#" class="sort-header" data-column="link">P-24 Link<span class="sort-icon"></span></a></th>
+          <br>
+          <form class="form-sample" id="filter-form" name="filter-form" method="post" action="{{ request.path }}">
+            <h4 class="card-description"> Adress/Location Filters </h4>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group row">
+                  <label class="col-sm-3 col-form-label">Street Name</label>
+                  <div class="col-sm-9">
+                    <input type="text" class="form-control" id="street_name_filter" name="street_name_filter"
+                      value="{{ street_name_filter or ''}}" />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group row">
+                  <label class="col-sm-3 col-form-label">Complex Name</label>
+                  <div class="col-sm-9">
+                    <input type="text" class="form-control" id="complex_name_filter" name="complex_name_filter"
+                      value="{{ complex_name_filter or ''}}" />
+                  </div>
+                </div>
+              </div>
+            </div>
 
-                    <!-- Expanded Headers -->
-                    <th class="expandable-column"><a href="#" class="sort-header" data-column="swimming_pool">Swimming Pool<span class="sort-icon"></span></a></th>
-                    <th class="expandable-column"><a href="#" class="sort-header" data-column="garden_flat">Garden Flat<span class="sort-icon"></span></a></th>
-                    <th class="expandable-column"><a href="#" class="sort-header" data-column="study">Study<span class="sort-icon"></span></a></th>
-                    <th class="expandable-column"><a href="#" class="sort-header" data-column="ground_floor">Ground Floor<span class="sort-icon"></span></a></th>
-                    <th class="expandable-column"><a href="#" class="sort-header" data-column="pet_friendly">Pet Friendly<span class="sort-icon"></span></a></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {% for property in properties %}
-                  <tr>
-                    <td>
-                      <div class="form-check form-check-muted m-0">
-                        <label class="form-check-label">
-                          <input type="checkbox" class="form-check-input">
-                        </label>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group row">
+                  <label class="col-sm-3 col-form-label">Unit / Street Number</label>
+                  <div class="col-sm-9">
+                    <input class="form-control" id="number_filter" name="number_filter"
+                      value="{{ number_filter or ''}}" />
+                  </div>
+                </div>
+              </div>
+
+
+              <div class="col-md-6">
+                <div class="form-group row">
+                  <label class="col-sm-3 col-form-label">Property Type</label>
+                  <div class="col-sm-9">
+                    <select class="form-control" id="prop_type_filter" name="prop_type_filter" value="{{ prop_type_filter or ''}}">
+                      <option>Any</option>
+                      <option>Residential</option>
+                      <option>Commercial</option>
+                      <option>Farms</option>
+                      <option>Stands</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group row">
+                  <label class="col-sm-3 col-form-label">Category</label>
+                  <div class="col-sm-9">
+                    <select class="form-control" id="prop_category_filter" name="prop_category_filter" value="{{ prop_category_filter or ''}}">
+                      <option>Any</option>
+                      <option>Full Title</option>
+                      <option>Apartment</option>
+                      <option>Townhouse</option>
+                      <option>Farm</option>
+                      <option>Smallholding</option>
+                      <!-- <option></option> -->
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+
+              <div class="col-md-6">
+                <div class="form-group row">
+                  <label class="col-sm-3 col-form-label">Area</label>
+                  <div class="col-sm-9">
+                    <select class="js-example-basic-multiple" multiple="multiple" style="width:100%" name="area_filter">
+                      <option>Baillie Park</option>
+                      <option>Bult</option>
+                      <option>Central</option>
+                      <option>Dam</option>
+                      <option>Dassierand</option>
+                      <option>Grimbeek Park</option>
+                      <option>Heilige akker</option>
+                      <option>de Land</option>
+                      <option>Industrial</option>
+                      <option>Kannonierspark</option>
+                      <option>Lekwena</option>
+                      <option>Lifestyle</option>
+                      <option>Miederpark</option>
+                      <option>Mohadin</option>
+                      <option>Mooivallei Park</option>
+                      <option>Oewersig</option>
+                      <option>Promosa</option>
+                      <option>Rural</option>
+                      <option>Tuscany Ridge</option>
+                      <option>Van der Hoff Park</option>
+                      <option>Wilgeboom</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <br>
+
+            <!-- Whole new section -->
+            <h4 class="card-description"> Attribute Filters </h4>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group row">
+                  <label class="col-sm-3 col-form-label">Price Maximum</label>
+                  <div class="col-sm-9">
+                    <input type="text" class="form-control" placeholder="" id="max_price_filter"
+                      name="max_price_filter">
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group row">
+                  <label class="col-sm-3 col-form-label">Price Minimum</label>
+                  <div class="col-sm-9">
+                    <input type="text" class="form-control" placeholder="" id="min_price_filter"
+                      name="min_price_filter">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group row">
+                  <label class="col-sm-3 col-form-label">Bedrooms</label>
+                  <div class="col-sm-9">
+                    <select class="form-control" name="bedroom_filter">
+                      <option value="">Any</option>
+                      <option value="1" {% if bedroom_filter=='1' %}selected{% endif %}>1</option>
+                      <option value="2" {% if bedroom_filter=='2' %}selected{% endif %}>2</option>
+                      <option value="2+" {% if bedroom_filter=='2+' %}selected{% endif %}>2+</option>
+                      <option value="3" {% if bedroom_filter=='3' %}selected{% endif %}>3</option>
+                      <option value="3+" {% if bedroom_filter=='3+' %}selected{% endif %}>3+</option>
+                      <option value="4+" {% if bedroom_filter=='4+' %}selected{% endif %}>4+</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group row">
+                  <label class="col-sm-3 col-form-label">Bathrooms</label>
+                  <div class="col-sm-9">
+                    <select class="form-control" name="bathroom_filter">
+                      <option value="">Any</option>
+                      <option value="1" {% if bathroom_filter=='1' %}selected{% endif %}>1</option>
+                      <option value="2" {% if bathroom_filter=='2' %}selected{% endif %}>2</option>
+                      <option value="2+" {% if bathroom_filter=='2+' %}selected{% endif %}>2+</option>
+                      <option value="3" {% if bathroom_filter=='3' %}selected{% endif %}>3</option>
+                      <option value="3+" {% if bathroom_filter=='3+' %}selected{% endif %}>3+</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group row">
+                  <label class="col-sm-3 col-form-label">Garages</label>
+                  <div class="col-sm-9">
+                    <select class="form-control" name="garages_filter">
+                      <option value="">Any</option>
+                      <option value="1" {% if garages_filter=='1' %}selected{% endif %}>1</option>
+                      <option value="2" {% if garages_filter=='2' %}selected{% endif %}>2</option>
+                      <option value="2+" {% if garages_filter=='2+' %}selected{% endif %}>2+</option>
+                      <option value="3" {% if garages_filter=='3' %}selected{% endif %}>3</option>
+                      <option value="3+" {% if garages_filter=='3+' %}selected{% endif %}>3+</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group row">
+                  <label class="col-sm-3 col-form-label">Carports</label>
+                  <div class="col-sm-9">
+                    <select class="form-control" name="carports_filter">
+                      <option value="">Any</option>
+                      <option value="1" {% if carports_filter=='1' %}selected{% endif %}>1</option>
+                      <option value="2" {% if carports_filter=='2' %}selected{% endif %}>2</option>
+                      <option value="2+" {% if carports_filter=='2+' %}selected{% endif %}>2+</option>
+                      <option value="3" {% if carports_filter=='3' %}selected{% endif %}>3</option>
+                      <option value="3+" {% if carports_filter=='3+' %}selected{% endif %}>3+</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group row">
+                  <label class="col-sm-3 col-form-label">Agent</label>
+                  <div class="col-sm-9">
+                    <input type="text" class="form-control" id="agent_filter" name="agent_filter" />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group row justify-content-start align-items-center">
+                  <label class="col-sm-3 col-form-label">Others</label>
+                  <div class="col-sm-9">
+                    <div class="row">
+                      <div class="col-sm-6">
+                        <div class="form-check d-flex justify-content-start">
+                          <label class="form-check-label">
+                            <input type="checkbox" class="form-check-input" name="swimming_pool_filter"
+                              id="swimming_pool_filter" {% if filters['swimming_pool_filter']=='on' %}checked{% endif
+                              %}>Swimming Pool
+                          </label>
+                        </div>
                       </div>
-                    </td>
-                    <td data-column="prop_desc">{{ property.street_number or '' }} {{ property.street_name or ''}} {{ property.complex_number or '' }} {{ property.complex_name or '' }}</td>
-                    <td data-column="area">{{ property.area or '' }}</td>
-                    <td data-column="price">{{ property.price | format_currency or '-' }}</td>
-                    <td data-column="bedrooms">{{ property.bedrooms or '-' }}</td>
-                    <td data-column="bathrooms">{{ property.bathrooms or '-' }}</td>
-                    <td data-column="garages">{{ property.garages or '-' }}</td>
-                    <td>
-                      <a class="btn btn-primary" href="{{ property.link }}" target="_blank" data-column="link">{{ property.link_display }}</a>
-                    </td>
-                    <!-- Expanded columns -->
+                      <div class="col-sm-6">
+                        <div class="form-check d-flex justify-content-start">
+                          <label class="form-check-label">
+                            <input type="checkbox" class="form-check-input" name="garden_flat_filter"
+                              id="garden_flat_filter" value="true" {% if garden_flat_filter %}checked{% endif %}>Garden
+                            Flat
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-sm-6">
+                        <div class="form-check d-flex justify-content-start">
+                          <label class="form-check-label">
+                            <input type="checkbox" class="form-check-input" name="study_filter" id="study_filter" {% if
+                              study_filter %}checked{% endif %}>Study
+                          </label>
+                        </div>
+                      </div>
+                      <div class="col-sm-6">
+                        <div class="form-check d-flex justify-content-start">
+                          <label class="form-check-label">
+                            <input type="checkbox" class="form-check-input" name="ground_floor_filter"
+                              id="ground_floor_filter" {% if ground_floor_filter %}checked{% endif %}>Ground Floor
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+
+            <div class="text-center">
+              <button type="button" class="btn btn-success" id="toggleFilters1">Hide Filters</button>
+              <input type="submit" class="btn btn-primary" value="Filter" form="filter-form" id="filter-button-hidden">
+              <button class="btn btn-danger" id="reset-filters-hidden">Reset Filters</button>
+            </div>
+          </form>
+        </div>
+      </div>
+      <br>
+      <!-- Result Table -->
+      <div class="card table-container">
+        <div class="card-body">
+          <div class="card-title d-flex flex-column flex-md-row justify-content-between align-items-start">
+            <h4>Properties For Sale</h4>
+            <div class="navbar-nav navbar-nav-right">
+              <button id="expand-toggle-btn" class="btn btn-primary">Expand/Collapse</button>
+              <div class="nav-item dropdown">
+                <a class="btn btn-success create-new-button nav-link-new" id="moreOptionsDropdown"
+                  data-toggle="dropdown" aria-expanded="false" href="#">More Options</a>
+                <div class="dropdown-menu dropdown-menu-right navbar-dropdown new-preview-list"
+                  aria-labelledby="moreOptionsDropdown">
+                  <h6 class="p-3 mb-0">More Options</h6>
+                  <div class="dropdown-divider no-margin"></div>
+                  <a class="dropdown-item preview-item" href="add_property">
+                    <div class="preview-thumbnail">
+                      <div class="preview-icon bg-dark rounded-circle">
+                        <i class="mdi mdi-file-outline text-primary"></i>
+                      </div>
+                    </div>
+                    <div class="preview-item-content">
+                      <p class="preview-subject ellipsis mb-1">Add Property</p>
+                    </div>
+                  </a>
+                  <div class="dropdown-divider no-margin"></div>
+                  <a class="dropdown-item preview-item send-email-link" href="#">
+                    <div class="preview-thumbnail">
+                      <div class="preview-icon bg-dark rounded-circle">
+                        <i class="mdi mdi-web text-info"></i>
+                      </div>
+                    </div>
+                    <div class="preview-item-content">
+                      <p class="preview-subject ellipsis mb-1">Export Table</p>
+                    </div>
+                  </a>
+                  <div class="dropdown-divider no-margin"></div>
+                  <a class="dropdown-item preview-item" href="report">
+                    <div class="preview-thumbnail">
+                      <div class="preview-icon bg-dark rounded-circle">
+                        <i class="mdi mdi-layers text-danger"></i>
+                      </div>
+                    </div>
+                    <div class="preview-item-content">
+                      <p class="preview-subject ellipsis mb-1">Report an Issue</p>
+                    </div>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+          <br>
+          <div id="loading-overlay">
+            <div id="loading-indicator">
+              Loading...
+            </div>
+          </div>
+          <div
+            class="table-responsive table-responsive-sm .table-responsive-md table-responsive-lg table-responsive-xl">
+            <table class="table table-hover" id="properties_table">
+              <thead>
+                <tr>
+                  <th>
+                    <div class="form-check form-check-muted m-0">
+                      <label class="form-check-label">
+                        <input type="checkbox" class="form-check-input" id="select_all_properties">
+                      </label>
+                    </div>
+                  </th>
+                  <!-- Collapsed Headers -->
+                  <th><a href="#" class="sort-header" data-column="prop_desc">Property Description<span
+                        class="sort-icon"></span></a></th>
+                  <th><a href="#" class="sort-header" data-column="area">Area<span class="sort-icon"></span></a></th>
+                  <th><a href="#" class="sort-header" data-column="price">Price<span class="sort-icon"></span></a></th>
+                  <th><a href="#" class="sort-header" data-column="bedrooms">Bedrooms<span class="sort-icon"></span></a>
+                  </th>
+                  <th><a href="#" class="sort-header" data-column="bathrooms">Bathrooms<span
+                        class="sort-icon"></span></a></th>
+                  <th><a href="#" class="sort-header" data-column="garages">Garages<span class="sort-icon"></span></a>
+                  </th>
+                  <th><a href="#" class="sort-header" data-column="link">P-24 Link<span class="sort-icon"></span></a>
+                  </th>
+
+                  <!-- Expanded Headers -->
+                  <th class="expandable-column"><a href="#" class="sort-header" data-column="swimming_pool">Swimming
+                      Pool<span class="sort-icon"></span></a></th>
+                  <th class="expandable-column"><a href="#" class="sort-header" data-column="garden_flat">Garden
+                      Flat<span class="sort-icon"></span></a></th>
+                  <th class="expandable-column"><a href="#" class="sort-header" data-column="study">Study<span
+                        class="sort-icon"></span></a></th>
+                  <th class="expandable-column"><a href="#" class="sort-header" data-column="ground_floor">Ground
+                      Floor<span class="sort-icon"></span></a></th>
+                  <th class="expandable-column"><a href="#" class="sort-header" data-column="pet_friendly">Pet
+                      Friendly<span class="sort-icon"></span></a></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for property in properties %}
+                <tr>
+                  <td>
+                    <div class="form-check form-check-muted m-0">
+                      <label class="form-check-label">
+                        <input type="checkbox" class="form-check-input">
+                      </label>
+                    </div>
+                  </td>
+                  <td data-column="prop_desc">{{ property.street_number or '' }} {{ property.street_name or ''}} {{
+                    property.complex_number or '' }} {{ property.complex_name or '' }}</td>
+                  <td data-column="area">{{ property.area or '' }}</td>
+                  <td data-column="price">{{ property.price | format_currency or '-' }}</td>
+                  <td data-column="bedrooms">{{ property.bedrooms or '-' }}</td>
+                  <td data-column="bathrooms">{{ property.bathrooms or '-' }}</td>
+                  <td data-column="garages">{{ property.garages or '-' }}</td>
+                  <td>
+                    <a class="btn btn-primary" href="{{ property.link }}" target="_blank" data-column="link">{{
+                      property.link_display }}</a>
+                  </td>
+                  <!-- Expanded columns -->
                   <td class="expandable-column" data-column="swimming_pool">{{ property.swimming_pool }}</td>
                   <td class="expandable-column" data-column="garden_flat">{{ property.garden_flat }}</td>
                   <td class="expandable-column" data-column="study">{{ property.study }}</td>
                   <td class="expandable-column" data-column="ground_floor">{{ property.ground_floor }}</td>
                   <td class="expandable-column" data-column="pet_friendly">{{ property.pet_friendly }}</td>
-                  </tr>
-                  {% endfor %}
-                </tbody>
-              </table>
-              <br>
-              <!-- Page Navigation -->                     
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            <br>
+            <!-- Page Navigation -->
+          </div>
+          <!-- table ends here -->
+          <div id="new-pagination-container">
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <h4>Total Pages: <span id="total-pages"></span></h4>
+            </div>
+            <div class="col-md-6 d-flex justify-content-end align-items-center">
+              <div class="col-md-6">
+                <input type="number" id="jump-to-page" class="form-control" placeholder="Jump to page" min="1"
+                  max="{{ total_pages }}">
               </div>
-              <!-- table ends here -->
-              <div id="new-pagination-container">
-              </div>
-              <div class="row">
-                <div class="col-md-6">
-                  <h4>Total Pages: <span id="total-pages"></span></h4>
-                </div>
-                <div class="col-md-6 d-flex justify-content-end align-items-center">
-                  <div class="col-md-6">
-                    <input type="number" id="jump-to-page" class="form-control" placeholder="Jump to page" min="1" max="{{ total_pages }}">
-                  </div>
-                  <div class="col-md-3">
-                    <button id="jump-button" class="btn btn-primary btn-block">Go</button>
-                  </div>
-                </div>
+              <div class="col-md-3">
+                <button id="jump-button" class="btn btn-primary btn-block">Go</button>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  <!-- content-wrapper ends -->
-  <!-- partial:partials/_footer -->
-  <!-- partial -->
+  </div>
+</div>
+<!-- content-wrapper ends -->
+<!-- partial:partials/_footer -->
+<!-- partial -->
 <!-- main-panel ends -->
 {% endblock %}
 
@@ -458,12 +505,12 @@
 <!-- Custom js for this page -->
 <script src="./static/assets/js/dashboard.js"></script>
 <script>
-var selectedAreas = [
+  var selectedAreas = [
     {% for area in selected_areas %}
-        "{{ area }}"{% if not loop.last %},{% endif %}
-    {% endfor %}
+  "{{ area }}"{% if not loop.last %}, {% endif %}
+  {% endfor %}
 ];
 
 
-</script>  
+</script>
 {% endblock %}
