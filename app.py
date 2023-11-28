@@ -515,7 +515,9 @@ def update_property(property_id):
             property.ground_floor = bool(request.form.get('ground_floor'))
             property.prop_type = request.form.get('prop_type')
             property.prop_category = request.form.get('prop_category')
-            property.carports = request.form.get('carports')
+            carports = request.form.get('carports')
+            property.carports = int(
+                carports) if carports else None if carports != '' else None
             property.agent = request.form.get('agent')
             # Only commit changes if there are non-empty fields
             if any([
@@ -593,6 +595,7 @@ def add_property():
             garages = int(garages) if garages.strip() else None
             bedrooms = int(bedrooms) if bedrooms.strip() else None
             bathrooms = int(bathrooms) if bathrooms.strip() else None
+            carports = int(carports) if carports.strip() else None
 
             # Create a Property object and add it to the database
             new_property = Property(

@@ -116,7 +116,7 @@
                                     <option value="Farm" {% if property.prop_category=='Farm' %}selected{% endif %}>Farm
                                     </option>
                                     <option value="Smallholding" {% if property.prop_category=='Smallholding'
-                                        %}selected{% endif %}>Farm</option>
+                                        %}selected{% endif %}>Smallholding</option>
                                     <!-- <option></option> -->
                                 </select>
                             </div>
@@ -152,7 +152,7 @@
                             <div class="form-group">
                                 <label for="carports">Carports</label>
                                 <input type="number" class="form-control" id="carports" name="carports"
-                                    value="{{ property.carports }}" disabled>
+                                    value="{{ property.carports or 0 }}" disabled>
                             </div>
                         </div>
                     </div>
