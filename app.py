@@ -37,9 +37,9 @@ db.init_app(app)
 smtp_email = os.getenv("SMTP_EMAIL")
 smtp_password = os.getenv("SMTP_PASSWORD")
 
-# <---------------------------------------------------------------------------------------------------------------------------------------->
+# <------------------------------------------------------------------------------------------------------------------------------------------------------------------------>
 #                                                                       Function Declarations
-# <---------------------------------------------------------------------------------------------------------------------------------------->
+# <------------------------------------------------------------------------------------------------------------------------------------------------------------------------>
 
 
 @app.template_filter('format_currency')
@@ -204,9 +204,9 @@ def is_token_expired(token_creation_time, expiration_duration):
     return token_age > expiration_duration
 
 
-# <---------------------------------------------------------------------------------------------------------------------------------------->
+# <------------------------------------------------------------------------------------------------------------------------------------------------------------------------>
 #                                                                       Routes Start
-# <---------------------------------------------------------------------------------------------------------------------------------------->
+# <------------------------------------------------------------------------------------------------------------------------------------------------------------------------>
 @app.route('/')
 @app.route('/index')
 def index():
@@ -239,6 +239,18 @@ def dashboard():
         elif filter_value == '4+':
             return (property_attr >= 4) & (property_attr.isnot(None))
         return None
+    
+    def apply_opertaions_filter(property_attr, filter_value, operation):
+        if operation == '=':
+            print('Equal to: ', filter_value)
+            return filter_value == property_attr
+        elif operation == '>':
+            print('Greater than: ', filter_value)
+            return filter_value < property_attr
+        elif operation == '<':
+            print('Less than: ', filter_value)
+            return filter_value > property_attr
+        return None
 
     def build_filters_from_form(form_data):
         filters = {
@@ -260,6 +272,10 @@ def dashboard():
             'prop_category_filter': form_data.get('prop_category_filter'),
             'carports_filter': form_data.get('carports_filter'),
             'agent_filter': form_data.get('agent_filter'),
+            'floor_area_filter': form_data.get('floor_area_filter'),
+            'floor_area_select': form_data.get('floor_area_select'),
+            'stand_area_filter': form_data.get('stand_area_filter'),
+            'stand_area_select': form_data.get('stand_area_select'),            
             # Add other filters here...
         }
 
@@ -285,6 +301,10 @@ def dashboard():
             'prop_category_filter': args.get('prop_category_filter'),
             'carports_filter': args.get('carports_filter'),
             'agent_filter': args.get('agent_filter'),
+            'floor_area_filter': args.get('floor_area_filter'),
+            'floor_area_select': args.get('floor_area_select'),
+            'stand_area_filter': args.get('stand_area_filter'),
+            'stand_area_select': args.get('stand_area_select'),            
             # Add other filters here...
         }
         return filters
@@ -329,22 +349,37 @@ def dashboard():
                 Property.complex_number == filters['number_filter']
             )
             filter_clauses.append(number_clause)
+
         if filters['bedroom_filter']:
             bedroom_clause = apply_numeric_filter(
                 Property.bedrooms, filters['bedroom_filter'])
             filter_clauses.append(bedroom_clause)
+
         if filters['bathroom_filter']:
             bathroom_clause = apply_numeric_filter(
                 Property.bathrooms, filters['bathroom_filter'])
             filter_clauses.append(bathroom_clause)
+
         if filters['garages_filter']:
             garages_clause = apply_numeric_filter(
                 Property.garages, filters['garages_filter'])
             filter_clauses.append(garages_clause)
+
         if filters['carports_filter']:
             carports_clause = apply_numeric_filter(
                 Property.carports, filters['carports_filter'])
             filter_clauses.append(carports_clause)
+
+        if filters['floor_area_filter']:
+            floor_area_clause = apply_opertaions_filter(
+                Property.floor_area, filters['floor_area_filter'], filters['floor_area_select'])
+            filter_clauses.append(floor_area_clause)
+
+        if filters['stand_area_filter']:
+            stand_area_clause = apply_opertaions_filter(
+                Property.stand_area, filters['stand_area_filter'], filters['stand_area_select'])
+            filter_clauses.append(stand_area_clause)
+
         if filters['swimming_pool_filter']:
             filter_clauses.append(Property.swimming_pool == True)
         if filters['garden_flat_filter']:
@@ -358,6 +393,7 @@ def dashboard():
         if filters['pet_friendly_filter']:
             filter_clauses.append(Property.pet_friendly ==
                                   filters['pet_friendly_filter'])
+            
         if filters['prop_type_filter'] == 'Any':
             # Do nothing for 'Any'
             pass
@@ -375,6 +411,7 @@ def dashboard():
         # Combine all filter clauses using AND
         if filter_clauses:
             query = query.filter(and_(*filter_clauses))
+            print('Query: ',query)
 
         return query
 
@@ -461,9 +498,9 @@ def dashboard():
         return redirect(url_for('login_page'))
 
 
-# <---------------------------------------------------------------------------------------------------------------------------------------->
+# <------------------------------------------------------------------------------------------------------------------------------------------------------------------------>
 #                                                                       Property Routes
-# <---------------------------------------------------------------------------------------------------------------------------------------->
+# <------------------------------------------------------------------------------------------------------------------------------------------------------------------------>
 
 @app.route('/view_property/<int:property_id>')
 @require_login()
@@ -519,6 +556,10 @@ def update_property(property_id):
             property.carports = int(
                 carports) if carports else None if carports != '' else None
             property.agent = request.form.get('agent')
+            property.floor_area = request.form.get('floor_area')
+            property.stand_area = request.form.get('stand_area')
+            property.note=request.form.get('note')
+
             # Only commit changes if there are non-empty fields
             if any([
                 property.price,
@@ -590,6 +631,9 @@ def add_property():
             ground_floor = 'ground_floor' in request.form
             carports = request.form.get('carports')
             agent = request.form.get('agent')
+            floor_area = request.form.get('floor_area')
+            stand_area = request.form.get('stand_area')
+            note = request.form.get('note')
 
             # Check if the input is an empty string, and if so, set it to None
             garages = int(garages) if garages.strip() else None
@@ -617,7 +661,10 @@ def add_property():
                 carports=carports,
                 agent=agent,
                 prop_type=prop_type,
-                prop_category=prop_category
+                prop_category=prop_category,
+                floor_area=floor_area,
+                stand_area=stand_area,
+                note=note
             )
             db.session.add(new_property)
             db.session.commit()
@@ -632,9 +679,9 @@ def add_property():
         flash('You need to be logged in as an admin to access this page.', 'error')
         return redirect(url_for('login_page'))
 
-# <---------------------------------------------------------------------------------------------------------------------------------------->
+# <----------------------------------------------------------------------------------------------------------------------------------------------------------->
 #                                                                       Authentication Routes
-# <---------------------------------------------------------------------------------------------------------------------------------------->
+# <----------------------------------------------------------------------------------------------------------------------------------------------------------->
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -767,9 +814,9 @@ def get_pending_users_count():
             User).filter_by(has_access=False).count()
         return jsonify(pending_users=pending_users)
 
-# <---------------------------------------------------------------------------------------------------------------------------------------->
+# <------------------------------------------------------------------------------------------------------------------------------------------------------------------------>
 #                                                                      Administrator Routes
-# <---------------------------------------------------------------------------------------------------------------------------------------->
+# <------------------------------------------------------------------------------------------------------------------------------------------------------------------------>
 
 
 @app.route('/admin_users')
@@ -944,9 +991,9 @@ def admin_edit_user(user_id):
             return render_template('admin_edit_user.html', user=user)
 
 
-# <---------------------------------------------------------------------------------------------------------------------------------------->
+# <------------------------------------------------------------------------------------------------------------------------------------------------------------------------>
 #                                                                       Mailer Routes
-# <---------------------------------------------------------------------------------------------------------------------------------------->
+# <------------------------------------------------------------------------------------------------------------------------------------------------------------------------>
 
 @app.route('/thank_you', methods=['GET'])
 def thank_you():
@@ -1055,9 +1102,9 @@ def change_password():
 
     return render_template('change_password.html', user=user)
 
-# <---------------------------------------------------------------------------------------------------------------------------------------->
+# <------------------------------------------------------------------------------------------------------------------------------------------------------------------------>
 #                                                                       User Routes
-# <---------------------------------------------------------------------------------------------------------------------------------------->
+# <------------------------------------------------------------------------------------------------------------------------------------------------------------------------>
 
 
 @app.route('/account_settings', methods=['GET', 'POST'])
@@ -1146,9 +1193,9 @@ def reset_password():
 
         return render_template('reset_password.html', token=token)
 
-# <---------------------------------------------------------------------------------------------------------------------------------------->
+# <------------------------------------------------------------------------------------------------------------------------------------------------------------------------>
 #                                                                       Generic Routes
-# <---------------------------------------------------------------------------------------------------------------------------------------->
+# <------------------------------------------------------------------------------------------------------------------------------------------------------------------------>
 @app.route('/<string:page_name>')
 def html_page(page_name):
     user = get_current_user_info()

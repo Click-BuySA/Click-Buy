@@ -105,6 +105,7 @@
 
 
             <div class="row">
+              <!-------------------------------------- Unit/Street Number -------------------------------------->
               <div class="col-md-6">
                 <div class="form-group row">
                   <label class="col-sm-3 col-form-label">Unit / Street Number</label>
@@ -114,44 +115,7 @@
                   </div>
                 </div>
               </div>
-
-
-              <div class="col-md-6">
-                <div class="form-group row">
-                  <label class="col-sm-3 col-form-label">Property Type</label>
-                  <div class="col-sm-9">
-                    <select class="form-control" id="prop_type_filter" name="prop_type_filter" value="{{ prop_type_filter or ''}}">
-                      <option>Any</option>
-                      <option>Residential</option>
-                      <option>Commercial</option>
-                      <option>Farms</option>
-                      <option>Stands</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-
-            <div class="row">
-              <div class="col-md-6">
-                <div class="form-group row">
-                  <label class="col-sm-3 col-form-label">Category</label>
-                  <div class="col-sm-9">
-                    <select class="form-control" id="prop_category_filter" name="prop_category_filter" value="{{ prop_category_filter or ''}}">
-                      <option>Any</option>
-                      <option>Full Title</option>
-                      <option>Apartment</option>
-                      <option>Townhouse</option>
-                      <option>Farm</option>
-                      <option>Smallholding</option>
-                      <!-- <option></option> -->
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-
+              <!-------------------------------------- Area -------------------------------------->
               <div class="col-md-6">
                 <div class="form-group row">
                   <label class="col-sm-3 col-form-label">Area</label>
@@ -184,10 +148,45 @@
               </div>
             </div>
 
-            <br>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group row">
+                  <label class="col-sm-3 col-form-label">Category</label>
+                  <div class="col-sm-9">
+                    <select class="form-control" id="prop_category_filter" name="prop_category_filter"
+                      value="{{ prop_category_filter or ''}}">
+                      <option>Any</option>
+                      <option>Full Title</option>
+                      <option>Apartment</option>
+                      <option>Townhouse</option>
+                      <option>Farm</option>
+                      <option>Smallholding</option>
+                      <!-- <option></option> -->
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-group row">
+                  <label class="col-sm-3 col-form-label">Property Type</label>
+                  <div class="col-sm-9">
+                    <select class="form-control" id="prop_type_filter" name="prop_type_filter"
+                      value="{{ prop_type_filter or ''}}">
+                      <option>Any</option>
+                      <option>Residential</option>
+                      <option>Commercial</option>
+                      <option>Farms</option>
+                      <option>Stands</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
 
             <!-- Whole new section -->
-            <h4 class="card-description"> Attribute Filters </h4>
+            <h4 class="card-description pt-3"> Attribute Filters </h4>
             <div class="row">
               <div class="col-md-6">
                 <div class="form-group row">
@@ -275,6 +274,38 @@
             </div>
             <div class="row">
               <div class="col-md-6">
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group row">
+                      <label class="col-sm-6 col-form-label">Stand Size</label>
+                      <div class="col-sm-3">
+                        <select class="form-control" name="stand_area_select">
+                          <option value="=">=</option>
+                          <option value=">">></option>
+                          <option value="<"><</option>
+                        </select>
+                      </div>
+                      <div class="col-sm-3 p-0" >
+                        <input type="text" class="form-control" id="stand_area_filter" name="stand_area_filter" value="{{ stand_area_filter or ''}}" />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group row">
+                      <label class="col-sm-6 col-form-label">House Size</label>
+                      <div class="col-sm-3 m-0">
+                        <select class="form-control" name="floor_area_select" >
+                          <option value="=">=</option>
+                          <option value=">">></option>
+                          <option value="<"><</option>
+                        </select>
+                      </div>
+                      <div class="col-sm-3 pl-0">
+                        <input type="text" class="form-control" id="floor_area_filter" name="floor_area_filter" value="{{ floor_area_filter or ''}}"/>
+                      </div>
+                    </div>
+                  </div>
+                </div>
                 <div class="form-group row">
                   <label class="col-sm-3 col-form-label">Agent</label>
                   <div class="col-sm-9">
@@ -348,7 +379,7 @@
             <div class="navbar-nav navbar-nav-right">
               <button id="expand-toggle-btn" class="btn btn-primary">Expand/Collapse</button>
               <div class="nav-item dropdown">
-                <a class="btn btn-success create-new-button nav-link-new" id="moreOptionsDropdown"
+                <a class="mt-2 btn btn-success create-new-button nav-link-new" id="moreOptionsDropdown"
                   data-toggle="dropdown" aria-expanded="false" href="#">More Options</a>
                 <div class="dropdown-menu dropdown-menu-right navbar-dropdown new-preview-list"
                   aria-labelledby="moreOptionsDropdown">
