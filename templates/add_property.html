@@ -8,67 +8,127 @@
 <div class="card">
     <div class="card-body">
         <div class="row">
-            <div class="col-md-6 offset-md-3">
-                <h1>Property Details</h1>
+            <div class="col-12">
+                <h1>Add Property</h1>
                 <form id="propertyForm" method="post" action="{{ url_for('add_property') }}">
                     <div class="row">
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label for="street_number">Street Number</label>
-                                <input type="text" class="form-control" id="street_number" name="street_number">
+                        <!----------------------------------------------------------- Street Info ----------------------------->
+                        <div class="col-md-9 col-sm-12">
+                            <!----------------------------------------------------------- Street Info ----------------------------->
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="street_number">Street Number</label>
+                                        <input type="text" class="form-control" id="street_number" name="street_number">
+                                    </div>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="form-group">
+                                        <label for="street_name">Street Name</label>
+                                        <input type="text" class="form-control" id="street_name" name="street_name">
+                                    </div>
+                                </div>
+                            </div>
+                            <!-----------------------------------------------------------  Complex Info ----------------------------->
+
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="complex_number">Complex Number</label>
+                                        <input type="text" class="form-control" id="complex_number"
+                                            name="complex_number">
+                                    </div>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="form-group">
+                                        <label for="complex_name">Complex Name</label>
+                                        <input type="text" class="form-control" id="complex_name" name="complex_name">
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-8">
+                        <div class="col-md-3 col-sm-12">
                             <div class="form-group">
-                                <label for="street_name">Street Name</label>
-                                <input type="text" class="form-control" id="street_name" name="street_name">
+                                <label for="area">Area</label>
+                                <select class="form-control" id="area" name="area">
+                                    <option value="Baillie Park">Baillie Park</option>
+                                    <option value="Bult">Bult</option>
+                                    <option value="Central">Central</option>
+                                    <option value="Dam">Dam</option>
+                                    <option value="Dassierand">Dassierand</option>
+                                    <option value="Grimbeek Park">Grimbeek Park</option>
+                                    <option value="Heilige akker">Heilige akker</option>
+                                    <option value="de Land">de Land</option>
+                                    <option value="Industrial">Industrial</option>
+                                    <option value="Kannonierspark">Kannonierspark</option>
+                                    <option value="Lekwena">Lekwena</option>
+                                    <option value="Lifestyle">Lifestyle</option>
+                                    <option value="Miederpark">Miederpark</option>
+                                    <option value="Mohadin">Mohadin</option>
+                                    <option value="Mooivallei Park">Mooivallei Park</option>
+                                    <option value="Oewersig">Oewersig</option>
+                                    <option value="Promosa">Promosa</option>
+                                    <option value="Rural">Rural</option>
+                                    <option value="Tuscany Ridge">Tuscany Ridge</option>
+                                    <option value="Van der Hoff Park">Van der Hoff Park</option>
+                                    <option value="Wilgeboom">Wilgeboom</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="price">Price</label>
+                                <input type="text" class="form-control" id="price" name="price">
                             </div>
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label for="complex_number">Complex Number</label>
-                                <input type="text" class="form-control" id="complex_number" name="complex_number">
+                        <div class="col-md-6 col-sm-12">
+                            <div class="row">
+                                <div class="col-4">
+                                    <div class="form-group">
+                                        <label for="bedrooms">Bedrooms</label>
+                                        <input type="number" class="form-control" id="bedrooms" name="bedrooms">
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="form-group">
+                                        <label for="bathrooms">Bathrooms</label>
+                                        <input type="number" step="0.5" class="form-control" id="bathrooms"
+                                            name="bathrooms">
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="form-group">
+                                        <label for="garages">Garages</label>
+                                        <input type="number" class="form-control" id="garages" name="garages">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-4">
+                                    <div class="form-group">
+                                        <label for="carports">Carports</label>
+                                        <input type="number" class="form-control" id="carports" name="carports">
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="form-group">
+                                        <label for="carports">Erf Size</label>
+                                        <input type="text" class="form-control" id="stand_area" name="stand_area">
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="form-group">
+                                        <label for="carports">House Size</label>
+                                        <input type="text" class="form-control" id="floor_area" name="floor_area">
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-8">
+
+                        <div class="col-md-3 col-sm-12">
+                            <!-- --------------------------- Type & Category ----------------------------->
                             <div class="form-group">
-                                <label for="complex_name">Complex Name</label>
-                                <input type="text" class="form-control" id="complex_name" name="complex_name">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="area">Area</label>
-                        <select class="form-control" id="area" name="area">
-                            <option value="Baillie Park">Baillie Park</option>
-                            <option value="Bult">Bult</option>
-                            <option value="Central">Central</option>
-                            <option value="Dam">Dam</option>
-                            <option value="Dassierand">Dassierand</option>
-                            <option value="Grimbeek Park">Grimbeek Park</option>
-                            <option value="Heilige akker">Heilige akker</option>
-                            <option value="de Land">de Land</option>
-                            <option value="Industrial">Industrial</option>
-                            <option value="Kannonierspark">Kannonierspark</option>
-                            <option value="Lekwena">Lekwena</option>
-                            <option value="Lifestyle">Lifestyle</option>
-                            <option value="Miederpark">Miederpark</option>
-                            <option value="Mohadin">Mohadin</option>
-                            <option value="Mooivallei Park">Mooivallei Park</option>
-                            <option value="Oewersig">Oewersig</option>
-                            <option value="Promosa">Promosa</option>
-                            <option value="Rural">Rural</option>
-                            <option value="Tuscany Ridge">Tuscany Ridge</option>
-                            <option value="Van der Hoff Park">Van der Hoff Park</option>
-                            <option value="Wilgeboom">Wilgeboom</option>
-                        </select>
-                    </div>          
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="col-form-label">Property Type</label>
+                                <label>Property Type</label>
                                 <select class="form-control" id="prop_type" name="prop_type">
                                     <option value="Residential">Residential</option>
                                     <option value="Commercial">Commercial</option>
@@ -76,10 +136,8 @@
                                     <option value="Stands">Stands</option>
                                 </select>
                             </div>
-                        </div>
-                        <div class="col-md-6">
                             <div class="form-group">
-                                <label class="col-form-label">Category</label>
+                                <label>Category</label>
                                 <select class="form-control" id="prop_category" name="prop_category">
                                     <option value="Full Title">Full Title</option>
                                     <option value="Apartment">Apartment</option>
@@ -90,49 +148,11 @@
                                 </select>
                             </div>
                         </div>
-                    </div>        
-                    <div class="form-group">
-                        <label for="price">Price</label>
-                        <input type="text" class="form-control" id="price" name="price">
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="bedrooms">Bedrooms</label>
-                                <input type="number" class="form-control" id="bedrooms" name="bedrooms">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="bathrooms">Bathrooms</label>
-                                <input type="number" step="0.5" class="form-control" id="bathrooms" name="bathrooms">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="garages">Garages</label>
-                                <input type="number" class="form-control" id="garages" name="garages">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="carports">Carports</label>
-                                <input type="number" class="form-control" id="carports" name="carports">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-3 col-sm-12">
                             <div class="form-group">
                                 <label for="Agent">Agent</label>
                                 <input type="text" class="form-control" id="agent" name="agent">
                             </div>
-                        </div>
-                        <div class="col-md-6">
                             <div class="form-group">
                                 <label for="link_display">Link Display</label>
                                 <input type="text" class="form-control" id="link_display" name="link_display">
@@ -144,37 +164,50 @@
                         <label for="link">P-24 Link</label>
                         <input type="text" class="form-control" id="link" name="link">
                     </div>
-
                     <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" id="swimming_pool" name="swimming_pool">
-                                <label class="form-check-label" for="swimming_pool">Swimming Pool</label>
+                        <div class="col-lg-6 col-sm-12">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="swimming_pool"
+                                            name="swimming_pool">
+                                        <label class="form-check-label" for="swimming_pool">Swimming Pool</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="garden_flat" name="garden_flat">
+                                        <label class="form-check-label" for="garden_flat">Garden Flat</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="study" name="study">
+                                        <label class="form-check-label" for="study">Study</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="ground_floor"
+                                            name="ground_floor">
+                                        <label class="form-check-label" for="ground_floor">Ground Floor</label>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" id="garden_flat" name="garden_flat">
-                                <label class="form-check-label" for="garden_flat">Garden Flat</label>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" id="study" name="study">
-                                <label class="form-check-label" for="study">Study</label>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" id="ground_floor" name="ground_floor">
-                                <label class="form-check-label" for="ground_floor">Ground Floor</label>
+    
+                        <div class="col-lg-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="note">Note</label>
+                                <input type="text" class="form-control" id="note" name="note">
                             </div>
                         </div>
                     </div>
                     <div class="row pt-3">
-                        <button type="submit" id="saveButton" class="btn btn-success" method="post">Save Changes</button>
+                        <button type="submit" id="saveButton" class="btn btn-success" method="post">Save
+                            Changes</button>
                     </div>
                 </form>
             </div>
@@ -186,12 +219,12 @@
 {% block additional_scripts %}
 <script src="./static/assets/js/AutoNumeric.min.js"></script>
 <script>
-minPriceAutoNumeric = new AutoNumeric('#price', {
-  currencySymbol: 'R ',
-  currencySymbolPlacement: AutoNumeric.options.currencySymbolPlacement.prefix,
-  decimalPlaces: 0,
-  unformatOnSubmit: true
-});
+    minPriceAutoNumeric = new AutoNumeric('#price', {
+        currencySymbol: 'R ',
+        currencySymbolPlacement: AutoNumeric.options.currencySymbolPlacement.prefix,
+        decimalPlaces: 0,
+        unformatOnSubmit: true
+    });
 
     // Clear form fields when the page is loaded
     $(document).ready(function () {

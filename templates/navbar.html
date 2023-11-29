@@ -8,6 +8,9 @@
     <!-- plugins:css -->
     <link rel="stylesheet" href="{{ url_for('static', filename='assets/vendors/mdi/css/materialdesignicons.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='assets/vendors/css/vendor.bundle.base.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous">
+
+
     <!-- endinject -->
     <!-- Plugin css for this page -->
     <link rel="stylesheet" href="{{ url_for('static', filename='assets/vendors/jvectormap/jquery-jvectormap.css') }}">
@@ -27,7 +30,7 @@
   <body>
     
     <div class="container-scroller">
-      <!-- partial:partials/_sidebar -->
+      <!----------------------------------------------------------------------------------- partial:partials/_sidebar ----------------------------------------------------------------------------------->
       <nav class="sidebar sidebar-offcanvas" id="sidebar">
         <div class="sidebar-brand-wrapper d-none d-lg-flex align-items-center justify-content-center fixed-top">        
           <a class="sidebar-brand brand-logo" href="{{ url_for('index') }}"><img src="{{ url_for('static', filename='assets/images/logo-1.svg') }}" alt="logo" /></a>
@@ -96,9 +99,9 @@
             </a>
         </ul>
       </nav>
-      <!-- partial -->
+      <!----------------------------------------------------------------------------------- partial -------------------------------------------------------------------------------------------------------------->
       <div class="container-fluid page-body-wrapper">
-        <!-- partial:partials/_navbar -->
+        <!----------------------------------------------------------------------------------- partial:partials/_navbar ----------------------------------------------------------------------------------->
         <nav class="navbar p-0 fixed-top d-flex flex-row">
           <div class="navbar-brand-wrapper d-flex d-lg-none align-items-center justify-content-center">            
             <a class="navbar-brand brand-logo-mini" href="{{ url_for('index') }}"><img src="{{ url_for('static', filename='assets/images/logo-mini-1.svg') }}" alt="logo" /></a>
@@ -156,7 +159,7 @@
                 <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list" aria-labelledby="profileDropdown">
                   <h6 class="p-3 mb-0">Profile</h6>
                   <div class="dropdown-divider"></div>
-                  <a class="dropdown-item preview-item" href="logout">
+                  <a class="dropdown-item preview-item" href="{{ url_for('logout') }}">
                     <div class="preview-thumbnail">
                       <div class="preview-icon bg-dark rounded-circle">
                         <i class="mdi mdi-logout text-danger"></i>
@@ -226,9 +229,9 @@
             </button>
           </div>
         </nav>
-        <!-- partial -->
+        <!-- partial ----------------------------------------------------------------------------------------------------------------------------------------->
 
-        <!-- Start of Property Filters -->
+        <!--------------------------------------------------------------------------------- Start of Property Filters --------------------------------------------------------------------------------->
         <div class="main-panel" >
           {% with messages = get_flashed_messages() %}
             {% if messages %}
@@ -269,6 +272,7 @@
     <script src="{{ url_for('static', filename='assets/js/misc.js') }}"></script>
     <script src="{{ url_for('static', filename='assets/js/settings.js') }}"></script>
     <script src="{{ url_for('static', filename='assets/js/todolist.js') }}"></script>
+    <script src="https://kit.fontawesome.com/055acff401.js" crossorigin="anonymous"></script>
     <!-- endinject -->
     <!-- Custom js for this page -->
     <!-- End custom js for this page -->

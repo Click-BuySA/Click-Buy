@@ -290,7 +290,10 @@ function updateProperties(data) {
 
   for (var i = 0; i < data.properties.length; i++) {
     var property = data.properties[i];
-    var row = $("<tr>");
+    var row = $("<tr>", {
+      // class:
+      // "m-0 p-0"
+    });
 
     row.append(
       $("<td>").html(
@@ -304,20 +307,6 @@ function updateProperties(data) {
         "</div>"
       )
     );
-
-    // Add the classes for responsiveness
-    var tableResponsive = $("<div>", {
-      class:
-        "table-responsive table-responsive-sm table-responsive-md table-responsive-lg table-responsive-xl",
-    });
-    var table = $("<table>", {
-      class: "table",
-    });
-    // Append the table to the table-responsive container
-    tableResponsive.append(table);
-
-    // Append the table-responsive container to propertiesBody
-    propertiesBody.append(tableResponsive);
 
     // Property Description
     var propertyDesc = "";
@@ -341,12 +330,13 @@ function updateProperties(data) {
     // Wrap the property description in an anchor tag
     var propertyDescLink = $("<a>", {
       href: "/view_property/" + property.id, // Modify this URL as needed
-      class: "clickable-property-desc",
+      class: "clickable-property-desc p-1",
       text: propertyDesc,
     });
 
     var descriptionCell = $("<td>", {
       "data-column": "prop_desc",
+      class: "p-1",
     }).append(propertyDescLink);
 
     row.append(descriptionCell);
@@ -354,46 +344,52 @@ function updateProperties(data) {
     // Other columns
     var areaCell = $("<td>", {
       "data-column": "area",
+      class: "p-1",
     }).text(property.area);
     row.append(areaCell);
 
     // Price column without decimals
     var priceFormatted = "R " + numberWithCommas(Math.floor(property.price));
     var priceCell = $("<td>", {
+      class: "p-1",
       "data-column": "price", // Add the data-column attribute
     }).text(priceFormatted);
     row.append(priceCell);
 
     // Bedrooms column
     var bedroomsCell = $("<td>", {
+      class: "p-1",
       "data-column": "bedrooms", // Add the data-column attribute
     }).text(property.bedrooms);
     row.append(bedroomsCell);
 
     // Bathrooms column
     var bathroomsCell = $("<td>", {
+      class: "p-1",
       "data-column": "bathrooms", // Add the data-column attribute
     }).text(property.bathrooms);
     row.append(bathroomsCell);
 
     // Garages column
     var garagesCell = $("<td>", {
+      class: "p-1",
       "data-column": "garages", // Add the data-column attribute
     }).text(property.garages);
     row.append(garagesCell);
 
     // P-24 Link
     var p24Link = $("<a>", {
-      class: "btn btn-primary",
+      class: "btn btn-primary m-1 p-2",
       href: property.link,
       target: "_blank",
       text: property.link_display,
     });
-    row.append($("<td>").append(p24Link));
+    row.append($("<td>", {class: "p-1"}).append(p24Link));
 
     // Expandable columns
     row.append(
       $("<td>", {
+        class: "p-1",
         "data-column": "swimming_pool", // Add the data-column attribute
       })
         .text(property.swimming_pool)
@@ -402,6 +398,7 @@ function updateProperties(data) {
 
     row.append(
       $("<td>", {
+        class: "p-1",
         "data-column": "garden_flat", // Add the data-column attribute
       })
         .text(property.garden_flat)
@@ -410,6 +407,7 @@ function updateProperties(data) {
 
     row.append(
       $("<td>", {
+        class: "p-1",
         "data-column": "study", // Add the data-column attribute
       })
         .text(property.study)
@@ -418,6 +416,7 @@ function updateProperties(data) {
 
     row.append(
       $("<td>", {
+        class: "p-1",
         "data-column": "ground_floor", // Add the data-column attribute
       })
         .text(property.ground_floor)
@@ -426,6 +425,7 @@ function updateProperties(data) {
 
     row.append(
       $("<td>", {
+        class: "p-1",
         "data-column": "pet_friendly", // Add the data-column attribute
       })
         .text(property.pet_friendly)
@@ -478,7 +478,10 @@ function handleFormSubmit() {
     formData.append("prop_category_filter", $('[name="prop_category_filter"]').val());
     formData.append("carports_filter", $('[name="carports_filter"]').val());
     formData.append("agent_filter", $('[name="agent_filter"]').val());
-
+    formData.append("stand_area_filter", $('[name="stand_area_filter"]').val());
+    formData.append("stand_area_select", $('[name="stand_area_select"]').val());
+    formData.append("floor_area_filter", $('[name="floor_area_filter"]').val());
+    formData.append("floor_area_select", $('[name="floor_area_select"]').val());
 
     // Handle checkboxes
     if ($("#study_filter").prop("checked")) {
@@ -545,6 +548,8 @@ function resetFilters() {
   $("#pet_friendly_filter").prop("checked", false);
   $('[name="prop_type_filter"]').val("");
   $('[name="prop_category_filter"]').val("");
+  $('[name="stand_area_filter"]').val("");
+  $('[name="floor_area_filter"]').val("");
 
   minPriceAutoNumeric.clear();
   maxPriceAutoNumeric.clear();
