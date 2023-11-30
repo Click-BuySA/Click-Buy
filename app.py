@@ -239,7 +239,7 @@ def dashboard():
         elif filter_value == '4+':
             return (property_attr >= 4) & (property_attr.isnot(None))
         return None
-    
+
     def apply_opertaions_filter(property_attr, filter_value, operation):
         if operation == '=':
             print('Equal to: ', filter_value)
@@ -275,7 +275,7 @@ def dashboard():
             'floor_area_filter': form_data.get('floor_area_filter'),
             'floor_area_select': form_data.get('floor_area_select'),
             'stand_area_filter': form_data.get('stand_area_filter'),
-            'stand_area_select': form_data.get('stand_area_select'),            
+            'stand_area_select': form_data.get('stand_area_select'),
             # Add other filters here...
         }
 
@@ -304,7 +304,7 @@ def dashboard():
             'floor_area_filter': args.get('floor_area_filter'),
             'floor_area_select': args.get('floor_area_select'),
             'stand_area_filter': args.get('stand_area_filter'),
-            'stand_area_select': args.get('stand_area_select'),            
+            'stand_area_select': args.get('stand_area_select'),
             # Add other filters here...
         }
         return filters
@@ -329,7 +329,7 @@ def dashboard():
         if filters['street_name_filter']:
             filter_clauses.append(func.lower(Property.street_name).ilike(
                 f"%{filters['street_name_filter'].lower()}%"))
-            
+
         if filters['agent_filter']:
             filter_clauses.append(func.lower(Property.agent).ilike(
                 f"%{filters['agent_filter'].lower()}%"))
@@ -393,7 +393,7 @@ def dashboard():
         if filters['pet_friendly_filter']:
             filter_clauses.append(Property.pet_friendly ==
                                   filters['pet_friendly_filter'])
-            
+
         if filters['prop_type_filter'] == 'Any':
             # Do nothing for 'Any'
             pass
@@ -411,7 +411,7 @@ def dashboard():
         # Combine all filter clauses using AND
         if filter_clauses:
             query = query.filter(and_(*filter_clauses))
-            print('Query: ',query)
+            print('Query: ', query)
 
         return query
 
@@ -489,8 +489,8 @@ def dashboard():
                                    'prop_type_filter'),
                                prop_category_filter=filters.get(
                                    'prop_category_filter'),
-                                carports_filter=filters.get('carports_filter'),
-                                agent_filter=filters.get('agent_filter'),
+                               carports_filter=filters.get('carports_filter'),
+                               agent_filter=filters.get('agent_filter'),
                                get_filtered_params=get_filtered_params,
                                pagination_html=paginationHTML)
     else:
@@ -556,9 +556,12 @@ def update_property(property_id):
             property.carports = int(
                 carports) if carports else None if carports != '' else None
             property.agent = request.form.get('agent')
-            property.floor_area = request.form.get('floor_area')
-            property.stand_area = request.form.get('stand_area')
-            property.note=request.form.get('note')
+            property.floor_area = int(request.form.get(
+                'floor_area')) if request.form.get('floor_area') else None
+            property.stand_area = int(request.form.get(
+                'stand_area')) if request.form.get('stand_area') else None
+
+            property.note = request.form.get('note')
 
             # Only commit changes if there are non-empty fields
             if any([
@@ -640,6 +643,8 @@ def add_property():
             bedrooms = int(bedrooms) if bedrooms.strip() else None
             bathrooms = int(bathrooms) if bathrooms.strip() else None
             carports = int(carports) if carports.strip() else None
+            floor_area = int(floor_area) if floor_area.strip() else None
+            stand_area = int(stand_area) if stand_area.strip() else None
 
             # Create a Property object and add it to the database
             new_property = Property(
@@ -1196,6 +1201,8 @@ def reset_password():
 # <------------------------------------------------------------------------------------------------------------------------------------------------------------------------>
 #                                                                       Generic Routes
 # <------------------------------------------------------------------------------------------------------------------------------------------------------------------------>
+
+
 @app.route('/<string:page_name>')
 def html_page(page_name):
     user = get_current_user_info()
