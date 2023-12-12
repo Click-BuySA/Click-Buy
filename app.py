@@ -641,7 +641,7 @@ def add_property():
             # Check if the input is an empty string, and if so, set it to None
             garages = int(garages) if garages.strip() else None
             bedrooms = int(bedrooms) if bedrooms.strip() else None
-            bathrooms = int(bathrooms) if bathrooms.strip() else None
+            bathrooms = bathrooms if bathrooms.strip() else None
             carports = int(carports) if carports.strip() else None
             floor_area = int(floor_area) if floor_area.strip() else None
             stand_area = int(stand_area) if stand_area.strip() else None
